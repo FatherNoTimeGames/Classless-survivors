@@ -1,17 +1,14 @@
 import './styles.css';
 import { FixedClock } from './game/clock';
 import { tickRun } from './game/run';
-import { RULES } from './game/rules';
 import { createRun } from './game/state';
 import type { Run } from './game/state';
 import { createControls } from './input/controls';
 import { createArenaRenderer } from './rendering/arena';
-
-function element<T extends HTMLElement>(selector: string): T {
-  const result = document.querySelector<T>(selector);
-  if (!result) throw new Error(`Missing game element: ${selector}`);
-  return result;
-}
+import { chooseUpgrade } from './game/progression';
+import { element, formatTime } from './ui/dom';
+import { createHud } from './ui/hud';
+import { createUpgradePicker } from './ui/upgrade-picker';
 
 const canvas = element<HTMLCanvasElement>('#arena');
 const renderer = createArenaRenderer(canvas);
@@ -21,31 +18,31 @@ const description = element('#overlay-description');
 const startButton = element<HTMLButtonElement>('#start-run');
 const pauseButton = element<HTMLButtonElement>('#pause-run');
 const hud = element('#run-hud');
-const health = element<HTMLProgressElement>('#health');
-const healthText = element('#health-text');
-const xp = element('#run-xp');
-const kills = element('#run-kills');
-const timer = element('#run-time');
+const hudView = createHud();
+const arenaFrame = element('.arena-frame');
 const announcement = element('#announcement');
 const results = element('#run-results');
 const clock = new FixedClock();
 const events = new AbortController();
-let mode: 'ready' | 'running' | 'paused' | 'defeated' = 'ready';
+let mode: 'ready' | 'running' | 'paused' | 'choosing' | 'defeated' = 'ready';
 let run: Run | null = null;
 let frameId = 0;
 let previousTime: number | null = null;
 
 const controls = createControls(canvas, element('#joystick'), () => mode === 'running');
-const formatTime = (seconds: number) => `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${Math.floor(seconds % 60).toString().padStart(2, '0')}`;
-const setText = (node: HTMLElement, text: string) => { if (node.textContent !== text) node.textContent = text; };
+const picker = createUpgradePicker(element('#upgrade-picker'), (id) => {
+  if (!run || mode !== 'choosing' || !chooseUpgrade(run, id)) return;
+  updateHud();
+  if (run.status === 'choosing') openUpgradeChoice();
+  else {
+    picker.hide();
+    beginRun();
+    if (document.hidden) pause();
+  }
+});
 
 function updateHud(): void {
-  if (!run) return;
-  if (health.value !== run.player.health) health.value = run.player.health;
-  setText(healthText, `${run.player.health} / ${RULES.maxHealth}`);
-  setText(xp, String(run.xp));
-  setText(kills, String(run.kills));
-  setText(timer, formatTime(run.elapsed));
+  if (run) hudView.update(run);
 }
 
 function stopFrames(): void {
@@ -82,6 +79,18 @@ function defeated(): void {
   startButton.focus({ preventScroll: true });
 }
 
+function openUpgradeChoice(): void {
+  if (!run) return;
+  mode = 'choosing';
+  stopFrames();
+  overlay.hidden = true;
+  pauseButton.hidden = true;
+  canvas.inert = true;
+  arenaFrame.classList.remove('is-active');
+  announcement.textContent = 'Level up. Combat is paused until you choose your upgrades.';
+  picker.show(run);
+}
+
 function frame(timestamp: number): void {
   if (mode !== 'running' || !run) return;
   if (previousTime !== null) clock.advance((timestamp - previousTime) / 1000, () => tickRun(run!, controls.read()));
@@ -89,31 +98,39 @@ function frame(timestamp: number): void {
   renderer?.draw(run);
   updateHud();
   if (run.status === 'defeated') defeated();
+  else if (run.status === 'choosing') openUpgradeChoice();
   else frameId = requestAnimationFrame(frame);
 }
 
-function start(): void {
-  if (!renderer || mode === 'running') return;
+function beginRun(): void {
   stopFrames();
-  if (mode !== 'paused') run = createRun(crypto.getRandomValues(new Uint32Array(1))[0]!);
   mode = 'running';
   overlay.hidden = true;
   results.hidden = true;
   hud.hidden = false;
   pauseButton.hidden = false;
   document.body.classList.add('playing');
-  element('.arena-frame').classList.add('is-active');
+  arenaFrame.classList.add('is-active');
+  element('#run-build').hidden = false;
+  canvas.inert = false;
   announcement.textContent = 'Run started. Move with WASD, arrow keys, or drag in the clearing. Attacks are automatic.';
   canvas.focus({ preventScroll: true });
   updateHud();
-  renderer.draw(run);
+  renderer?.draw(run);
   frameId = requestAnimationFrame(frame);
+}
+
+function start(): void {
+  if (!renderer || mode === 'running' || mode === 'choosing') return;
+  if (mode !== 'paused') run = createRun(crypto.getRandomValues(new Uint32Array(1))[0]!);
+  beginRun();
 }
 
 startButton.addEventListener('click', start, { signal: events.signal });
 pauseButton.addEventListener('click', pause, { signal: events.signal });
 window.addEventListener('keydown', (event) => {
   if (event.code !== 'Escape' || event.repeat) return;
+  if (mode === 'choosing') { event.preventDefault(); return; }
   if (mode === 'running') { event.preventDefault(); pause(); }
   else if (mode === 'paused') { event.preventDefault(); start(); }
 }, { signal: events.signal });
@@ -132,5 +149,5 @@ if (!renderer) {
 }
 
 if (import.meta.hot) {
-  import.meta.hot.dispose(() => { stopFrames(); controls.destroy(); events.abort(); observer.disconnect(); });
+  import.meta.hot.dispose(() => { stopFrames(); controls.destroy(); picker.destroy(); events.abort(); observer.disconnect(); });
 }

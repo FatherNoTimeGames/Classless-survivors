@@ -2,98 +2,89 @@
 
 ## Current state
 
-- Completed: tasks 0–2 and the separately requested modular refactor (2a).
-- Repository began empty, with no project code or existing agent instructions.
-- Implemented: responsive TypeScript/Vite shell, original Canvas sanctuary and
-  actor artwork, keyboard/floating-stick movement, a pursuing enemy type,
-  automatic ember projectiles, health/contact protection, XP shards with nearby
-  attraction, mounting enemy numbers, defeat/results, and clean restart.
-- Pause/resume works by button or Escape; window/tab loss automatically pauses.
-  Pointer cancellation, extra fingers, held-key repeat, and input interruption
-  are handled. Portrait play keeps the arena and essential controls visible.
-- Toolchain validated with Node 24.19.0, npm 11.9.0, and system Chromium 154.
-- Simulation uses fixed 60 Hz ticks and seeded randomness, separate from input
-  and rendering. Background drawing is cached and entity/effect counts bounded.
-- Simulation now has focused state, tuning, movement, spawning, combat, pickup,
-  feedback, geometry, and random-generator modules. run.ts is a 22-line coordinator.
-  README.md maps each responsibility to its file. Gameplay and artwork are preserved.
-- Plan: [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md).
+- Completed: tasks 0–3 and the separately requested modular refactor (2a).
+- Playable: keyboard/floating-stick movement, automatic ember attacks, pursuing
+  enemies, health/contact protection, XP collection, leveling, randomized upgrade
+  choices, pause/resume, defeat/results, and clean restart.
+- Task 3 delivers seven functioning run upgrades: Quickened Ember, Fleetfoot,
+  Soul Gatherer, Living Ember, Forked Ember, Soul Needle, and Ashburst.
+- Level choices freeze simulation and clear movement input. Batch XP queues every
+  earned reward; excess XP carries over. Offers are distinct, rarity-weighted,
+  level-eligible, and respect rank caps, with a weapon choice when available.
+- The finite initial pool supports 20 levels without exhausting rewards early.
+  XP still counts after the cap. Fresh runs reset levels, ranks, stats, and choices.
+- HUD shows level/XP progress and current build. Extra targets, piercing trails,
+  and non-chaining impact explosions change visible combat. Health upgrades
+  correctly change maximum health and heal once.
+- Original programmatic artwork is preserved. No runtime package dependencies.
+- Architecture: focused simulation, content/tuning, input, rendering, and UI
+  modules. run.ts coordinates ticks; progression.ts owns XP/offers/selection,
+  stats.ts derives stats, damage.ts credits deaths once. See README.md's module map.
+- Separate seeded randomness streams isolate offer rolls from enemy spawns.
 
-## Standing specifications
+## Standing requirements
 
-- Keep everything modular for easier debugging and changes: focused gameplay
-  systems, explicit typed boundaries, and separate simulation, input, rendering,
-  UI, content/tuning, and persistence. The foundation extraction is complete;
-  extend focused modules and keep run.ts responsible only for tick coordination.
-- Use whichever original programmatic art is easiest to produce and maintain.
-  Readable monochrome/limited-palette pixel art, simple Canvas shapes, and SVG/
-  vectors are all acceptable. Preserve clear silhouettes and visual cues; avoid
-  spending effort on detail or replacing readable existing assets.
-- These requirements are recorded in AGENTS.md and the plan. Task 3 remains
-  unstarted; the user authorized the modular refactor as its own work cycle.
+- Complete one authorized task, validate, update this log, commit, report, and
+  pause until **continue**. Make ordinary design decisions independently.
+- Keep systems modular with explicit typed boundaries and state ownership.
+  Keep simulation independent of the browser. Avoid large coordinator functions,
+  circular dependencies, and unnecessary frameworks. See AGENTS.md.
+- Prefer the simplest readable original art: Canvas shapes, vectors, or limited-
+  palette pixels. Reuse readable art; elaborate asset production is unnecessary.
+- Follow [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md) for the complete checklist.
 
 ## Next task
 
-**Task 3: Add leveling and randomized run upgrades.**
+**Task 4: Build the classless talent framework and visual tree.**
 
-Wait for the user to say **continue**, then implement only task 3: XP thresholds,
-paused randomized upgrade selection, a useful initial upgrade pool, eligibility/
-rarity rules, and visible ability improvements. Handle several levels earned at
-once and reset temporary upgrades between runs. Preserve the existing pause,
-input-clearing, and restart behavior. Keep rules testable without the browser;
-add progression as its own module rather than enlarging run.ts;
-extend real browser journeys to choose and observe upgrades. Talents and permanent
-progression remain later milestones. Update this log, test, commit, report, and pause.
+Wait for **continue**. Define all 36 talents across the six freely mixable
+branches, prerequisites, descriptions, and cross-branch interactions. Add bounded
+allocation, refunds/free respecs, accessible tooltips, build validation, and the
+combat event/effect framework in focused modules. Only functioning talents may
+be usable; definitions alone are not completed content. Tasks 5–7 implement the
+full branch content; persistent builds/unlocks remain task 8. Test mixed-branch
+allocation, invalid builds, refunds, and bounded trigger chains. Commit and pause.
 
-## Remaining work
+## Latest validation
 
-Tasks 3–17 in the development plan: leveling; classless talent
-framework; all six branches; persistence; enemy/boss variety; temporary synergies;
-presentation; device usability; offline/PWA; balancing; regression fixes; release.
+- `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run check` passed:
+  **46 unit tests**, TypeScript checks, production build, **14 browser tests**.
+  No failed or skipped tests in the final run.
+- Progression coverage: exact thresholds, queued rewards, leftover XP, rarity
+  weighting/unlocks, capped/invalid/stale selections, whole-world choice pause,
+  level-up priority over contact, all seven upgrades' actual effects, combined
+  piercing/explosion kill attribution, existing-shot snapshots, final-level
+  completion, and reset. Existing movement/combat regressions still pass.
+- Browser tests collect actual visible XP shards, freeze for selection, choose
+  upgrades using keyboard and touch, inspect improved cooldown/ranks, level again,
+  and reset. Desktop, tablet, and Android portrait emulation pass, alongside
+  defeat/restart, pause/focus handling, multi-touch cancellation, and shell checks.
+- Reviewed desktop and phone level-choice screenshots. Inspected 23 source modules:
+  no circular runtime imports. No runtime errors observed in browser checks.
+- Current output: about 20.87 kB JavaScript and 6.49 kB CSS before compression.
+- Runtime validated on Node 24.19.0, npm 11.9.0, system Chromium 154. README.md
+  documents startup and validation. Browser tests stop their preview server.
 
-## Validation and known issues
+## Remaining work and limits
 
-- Task 1: clean `npm ci`, initial tests/build/browser checks, and development
-  server page/module requests passed. Commit: `8332fcb`.
-- Task 2: `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run check`
-  passed in full, including 30 unit tests, TypeScript checks, production build,
-  and 11 production-browser tests. No tests failed or were skipped in the final run.
-- Unit coverage includes movement at 30/60/120 rendering FPS, analog/diagonal
-  movement, boundaries, fixed-clock catch-up/reset, nearest targeting, swept
-  collisions, cooldowns, kill attribution, contact protection, spawn grace,
-  deterministic safe spawns, pickups/XP conservation, entity caps, death/freeze,
-  and restart. A real seeded run kills, gathers XP, and eventually loses.
-- Browser checks cover actual rendered movement, auto-combat through defeat and
-  restart on desktop/tablet/Android portrait, pause and interrupted/held keys,
-  captured real touch events, multiple fingers, release/cancellation, and no
-  touch scrolling. Existing scene/resize/navigation checks still pass. Reviewed
-  desktop combat and phone/tablet touch screenshots. No runtime errors observed.
-- Current production output is approximately 12.71 kB JavaScript and 5.02 kB CSS
-  before compression. This is a foundation measurement, not full-game profiling.
-- Browser tests start and stop their own production preview server.
-- Run instructions are in README.md. Chromium is already installed in this cloud
-  instance; set the executable-path variable above for browser checks. Other
-  machines can use the documented Playwright browser installation instead.
-- Task 2 milestone commit: `feat: add playable survival foundation`.
-- Modular refactor: `npm run check` passed with all 30 existing unit tests,
-  TypeScript checks, production build, and all 11 browser tests. Existing test
-  assertions were preserved; only simulation import paths changed.
-- A one-time before/after comparison matched all 244 full-state checkpoints over
-  four seeded 120-second routes (stationary, rectangular, circular, and diagonal).
-  The temporary verifier was removed after passing; the permanent suite remains
-  self-contained. Inspected source imports and found no circular runtime imports.
-- Refactor milestone commit: `refactor: separate survival simulation systems`.
-- XP currently accumulates without leveling. Talents, saves, authored waves,
-  enemy variety, bosses, victory, and offline installation are not implemented.
-  The clearing has solid arena edges; scenery is decorative, not an obstacle map.
-- No deployment target is configured or verified. Determine available hosting at
-  release time; do not let that block local development.
-- Physical Android/tablet testing may require hardware unavailable in this cloud
-  environment. Browser emulation and device testing must be reported separately.
-- No current implementation blockers or known failing checks after the refactor.
+- Tasks 4–17: classless talents; persistent progression; enemy/boss variety;
+  temporary synergies; presentation/audio; device polish; offline/PWA; balancing;
+  final regression fixes; production delivery.
+- No talent tree, permanent unlocks/saves, bosses, victory condition, or offline
+  installation yet. Reloading intentionally starts fresh at this stage.
+- Only the starter enemy exists. Strong weapon combinations can outpace it;
+  enemy variety and full-run balancing remain later milestones. Scenery is
+  decorative; only arena boundaries block movement.
+- Physical Android/tablet hardware and other browser engines are unverified.
+  Emulation is not a hardware performance claim. Deployment is not configured.
+- No current setup blockers or known failing checks.
 
-## Completion report convention
+## Milestone history
 
-For each task record the finished behavior, validation outcomes, known issues,
-commit, and next task. Stop after each completed task until **continue**. If
-interrupted, record partial changes, failing checks, and exact next steps here.
+- Task 0: planning, `90daca7`.
+- Task 1: project foundation/tooling, `8332fcb`.
+- Task 2: playable survival loop, `50cee85`.
+- Standing modularity/art requirements: `93558f1`.
+- Refactor 2a: separate simulation systems, `851082a`; 244 captured full-state
+  checkpoints matched the pre-refactor behavior across four seeded routes.
+- Task 3 commit: `feat: add leveling and randomized run upgrades` (this milestone).

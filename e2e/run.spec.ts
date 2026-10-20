@@ -58,10 +58,18 @@ test('automatic combat earns XP, ends in defeat, and restarts with clean stats',
 
   for (let elapsed = 12; elapsed < 180; elapsed += 5) {
     if (await page.getByRole('button', { name: 'Try again' }).isVisible()) break;
+    while (await page.getByRole('dialog').isVisible()) {
+      // Deliberately choose utility/survival first to retain a vulnerable starter build.
+      for (const id of ['fleet', 'magnet', 'vitality', 'haste', 'fork', 'pierce', 'burst']) {
+        const card = page.locator(`[data-upgrade="${id}"]`);
+        if (await card.isVisible()) { await card.click(); break; }
+      }
+    }
     await page.clock.runFor(5000);
   }
   await expect(page.getByRole('heading', { name: 'The ember fades' })).toBeVisible();
-  await expect(page.locator('#health-text')).toHaveText('0 / 60');
+  await expect(page.locator('#health-text')).toHaveText(/^0 \/ \d+$/);
+  await expect(page.locator('#health')).toHaveJSProperty('value', 0);
   expect(Number(await page.locator('#run-xp').textContent())).toBeGreaterThan(0);
   await expect(page.locator('#run-results')).toContainText('XP gathered');
   const endedTime = await page.locator('#run-time').textContent();
@@ -72,6 +80,8 @@ test('automatic combat earns XP, ends in defeat, and restarts with clean stats',
   await expect(page.locator('#run-xp')).toHaveText('0');
   await expect(page.locator('#run-kills')).toHaveText('0');
   await expect(page.locator('#run-time')).toHaveText('00:00');
+  await expect(page.locator('#run-level')).toHaveText('1');
+  await expect(page.locator('#ember-stats')).toContainText('0.70s cooldown');
   await expect(page.locator('#run-overlay')).toBeHidden();
   await page.clock.runFor(1500);
   await expect(page.locator('#run-time')).toHaveText('00:01');

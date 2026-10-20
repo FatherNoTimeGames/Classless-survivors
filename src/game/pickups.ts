@@ -2,6 +2,7 @@ import { RULES, STEP } from './rules';
 import type { Point, Run } from './state';
 import { distance } from './geometry';
 import { addSpark } from './effects';
+import { awardXp } from './progression';
 
 export function dropShard(run: Run, point: Point): void {
   if (run.shards.length < RULES.maxShards) {
@@ -13,17 +14,17 @@ export function dropShard(run: Run, point: Point): void {
   }
 }
 
-export function updatePickups(run: Run): void {
+export function updatePickups(run: Run, magnetRadius: number): void {
   const player = run.player;
   run.shards = run.shards.filter((shard) => {
     const gap = distance(shard, player);
-    if (gap <= RULES.magnetRadius && gap > RULES.pickupRadius) {
+    if (gap <= magnetRadius && gap > RULES.pickupRadius) {
       const travel = Math.min(gap, RULES.shardSpeed * STEP);
       shard.x += (player.x - shard.x) / gap * travel;
       shard.y += (player.y - shard.y) / gap * travel;
     }
     if (distance(shard, player) <= RULES.pickupRadius) {
-      run.xp += shard.value;
+      awardXp(run, shard.value);
       addSpark(run, shard, 'pickup');
       return false;
     }

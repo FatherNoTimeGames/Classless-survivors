@@ -88,18 +88,20 @@ export function createArenaRenderer(canvas: HTMLCanvasElement) {
       block(x + player.facing * 9 - 2, y - 11, 6, 6, '#e2ae63');
 
       for (const bolt of run.bolts) {
-        context.strokeStyle = '#c17d3b';
+        context.strokeStyle = bolt.pierce > 0 ? '#91cfcc' : '#c17d3b';
         context.lineWidth = 2;
         context.beginPath();
         context.moveTo(bolt.x - bolt.vx * 0.035, bolt.y - bolt.vy * 0.035);
         context.lineTo(bolt.x, bolt.y);
         context.stroke();
-        block(bolt.x - 2, bolt.y - 2, 4, 4, '#ffe2a2');
+        block(bolt.x - 2, bolt.y - 2, 4, 4, bolt.blastRadius > 0 ? '#ffb878' : '#ffe2a2');
       }
       for (const effect of run.sparks) {
-        const radius = 3 + (RULES.sparkLifetime - effect.life) * 35;
+        const radius = effect.kind === 'burst'
+          ? (effect.radius ?? 20) * (1 - effect.life / RULES.sparkLifetime)
+          : 3 + (RULES.sparkLifetime - effect.life) * 35;
         context.globalAlpha = effect.life / RULES.sparkLifetime;
-        context.strokeStyle = effect.kind === 'pickup' ? '#91e2ba' : effect.kind === 'hurt' ? '#ec8b75' : '#f4c77c';
+        context.strokeStyle = effect.kind === 'pickup' ? '#91e2ba' : effect.kind === 'hurt' ? '#ec8b75' : effect.kind === 'burst' ? '#ffb878' : '#f4c77c';
         context.lineWidth = 2;
         context.beginPath();
         context.arc(effect.x, effect.y, radius, 0, Math.PI * 2);

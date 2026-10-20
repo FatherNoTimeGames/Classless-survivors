@@ -2,21 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { tickRun } from '../src/game/run';
 import { RULES, STEP, WORLD } from '../src/game/rules';
 import { createRun } from '../src/game/state';
-import type { Enemy, Point, Run } from '../src/game/state';
 import { FixedClock } from '../src/game/clock';
-
-const STILL = { x: 0, y: 0 };
-function emptyRun(): Run {
-  const run = createRun(123);
-  run.spawnIn = Number.POSITIVE_INFINITY;
-  return run;
-}
-function advance(run: Run, seconds: number, input: Point = STILL): void {
-  for (let step = 0; step < Math.round(seconds / STEP); step++) tickRun(run, input);
-}
-function enemy(id: number, x: number, y: number): Enemy {
-  return { id, x, y, health: RULES.enemyHealth, grace: 0 };
-}
+import { advance, bolt, emptyRun, enemy, STILL } from './fixtures';
+import { chooseUpgrade } from '../src/game/progression';
+import type { UpgradeId } from '../src/content/upgrades';
 
 describe('movement and simulation timing', () => {
   it('moves at the same speed at 30, 60, and 120 rendering frames per second', () => {
@@ -95,7 +84,7 @@ describe('automatic combat', () => {
     run.player.attackIn = 10;
     // Reverse array order so hit order must come from geometry.
     run.enemies.push(enemy(102, 140, 100), enemy(101, 100, 100));
-    run.bolts.push({ id: 201, x: 60, y: 100, vx: 6000, vy: 0, life: 1 });
+    run.bolts.push(bolt({ x: 60, y: 100, vx: 6000 }));
     tickRun(run, STILL);
     expect(run.enemies.map((target) => target.id)).toEqual([102]);
     expect(run.kills).toBe(1);
@@ -106,7 +95,7 @@ describe('automatic combat', () => {
     const run = emptyRun();
     run.player.attackIn = 10;
     run.enemies.push(enemy(101, 100, 100));
-    for (const id of [201, 202]) run.bolts.push({ id, x: 100, y: 100, vx: 0, vy: 0, life: 1 });
+    for (const id of [201, 202]) run.bolts.push(bolt({ id }));
     tickRun(run, STILL);
     expect(run.kills).toBe(1);
     expect(run.shards).toHaveLength(1);
@@ -156,7 +145,7 @@ describe('pickups, spawning, and run lifecycle', () => {
     run.player.attackIn = 10;
     for (let id = 0; id < RULES.maxShards; id++) run.shards.push({ id, x: 30, y: 30, value: 5 });
     run.enemies.push(enemy(101, 100, 100));
-    run.bolts.push({ id: 201, x: 100, y: 100, vx: 0, vy: 0, life: 1 });
+    run.bolts.push(bolt({}));
     tickRun(run, STILL);
     expect(run.shards).toHaveLength(RULES.maxShards);
     expect(run.shards.reduce((sum, shard) => sum + shard.value, run.xp)).toBe((RULES.maxShards + 1) * 5);
@@ -188,7 +177,7 @@ describe('pickups, spawning, and run lifecycle', () => {
     tickRun(run, STILL);
     expect(run.enemies).toHaveLength(RULES.maxEnemies);
     run.player.attackIn = 0;
-    for (let id = 0; id < RULES.maxBolts; id++) run.bolts.push({ id, x: 20, y: 400, vx: 1, vy: 0, life: 1 });
+    for (let id = 0; id < RULES.maxBolts; id++) run.bolts.push(bolt({ id, x: 20, y: 400, vx: 1 }));
     tickRun(run, STILL);
     expect(run.bolts).toHaveLength(RULES.maxBolts);
     expect(run.sparks.length).toBeLessThanOrEqual(64);
@@ -216,7 +205,14 @@ describe('pickups, spawning, and run lifecycle', () => {
 
   it('supports actual combat, XP collection, and eventual defeat without fixture enemies', () => {
     const run = createRun(8734);
-    advance(run, 180);
+    for (let tick = 0; tick < 180 / STEP; tick++) {
+      if (run.status === 'choosing') {
+        const priority: UpgradeId[] = ['fleet', 'magnet', 'vitality', 'haste', 'fork', 'pierce', 'burst'];
+        const choice = priority.find((id) => run.progression.offers.includes(id))!;
+        chooseUpgrade(run, choice);
+      }
+      tickRun(run, STILL);
+    }
     expect(run.kills).toBeGreaterThan(5);
     expect(run.xp).toBeGreaterThan(0);
     expect(run.status).toBe('defeated');

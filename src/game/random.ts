@@ -1,7 +1,5 @@
-import type { Run } from './state';
-
 /** Advance the run-owned generator so replays stay reproducible. */
-export function random(run: Run): number {
+export function random(run: { randomState: number }): number {
   let value = run.randomState;
   value ^= value << 13;
   value ^= value >>> 17;

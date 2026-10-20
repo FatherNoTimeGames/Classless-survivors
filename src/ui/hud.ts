@@ -1,0 +1,56 @@
+import { PROGRESSION_RULES, UPGRADES } from '../content/upgrades';
+import type { Run } from '../game/state';
+import { getRunStats } from '../game/stats';
+import { xpForLevel } from '../game/progression';
+import { element, formatTime, setText } from './dom';
+
+/** HUD presentation reads state; it never awards XP or applies upgrades. */
+export function createHud() {
+  const health = element<HTMLProgressElement>('#health');
+  const healthText = element('#health-text');
+  const xp = element('#run-xp');
+  const kills = element('#run-kills');
+  const timer = element('#run-time');
+  const level = element('#run-level');
+  const xpBar = element<HTMLProgressElement>('#level-progress');
+  const xpLabel = element('#level-progress-text');
+  const statsLabel = element('#ember-stats');
+  const active = element('#active-upgrades');
+  let previousRanks = '';
+
+  return {
+    update(run: Run): void {
+      const stats = getRunStats(run.progression.ranks);
+      if (health.max !== stats.maxHealth) health.max = stats.maxHealth;
+      if (health.value !== run.player.health) health.value = run.player.health;
+      setText(healthText, `${run.player.health} / ${stats.maxHealth}`);
+      setText(xp, String(run.xp));
+      setText(kills, String(run.kills));
+      setText(timer, formatTime(run.elapsed));
+      setText(level, String(run.progression.level));
+      const capped = run.progression.level === PROGRESSION_RULES.maxLevel;
+      xpBar.max = capped ? 1 : xpForLevel(run.progression.level);
+      xpBar.value = capped ? 1 : run.progression.xpIntoLevel;
+      setText(xpLabel, capped ? 'Maximum level' : `${run.progression.xpIntoLevel} / ${xpBar.max} XP`);
+      const key = JSON.stringify(run.progression.ranks);
+      if (key !== previousRanks) {
+        previousRanks = key;
+        setText(statsLabel, `Ember · ${stats.attackInterval.toFixed(2)}s cooldown · ${stats.projectileCount} target${stats.projectileCount === 1 ? '' : 's'} · ${stats.pierce} pierce · ${stats.blastRadius} blast range`);
+        active.replaceChildren();
+        for (const upgrade of UPGRADES) {
+          const rank = run.progression.ranks[upgrade.id] ?? 0;
+          if (!rank) continue;
+          const item = document.createElement('li');
+          item.textContent = `${upgrade.name} ${rank}/${upgrade.maxRank}`;
+          item.title = upgrade.description;
+          active.append(item);
+        }
+        if (!active.childElementCount) {
+          const item = document.createElement('li');
+          item.textContent = 'No upgrades yet. Gather XP shards to level up.';
+          active.append(item);
+        }
+      }
+    },
+  };
+}

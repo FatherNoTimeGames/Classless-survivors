@@ -3,10 +3,10 @@
 A single-player dark fantasy survival roguelite built with TypeScript and Canvas.
 Mix talents freely across six fantasy archetypes. No accounts or backend required.
 
-**Current milestone:** the first playable survival loop. Move through a bounded
-clearing, fight pursuing enemies with an automatic ember attack, gather XP, and
-try again after defeat. Leveling, talents, persistent saves, bosses, and offline
-installation are upcoming milestones. See
+**Current milestone:** leveling and randomized run upgrades. Move through a bounded
+clearing, fight pursuing enemies, collect XP, and change your run with faster,
+multi-target, piercing, or exploding ember attacks. Talents, persistent saves,
+bosses, and offline installation are upcoming milestones. See
 [the task list](DEVELOPMENT_PLAN.md) and [progress log](PROGRESS.md).
 
 ## Play this milestone
@@ -17,10 +17,34 @@ pen, or mouse). Release to stop. Keyboard movement works while the arena has
 focus; click/tap it to refocus. The arena edge is solid; ruined scenery is visual.
 
 Your ember fires automatically at nearby enemies. Green shards are XP: move
-near them to attract and collect them. XP is counted for this milestone; it does
-not grant levels yet. Enemy numbers build over time, and you lose when health
-reaches zero. **Try again** starts a fresh run with fresh stats. There is no
-victory condition or persistent progress in this milestone.
+near them to attract and collect them. Ten XP earns the first level; each following
+threshold costs eight more XP. On leveling, combat freezes while you select a
+run upgrade. Tap/click a card, or use Tab and Enter/Space. Escape cannot dismiss a
+level reward. If several levels are earned at once, choose once for each reward;
+excess XP carries over. Held movement input is cleared before play resumes.
+
+Each offer contains up to three distinct upgrades, with at least one weapon
+option when available. Common upgrades appear from level 2, uncommon from level 3,
+and rare from level 4. Common offers have greater selection weight. Maxed upgrades
+stop appearing. The initial pool supports 20 levels; at maximum level, XP remains
+counted in the run total and no more choices are required.
+
+| Run upgrade | Effect per rank | Rank cap |
+| --- | --- | --- |
+| Quickened Ember | Ember cooldown −0.08 seconds | 4 |
+| Fleetfoot | Movement speed +12 | 3 |
+| Soul Gatherer | XP attraction range +18 | 3 |
+| Living Ember | Maximum health +12; restore 12 health | 3 |
+| Forked Ember | Attack one additional distinct nearby target, if available | 2 |
+| Soul Needle | Each ember passes through one additional enemy | 2 |
+| Ashburst | Direct hits explode for half damage; blast radius +20, without chaining | 2 |
+
+Piercing bolts have a pale trail; explosive bolts produce expanding impact rings.
+Open **Run upgrades** beneath the arena to inspect your ranks and ember stats.
+Enemy numbers build over time, and you lose when health reaches zero. **Try again**
+starts a fresh run with level 1, base stats, and no upgrades. There is no victory
+condition or persistent progress in this milestone. Full enemy variety and balancing
+remain later milestones; some weapon combinations can outpace the starter enemy.
 
 Use **Pause** or **Escape** to pause and **Resume run** or **Escape** to resume.
 Leaving the browser tab/window pauses the game automatically. After an input
@@ -72,6 +96,11 @@ browser touch dispatch tests on touch-enabled profiles cover virtual-stick
 movement, multiple fingers, release/cancellation, and gesture suppression. The
 simulation tests cover movement across frame rates, targeting, swept collision,
 damage protection, XP, spawning, bounded entities, and reset behavior.
+Progression checks also exercise queued levels, invalid/capped selections, rarity,
+every upgrade's gameplay effect, piercing/explosion interactions, and maximum-level
+completion. Browser leveling journeys navigate to actual rendered XP shards, verify
+the frozen choice screen, select with keyboard/touch, inspect the improved ability,
+earn a second level, and start a fresh run.
 Screenshots and failure traces are
 written to ignored `test-results/`. Emulation does not replace physical device
 testing, and Chromium checks do not establish support in other browser engines.
@@ -92,6 +121,8 @@ offline installation guidance will be completed with the PWA milestone.
 
 - `src/main.ts`: browser initialization and canvas lifecycle.
 - `src/game/`: deterministic simulation and fixed-timestep clock, without DOM APIs.
+- `src/content/`: upgrade definitions, rank caps, rarity, and progression tuning.
+- `src/ui/`: DOM helpers, HUD presentation, and accessible upgrade selection.
 - `src/input/`: keyboard and captured-pointer movement controls.
 - `src/rendering/`: canvas sizing and original procedural scene art.
 - `src/styles.css` and `index.html`: responsive, semantic page shell.
@@ -107,8 +138,11 @@ The simulation module map:
 | Dimensions, timing, and gameplay tuning | `rules.ts` |
 | Player movement, boundaries, and enemy pursuit | `movement.ts` |
 | Spawn pacing and safe placement | `spawning.ts` |
-| Targeting, attack cooldowns, projectiles, and damage | `combat.ts` |
+| Targeting, cooldowns, projectile hits, and enemy contact | `combat.ts` |
+| Shared enemy damage, kill credit, and death drops | `damage.ts` |
 | XP drops, attraction, collection, and overflow merging | `pickups.ts` |
+| XP thresholds, queued levels, offers, and validated choices | `progression.ts` |
+| Deriving current run stats from selected upgrade ranks | `stats.ts` |
 | Feedback events and their lifetimes | `effects.ts` |
 | Distances, bounds, and swept collision geometry | `geometry.ts` |
 | Run-owned seeded randomness | `random.ts` |
@@ -116,11 +150,14 @@ The simulation module map:
 
 `run.ts` coordinates the systems in a deliberate order: advance time/cooldowns,
 expire feedback, move the player, spawn and move enemies, attack, resolve bolts,
-collect XP, then apply contact damage. This keeps killed enemies from damaging the
-player and credits nearby drops before a fatal contact. Systems mutate their own
+collect XP, then apply contact damage if no level reward paused the run. This keeps
+killed enemies from damaging the player and gives a level reward priority over
+contact. Systems mutate their own
 parts of the explicit `Run` state; there is no hidden singleton state. Rendering
 and input import only the state types and shared tuning they need. Keep new rules
-in focused systems and add progression as its own module when task 3 begins.
+in focused systems. Offer randomness has a separate run-owned seed stream, so
+drawing upgrade cards does not consume enemy-spawn randomness. Projectile upgrades
+are captured when a bolt is fired; existing shots retain their original properties.
 
 Simulation/progression stays separate from rendering and input. The background
 is cached, screen-density buffers are capped, and enemy/projectile/pickup/effect
