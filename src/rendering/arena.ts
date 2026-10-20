@@ -1,7 +1,9 @@
 import type { Run } from '../game/state';
 import { drawFeedback } from './feedback';
 import { drawSanctuary } from './sanctuary';
-import { drawAfflictions, drawCompanions, drawSnares } from './hunter-effects';
+import { drawAfflictions } from './afflictions';
+import { drawCompanions } from './companions';
+import { drawSnares } from './snares';
 import { ARENA_HEIGHT, ARENA_WIDTH, fitViewport } from './viewport';
 
 export function createArenaRenderer(canvas: HTMLCanvasElement) {
@@ -112,13 +114,19 @@ export function createArenaRenderer(canvas: HTMLCanvasElement) {
 
       drawCompanions(context, run);
       for (const bolt of run.bolts) {
-        context.strokeStyle = bolt.pierce > 0 ? '#91cfcc' : '#c17d3b';
+        context.strokeStyle = bolt.source === 'summon' ? '#dba4dc' : bolt.pierce > 0 ? '#91cfcc' : '#c17d3b';
         context.lineWidth = 2;
         context.beginPath();
         context.moveTo(bolt.x - bolt.vx * 0.035, bolt.y - bolt.vy * 0.035);
         context.lineTo(bolt.x, bolt.y);
         context.stroke();
-        block(bolt.x - 2, bolt.y - 2, 4, 4, bolt.blastRadius > 0 ? '#ffb878' : '#ffe2a2');
+        if (bolt.source === 'summon') {
+          context.fillStyle = '#f5c7ec';
+          context.beginPath();
+          context.moveTo(bolt.x, bolt.y - 3); context.lineTo(bolt.x + 3, bolt.y);
+          context.lineTo(bolt.x, bolt.y + 3); context.lineTo(bolt.x - 3, bolt.y);
+          context.closePath(); context.fill();
+        } else block(bolt.x - 2, bolt.y - 2, 4, 4, bolt.blastRadius > 0 ? '#ffb878' : '#ffe2a2');
       }
       drawFeedback(context, run.sparks);
     },

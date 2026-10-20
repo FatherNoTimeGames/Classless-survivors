@@ -34,7 +34,7 @@ describe('talent catalog and build rules', () => {
     };
     for (const talent of TALENTS) visit(talent.id, []);
     expect(Object.keys(TALENT_IMPLEMENTATIONS).sort()).toEqual(TALENTS.filter((talent) => talent.implemented).map((talent) => talent.id).sort());
-    expect(TALENTS.filter((talent) => talent.implemented)).toHaveLength(27);
+    expect(TALENTS.filter((talent) => talent.implemented)).toHaveLength(36);
   });
 
   it('permits mixed branches, an empty starter build, and unordered valid prerequisites', () => {
@@ -43,7 +43,7 @@ describe('talent catalog and build rules', () => {
     expect(validateBuild(['searing-grace', 'communion', 'hunting-momentum']).valid).toBe(true);
   });
 
-  it('rejects unknown, duplicate, unavailable, over-budget, and prerequisite-breaking builds', () => {
+  it('rejects unknown, duplicate, over-budget, and prerequisite-breaking builds', () => {
     for (const build of [null, 'reprisal', [42], ['unknown'], ['reprisal', 'reprisal'], ['venom-edge'], ['sweeping-blade'], ['searing-grace'], ['reprisal', 'sweeping-blade', 'spellsteel', 'arcane-echo', 'expose-weakness', 'communion', 'soul-cinder', 'hunting-momentum', 'searing-grace']]) {
       expect(validateBuild(build).valid, JSON.stringify(build)).toBe(false);
     }
@@ -76,7 +76,7 @@ describe('talent catalog and build rules', () => {
     run.talentMemory.huntingCharge = true;
     expect(createRun(123, build).talentMemory.huntingCharge).toBe(false);
     expect(() => createRun(1, ['searing-grace'])).toThrow('Invalid talent build');
-    expect(() => createRun(1, ['sanctuary'])).toThrow('coming soon');
+    expect(() => createRun(1, ['sanctuary'])).toThrow('requires Ember Communion');
   });
 });
 
@@ -218,7 +218,7 @@ describe('functioning foundation talents', () => {
     }
   });
 
-  it('Priest healing primes Rogue damage and talent kills cannot feed direct-kill healing loops', () => {
+  it('Priest healing primes Rogue damage and its kills count toward Communion', () => {
     const run = runWith(['communion', 'searing-grace', 'expose-weakness']);
     run.player.health = 50;
     const target = { ...enemy(101, 220, 240), health: 36, maxHealth: 36 };
@@ -231,7 +231,7 @@ describe('functioning foundation talents', () => {
     healPlayer(run, 2);
     resolveTalentEffects(run);
     expect(target.health).toBe(0);
-    expect(run.talentMemory.communionKills).toBe(0);
+    expect(run.talentMemory.communionKills).toBe(1);
     expect(run.effects.dropped).toBe(0);
   });
 });

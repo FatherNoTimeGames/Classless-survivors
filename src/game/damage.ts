@@ -8,6 +8,7 @@ import { prepareHit } from './hit-modifiers';
 import { snapshotDots } from './dot-state';
 import { consumeFrost } from './statuses';
 import { absorbDamage } from './shields';
+import { consumeHolyMark } from './marks';
 
 /** Shared damage boundary: deaths and XP drops are credited exactly once. */
 export function damageEnemy(run: Run, enemy: Enemy, amount: number, options: { source?: DamageSource; school?: DamageSchool } = {}): void {
@@ -17,6 +18,7 @@ export function damageEnemy(run: Run, enemy: Enemy, amount: number, options: { s
   // Physical effects may consume Frost before post-hit handlers inspect the victim.
   const slowed = enemy.frost > 0 || enemy.snared;
   const hit = prepareHit(run, enemy, amount, source);
+  consumeHolyMark(run, enemy, source, school);
   const actual = Math.min(enemy.health, (hit.amount + consumeFrost(run, enemy, source, school)) * hit.multiplier);
   enemy.health -= actual;
   addSpark(run, enemy, hit.critical ? 'critical' : 'hit');

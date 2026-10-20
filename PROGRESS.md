@@ -2,23 +2,25 @@
 
 ## Current state
 
-- Completed: tasks 0–6 and the separately requested modular refactor (2a).
+- Completed: tasks 0–7 and the separately requested modular refactor (2a).
 - Playable: keyboard/touch movement, automatic combat, enemies, health, XP,
   leveling, seven randomized run upgrades, pause/resume, defeat, and restart.
-- Task 6: all six talents function in Warrior, Mage, Rogue, and Hunter. Twenty-seven
-  of 36 total talents are selectable; nine Priest/Warlock previews remain unavailable.
-  Every usable talent has behavior coverage.
-- Open Rogue/Hunter triggers work across weapon, spell, blast, and retaliation hits.
-  Companion hits share critical cadence and critical procs; Pack Link adds wound
-  bonuses, Poison, Frost, snares, and roots. Any kill can supply Hunting Momentum.
-- Shared systems now include critical/wound hit modifiers, nonstacking periodic
-  effects with stable tick clocks and lethal snapshots, critical spreading/pulses,
-  owned falcon targeting/commands, capped snare zones, and per-enemy root immunity.
+- Task 7: all 36 talents across all six branches function and are selectable.
+  The tree has accurate descriptions, prerequisites, free respecs, and original
+  icons for every talent. No preview-only nodes remain.
+- Priest: all-source kill healing, actual-heal offense, throttled pickup healing,
+  holy marks consumed by physical hits, bounded excess-heal shields, and offensive
+  reactions to absorption from any shield source.
+- Warlock: all-source kill bursts, open non-periodic curses, a piercing imp,
+  detonations from remaining Poison/curse damage, actual-heal buffs for either
+  companion, and periodic-kill healing/extensions for either DoT family.
+- Shared companion definitions/construction keep state creation independent of
+  damage code. Falcon/imp behavior shares targeting, commands, cooldowns, bonuses,
+  and explicit Pack Link inheritance; live projectiles snapshot damage/piercing.
 - Eight temporary points permit full branches with supporting pairs. Permanent
-  points/unlocks remain task 8. Prerequisites, budgets, cascading refunds, and
-  free respecs remain enforced. Allocation order does not change handler order.
-- Readable line icons, bird silhouettes, poison marks, critical stars, snare circles,
-  and root bars use the existing original programmatic art approach.
+  points/unlocks remain task 8. Allocation order does not change handler order.
+- Simple marks, distinct curse/detonation symbols, imp/falcon silhouettes, and
+  fractional ward labels preserve readability. Rendering is split by responsibility.
 - New runs copy the chosen build; talent changes cannot affect an existing run.
   Talent draft persists within this page session only. Temporary run upgrades
   reset separately. Permanent persistence remains task 8.
@@ -43,45 +45,46 @@
 
 ## Next task
 
-**Task 7: Implement Priest and Warlock talents.**
+**Task 8: Add persistent progression and saved character builds.**
 
-Wait for **continue**. Ember Communion, Searing Grace, and Soul Cinder already work.
-Complete the remaining nine talents: shard healing, marks/atonement, overheal
-shields/absorption reactions, curses/detonations, imp inheritance, Soul Link, and
-Harvest. Reuse the generic DoT and companion systems. Keep new triggers open across
-branches where practical; document attribution/inheritance and prevent proc loops.
-Keep all 36 descriptions accurate, test every new talent and hybrid behavior,
-validate browser flows, update docs, commit, and pause.
+Wait for **continue**. Choose bounded run rewards and talent-point/option unlocks
+that broaden build variety, with no unwinnable early-loss states or unlimited
+stat growth. Add versioned validated local saves, migrations/recovery, multiple
+named build slots, free between-run respecs, and export/import backups. Ensure
+reloads retain progress/builds and rewards cannot be claimed twice. This build
+currently has defeat only; define rewards so victory integration can use the same
+boundary in task 10. Test corruption/reload/reward and build journeys, document,
+commit, and pause. Keep gameplay, persistence, and UI modular.
 
 ## Latest validation
 
 - `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run check` passed:
-  **119 unit tests**, TypeScript checks, production build, and **26 browser tests**.
+  **165 unit tests**, TypeScript checks, production build, and **32 browser tests**.
   No failed or skipped tests in the final run.
-- Reviewed desktop/tablet/phone talent and combat screenshots. Icons, tooltips,
-  Close, snare zones, and the falcon remain readable at phone sizes.
-- Production output: approximately 56.92 kB JavaScript (19.34 kB gzip) and 9.25 kB
-  CSS uncompressed. Physical Android hardware and other engines remain unverified.
-- Unit coverage includes all usable talents, lethal snapshots/spreading, final DoT
-  ticks before expiration, curse-compatible healing, shared critical cadence,
-  periodic exclusions, kill attribution, companion targeting/inheritance, roots,
-  snare caps, cooldowns, pause/reset, and allocation-order-independent dense builds.
-- Cross-branch cases include Priest healing from expired effects, Falcon Frost into
-  Shatterglass, and simultaneous melee shattering/rooting of the same slowed foe.
-- Browser flows cover full branches with supporting talents and actual falcon,
-  Poison, critical, snare, and Frost drawing, plus existing input/level/run journeys.
-  Combat-feedback tests now fix the normal run seed after an earlier random-layout
-  run missed shield contact; the test still requires real combat/drawing.
-- Falcon positions remain within visible arena bounds while following/striking.
-- Inspected 51 source modules: no circular runtime imports. No new dependencies,
-  paid services, external assets, or backend requirements.
+- Reviewed desktop/tablet/phone branch and combat screenshots; all talent names,
+  icons, descriptions, Close, fractional health/ward labels, and imp/falcon shapes
+  remain readable. Physical hardware and other browser engines remain unverified.
+- Production output: approximately 64.57 kB JavaScript (21.39 kB gzip) and 9.25 kB
+  CSS uncompressed.
+- Every playable talent has behavior coverage. New tests exercise actual vs excess
+  healing, expiration/absorption, pickup throttling, holy marks, curses, periodic
+  snapshots, exact remaining tick counts, explosion caps/nonrecursion, shared
+  companion commands/buffs, shot snapshots, pause/reset, and dense hybrids.
+- Dense 80-enemy dual-DoT testing exposed the former 256-event budget; the bounded
+  budget is now 512, retaining six-generation depth and ancestry guards. No primary
+  damage or death drops depend on processing a secondary event.
+- Browser journeys cover complete supported Priest/Warlock builds and observe real
+  healing cross geometry (not just pickup color), wards, holy attacks, curses,
+  imp drawing, and detonations. Existing combat/input/progression checks remain.
+- Inspected 56 source modules: no circular runtime imports. No new dependencies,
+  external assets, accounts, paid services, or backend requirements.
 - Runtime: Node 24.19.0, npm 11.9.0, system Chromium 154. README.md has commands.
   Browser tests start/stop their own production preview server.
 
 ## Remaining work and limits
 
-- Tasks 7–17: Priest/Warlock branch completion; permanent progression;
-  enemy/boss variety; temporary synergies; presentation/audio; device polish; offline/PWA; balance;
+- Tasks 8–17: persistent progression; enemy/boss variety; temporary synergies;
+  presentation/audio; device polish; offline/PWA; balance;
   final regressions; release. Definitions alone are not completed talent content.
 - No local saves/build slots, permanent unlocks, bosses, victory, or offline
   installation yet. Reloading resets this intermediate build.
@@ -100,4 +103,6 @@ validate browser flows, update docs, commit, and pause.
 - Task 5: complete Warrior/Mage talents, shared melee/status/shield systems, and
   six-point hybrid builds, `d9eb89a`.
 - Task 6: complete Rogue/Hunter talents, open hit rules, DoTs, companions, and
-  eight-point supported builds (this milestone).
+  eight-point supported builds, `c2c7237`.
+- Task 7: complete Priest/Warlock branches and the full 36-talent catalog
+  (this milestone).

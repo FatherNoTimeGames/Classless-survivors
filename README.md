@@ -3,12 +3,12 @@
 A single-player dark fantasy survival roguelite built with TypeScript and Canvas.
 Mix talents freely across six fantasy archetypes. No accounts or backend required.
 
-**Current milestone:** complete Warrior, Mage, Rogue, and Hunter branches, with
-critical hits, Poison spreading, companions, snares, Frost, shields, and retaliation.
-The six-branch visual tree contains 36 talent designs; **27 are functioning and
-selectable**. The other nine are coming-soon previews. Persistent saves, bosses,
-and offline installation remain upcoming. See [the task list](DEVELOPMENT_PLAN.md)
-and [progress log](PROGRESS.md).
+**Current milestone:** all **36 talents across six freely mixed branches** are
+implemented and selectable. Builds support melee/spell combos, critical effects,
+Poison/curses, companions, healing offense, shields, and retaliation. Runs include
+movement, automatic combat, XP, temporary upgrades, defeat, and replay. Persistent
+saves, enemy/boss variety, victory, and offline installation remain upcoming.
+See [the task list](DEVELOPMENT_PLAN.md) and [progress log](PROGRESS.md).
 
 ## Play this milestone
 
@@ -17,8 +17,8 @@ and may leave points unspent. Select a branch tab, then a node to inspect its
 description, prerequisites, and suggested synergies. Hover/focus help and a
 persistent detail panel support mouse, keyboard, and touch. Allocate a point,
 refund individual talents, or use **Free respec** to clear the whole build.
-Refunding a prerequisite also refunds dependent talents. Planned nodes remain
-inspectable, with allocation disabled.
+Refunding a prerequisite also refunds dependent talents. All six complete branches
+are available; prerequisites and the eight-point budget still apply.
 
 | Playable talent | Branch | Behavior |
 | --- | --- | --- |
@@ -40,13 +40,22 @@ inspectable, with allocation disabled.
 | Siphon Toxin | Rogue | Natural expiration of any DoT on a surviving foe heals 2; death is not expiration |
 | Contagion | Rogue | Critical hits spread all active DoTs to the two nearest other foes within 60 range, including on lethal hits |
 | Nightfall | Rogue | Critical kills cause one extra tick of all active DoTs within 60 range; no recursive critical ticks |
-| Ember Communion | Priest | Every fourth direct ember kill restores 3 health |
+| Ember Communion | Priest | Every fourth kill from any source attempts 3 healing; its own healing chain cannot count itself |
 | Searing Grace | Priest | Requires Communion; actual healing strikes the nearest foe within 110 range for 6 holy damage |
-| Soul Cinder | Warlock | Every fourth direct ember kill bursts for 9 shadow damage within 36 range, without chaining |
+| Sanctuary | Priest | Picking up an XP shard attempts 1 healing, at most once per second |
+| Atonement | Priest | Holy hits mark for 5s; a non-periodic physical hit consumes the mark for an 8-damage holy strike if the foe survives |
+| Martyr Ward | Priest | Half of excess healing accumulates as a shield, capped at 12 points with 4s refreshes |
+| Dawn Chorus | Priest | Any shield absorption attempts 2 healing and strikes the nearest foe for 8 holy damage, at most once per second |
+| Soul Cinder | Warlock | Every fourth kill from any source bursts for 9 shadow damage within 36 range; its own chain cannot count itself |
+| Agony | Warlock | Non-periodic hits curse for 3 shadow damage each second for 3s; refreshes do not delay ticks |
+| Grim Pact | Warlock | An imp fires 9-damage embers every 1.4s within 180 range, inheriting piercing and critical rules |
+| Detonation | Warlock | Afflicted deaths explode for remaining scheduled Poison/curse damage within 36 range, capped at 18 base damage; immediate chains cannot detonate again |
+| Soul Link | Warlock | Actual healing stores 40% as bonus damage for each companion's next attack, capped at 12 per companion |
+| Harvest | Warlock | DoT kills attempt 2 healing and extend one nearby DoT by 1s, capped at 4s remaining |
 | Hunting Momentum | Hunter | Any kill stores one additional target for the next ember volley with enough distinct targets |
 | Falcon Companion | Hunter | A falcon strikes the nearest foe within 180 range for 8 physical damage each second; shares critical rules |
 | Snaring Shot | Hunter | Every fourth non-periodic hit places a 2s snare within 36 range, slowing by 35%; at most eight zones |
-| Pack Link | Hunter | Companions also inherit wound bonuses and talent-based Poison, Frost, snares, and roots |
+| Pack Link | Hunter | Companions also inherit wound bonuses and talent-based Poison, curses, Frost, snares, and roots |
 | Frost Trap | Hunter | Hits against any slowed foe root for 0.75s and apply 2s Frost, with a 3s cooldown per foe |
 | Wild Hunt | Hunter | Spending Momentum commands all companions to strike immediately, at most once per 2s |
 
@@ -60,22 +69,32 @@ critical cadence that spreads Poison and pulses it on kills. Try **all Hunter
 talents + Expose Weakness + Venom Edge** for a falcon that poisons wounded foes,
 feeds snares, and roots them. **Hunting Momentum + Falcon + Pack Link + Arcane
 Echo + Rime Sigil + Shatterglass** turns physical companion hits into Frost bursts.
+Try **all Warlock talents + Ember Communion + Searing Grace** for curses and
+healing that empower the imp. Try **all Priest talents + Iron Reprisal + Sweeping
+Blade** for shield retaliation and holy marks consumed by physical attacks.
+**All Priest talents + Hunting Momentum + Falcon** lets physical companion attacks
+consume marks. These attacks add their holy strike only if the primary hit leaves
+the foe alive, making them more useful against tougher targets.
 Talent points are temporarily all available; bounded permanent unlocks arrive in task 8.
 
 Spellsteel needs a melee ability to trigger. Its ember skips the original victim,
 can apply Frost, and counts as a triggered spell; it cannot count as a direct ember
-for Arcane Echo or direct-kill talents. It can apply Rogue wound bonuses, Poison,
-and critical hits, like other non-periodic damage. Triggered spells include
+for Arcane Echo. Kills from any source now feed Communion, Soul Cinder, and Momentum,
+with ancestry guards against counting their own proc chains. Spellsteel can apply
+Rogue wound bonuses, Poison, curses, and critical hits, like other non-periodic damage. Triggered spells include
 nonphysical talent hits such as arcane echoes, lightning, holy healing attacks,
 and shadow bursts. Shields refresh without stacking or weakening; they absorb
 before health. Expiration never triggers Last Stand, and fully absorbed hits do
 not trigger health-loss talents. Frost has ice prongs; stuns stop movement and
 contact attacks. Cleaves use arcs, wards use an oval plus a health-line amount/timer,
-and spell effects have distinct shapes. Overhealing and post-death effects cannot
-resurrect the player. Talents remain separate from randomized run upgrades.
+and spell effects have distinct shapes. Excess healing is separate from actual
+restoration: only Martyr Ward converts it, while Searing Grace and Soul Link require
+restored health. Martyr Ward is the explicit capped exception to nonstacking shields.
+Shield expiration cannot trigger Dawn Chorus. Fatal hits cannot resurrect the player.
+Talents remain separate from randomized run upgrades.
 
 Rogue and Hunter use open hit rules: weapons, spells, blasts, and retaliation
-qualify. Periodic damage cannot crit, reapply Poison, or generate hit-based snares;
+qualify. Periodic damage cannot crit, reapply Poison/curses, or generate hit-based snares;
 periodic and companion kills still supply Momentum. Companions always share your
 critical cadence and critical effects; Pack Link adds the listed noncritical
 on-hit effects. Explicit ability-specific rules such as Arcane Echo still require
@@ -83,6 +102,13 @@ their described source. Roots stop movement but allow contact attacks; stuns sto
 both. Slows use the strongest value rather than stacking. Poison can spread on
 lethal hits, and Nightfall pulses those newly spread effects once. These rules
 prevent recursive proc loops without limiting talents to one fantasy archetype.
+
+Imps and falcons share ownership, targeting, cooldowns, Soul Link bonuses, and
+Wild Hunt commands. Pack Link also lets either apply your on-hit Poison, curses,
+Frost, snares, and roots. The imp snapshots piercing and stored damage at launch;
+healing or upgrades cannot alter already-fired shots. Failed/full-budget launches
+retain its stored bonus. Curse marks, holy crosses, detonation crescents, and the
+horned imp silhouette distinguish the new effects with simple original shapes.
 
 Your chosen talents are copied into the new run. Editing is available before the
 first run and after defeat; paused runs cannot be respecced. **Try again** uses
@@ -179,7 +205,7 @@ every upgrade's gameplay effect, piercing/explosion interactions, and maximum-le
 completion. Browser leveling journeys navigate to actual rendered XP shards, verify
 the frozen choice screen, select with keyboard/touch, inspect the improved ability,
 earn a second level, and start a fresh run.
-Talent tests cover all 27 functioning effects, mixed-branch synergies, valid
+Talent tests cover all 36 functioning effects, mixed-branch synergies, valid
 and invalid builds, prerequisites, cascading refunds, snapshots, and trigger
 budgets/cycles. Browser checks inspect branch trees with keyboard/touch, enforce
 the point limit, respec, and start a three-branch build. Additional browser journeys
@@ -190,6 +216,11 @@ new talent, curse-compatible expiration/spreading, attribution, critical cadence
 companion inheritance, tick timing, and allocation-order independence. Combat
 feedback journeys fix the normal run seed for repeatability; they observe real
 drawing and never inject internal game state.
+Priest/Warlock browser journeys allocate complete supported builds and observe
+actual healing crosses, holy attacks, wards, imp drawing, curses, and detonations.
+Unit tests cover each of the twelve branch talents, partial/excess healing,
+pickup throttling, holy/physical marks, final and lethal periodic ticks, explosion
+caps and nonrecursion, companion bonus snapshots, and dense mixed builds.
 Shared-system tests cover arc targeting, attribution, Frost consumption on lethal hits,
 shield absorption/expiration, stuns, cooldown limits, and dense deterministic hybrids.
 Screenshots and failure traces are
@@ -236,11 +267,14 @@ The simulation module map:
 | Shared projectile creation and attribution snapshots | `projectiles.ts` |
 | Frost/stun/root lifetimes, consumption, and status/cooldown timers | `statuses.ts` |
 | Hit eligibility and companion inheritance | `hit-policy.ts` |
-| Shared wound bonuses, Poison application, and critical cadence | `hit-modifiers.ts` |
+| Shared wound bonuses, Poison/curse application, and critical cadence | `hit-modifiers.ts` |
 | Nonstacking periodic state, refreshes, and snapshots | `dot-state.ts` |
 | Periodic ticks, expiration events, and extra pulses | `damage-over-time.ts` |
 | Snare placement, caps, aging, and occupancy | `snares.ts` |
+| Companion definitions, including attack mode and follow offsets | `../content/companions.ts` |
+| Companion construction independent of damage code | `companion-state.ts` |
 | Run-owned companion targeting, cooldowns, and commands | `companions.ts` |
+| Consumption of holy marks before physical damage | `marks.ts` |
 | Nonstacking wards, absorption, and shield-break events | `shields.ts` |
 | Actual healing, overheal rejection, and healing events | `healing.ts` |
 | Bounded typed combat-event queue | `events.ts` |
@@ -270,25 +304,32 @@ are captured when a bolt is fired; existing shots retain their original properti
 Talent definitions live in `src/content/talents.ts`, with current numerical tuning
 in `talent-tuning.ts`. Availability flags must match working implementations;
 changing a preview flag alone does not implement a talent. Branch handlers live in
-`src/game/talent-effects/`; shared wound/critical/Poison modifiers and Frost
+`src/game/talent-effects/`; shared wound/critical/Poison/curse modifiers and Frost
 consumption run before hit events.
 Frost consumption snapshots a separate event, allowing both talents to react even
 when the victim dies. Projectile effects resolve before melee so same-tick Frost
 can be consumed. Shield-break events only come from enemy damage absorption.
-Simple original Warrior/Mage/Rogue/Hunter icon paths live in `src/content/talent-icons.ts`.
+Simple original icons for all six branches live in `src/content/talent-icons.ts`.
 Hit events snapshot critical state, active DoTs, and pre-hit slowing so lethal hits
 and consuming Frost cannot erase later synergies. Handler order follows the catalog,
 not allocation order. Periodic effects keep their tick clocks when refreshed and
-are capped at one per kind. Shared DoT state already supports curses for task 7;
-no Warlock preview has been enabled by adding that infrastructure alone.
+are capped at one per kind. A paid periodic tick advances its clock before taking
+a death snapshot, so Detonation counts only damage that has not already happened.
+Holy marks and Atonement use one handler identity to prevent the bonus strike from
+reapplying itself. Actual and excess healing have separate events. Pickups emit
+collection events; the Priest handler owns Sanctuary's cooldown.
 The editor and graph renderer are separate UI modules. Feedback drawing is isolated
-in `src/rendering/feedback.ts`; companion/snare/status artwork is in `hunter-effects.ts`.
+in `src/rendering/feedback.ts`; companions, snares, and afflictions each have a
+focused renderer under `src/rendering/`.
 
 Combat effects use FIFO events with source/school information, a six-generation
-depth limit, 256-event queue/tick limits, and handler-ancestry suppression. Limits
+depth limit, 512-event queue/tick limits, and handler-ancestry suppression. Limits
 apply to secondary triggers; primary damage and death drops are applied directly.
 `run.effects.dropped` and `suppressed` provide diagnostics for debugging chains.
 The queue stores data only, so run state stays cloneable and contains no callbacks.
+The finite event budget accommodates simultaneous ticks on 80 foes with both DoTs
+and secondary reactions. Tests retain the depth, ancestry, and fan-out safeguards;
+this is not a claim of physical Android performance.
 
 Simulation/progression stays separate from rendering and input. The background
 is cached, screen-density buffers are capped, and enemy/projectile/pickup/effect

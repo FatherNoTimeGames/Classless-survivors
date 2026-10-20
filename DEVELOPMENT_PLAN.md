@@ -115,11 +115,15 @@ these requirements. No subscription-usage or completion-time estimates are impli
   pair. Tests include lethal spreading, natural expiration, Priest/Mage/Warrior
   hybrids, snapshots, cooldowns, and deterministic dense builds.
 
-- [ ] **7. Implement Priest and Warlock talents.**
+- [x] **7. Implement Priest and Warlock talents.**
   Deliver six working talents per branch, healing-to-offense effects, curses,
   damage-over-time detonations, and further summon/defensive synergies.
   Done when all 36 talents function, descriptions match behavior, and tests cover
   overhealing rules, damage attribution, detonations, and recursive-trigger limits.
+  Delivered all 36 functioning talents. Added excess-healing wards, collection
+  healing, holy marks, absorption offense, open curses, shared imp/falcon mechanics,
+  periodic detonations, and healing/DoT companion synergies. Bounded trigger tests
+  cover dense builds, lethal snapshots, actual vs excess healing, and effect cycles.
 
 - [ ] **8. Add persistent progression and saved character builds.**
   Implement run rewards, bounded talent-point progression, option unlocks, multiple

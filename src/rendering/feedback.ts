@@ -7,6 +7,7 @@ const COLORS: Record<Spark['kind'], string> = {
   heal: '#91e2ba', physical: '#d6c8ae', arcane: '#90d4e2', holy: '#ffe4a1', shadow: '#bf9bd8',
   cleave: '#ece0bf', frost: '#a5dce8', lightning: '#d4c3ff', shield: '#8fbddc',
   critical: '#ffe9ad', poison: '#a8c978', root: '#a5dce8', falcon: '#c5d6bd',
+  curse: '#bd9be8', detonation: '#d6a4ed', mark: '#e3c583', atonement: '#fff0c0', imp: '#ca8d9a',
 };
 
 /** Color plus shape distinguishes feedback without making more asset files. */
@@ -19,7 +20,14 @@ export function drawFeedback(context: CanvasRenderingContext2D, effects: readonl
     context.lineWidth = 2;
     context.setLineDash(effect.kind === 'shadow' ? [3, 3] : []);
     context.beginPath();
-    if (effect.kind === 'critical') {
+    if (effect.kind === 'curse' || effect.kind === 'detonation') {
+      context.arc(effect.x, effect.y, radius, Math.PI / 2, Math.PI * 1.5);
+      context.moveTo(effect.x + radius / 2, effect.y - radius);
+      context.lineTo(effect.x + radius / 2, effect.y + radius);
+    } else if (effect.kind === 'mark' || effect.kind === 'atonement') {
+      context.rect(effect.x - radius / 2, effect.y - radius / 2, radius, radius);
+      context.moveTo(effect.x, effect.y - radius); context.lineTo(effect.x, effect.y + radius);
+    } else if (effect.kind === 'critical') {
       for (let i = 0; i < 8; i++) {
         const angle = i * Math.PI / 4;
         context.moveTo(effect.x + Math.cos(angle) * radius / 2, effect.y + Math.sin(angle) * radius / 2);

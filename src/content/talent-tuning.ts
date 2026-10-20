@@ -1,6 +1,15 @@
 /** Tuning for the playable talents. Descriptions reuse these values. */
 export const TALENT_TUNING = {
   points: 8,
+  sanctuaryHeal: 1, sanctuaryCooldown: 1,
+  markDuration: 5, atonementDamage: 8,
+  martyrFraction: 0.5, martyrCap: 12, martyrDuration: 4,
+  dawnHeal: 2, dawnDamage: 8, dawnRange: 110, dawnCooldown: 1,
+  curseDamage: 3, curseDuration: 3,
+  impDamage: 9, impInterval: 1.4, impRange: 180,
+  detonationCap: 18, detonationRange: 36,
+  soulLinkFraction: 0.4, soulLinkCap: 12,
+  harvestHeal: 2, harvestRange: 60, harvestExtension: 1, harvestDurationCap: 4,
   criticalEvery: 4, criticalMultiplier: 1.75,
   poisonDamage: 3, poisonDuration: 2, dotInterval: 1, maxDots: 2,
   siphonHeal: 2, contagionTargets: 2, contagionRange: 60, nightfallRange: 60,

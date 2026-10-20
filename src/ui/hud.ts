@@ -2,7 +2,7 @@ import { PROGRESSION_RULES, UPGRADES } from '../content/upgrades';
 import type { Run } from '../game/state';
 import { getRunStats } from '../game/stats';
 import { xpForLevel } from '../game/progression';
-import { element, formatTime, setText } from './dom';
+import { element, formatTime, formatAmount, setText } from './dom';
 import { talentById } from '../content/talents';
 
 /** HUD presentation reads state; it never awards XP or applies upgrades. */
@@ -42,7 +42,7 @@ export function createHud() {
       if (health.max !== stats.maxHealth) health.max = stats.maxHealth;
       if (health.value !== run.player.health) health.value = run.player.health;
       const shield = run.player.shield;
-      setText(healthText, `${run.player.health} / ${stats.maxHealth}${shield.amount > 0 ? ` · Ward ${shield.amount} (${Math.ceil(shield.remaining)}s)` : ''}`);
+      setText(healthText, `${formatAmount(run.player.health)} / ${stats.maxHealth}${shield.amount > 0 ? ` · Ward ${formatAmount(shield.amount)} (${Math.ceil(shield.remaining)}s)` : ''}`);
       setText(xp, String(run.xp));
       setText(kills, String(run.kills));
       setText(timer, formatTime(run.elapsed));

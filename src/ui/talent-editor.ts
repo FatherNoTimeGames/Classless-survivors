@@ -41,7 +41,7 @@ export function createTalentEditor(openButton: HTMLButtonElement, canEdit: () =>
   function render(): void {
     const spent = validateBuild(build).pointsSpent;
     element('#talent-points', dialog).textContent = `${spent} / ${TALENT_TUNING.points} points allocated · ${TALENT_TUNING.points - spent} available`;
-    element('#talent-catalog-status', dialog).textContent = `${availableTalentCount} / ${TALENTS.length} talents playable. Coming-soon nodes can be inspected but cannot be allocated.`;
+    element('#talent-catalog-status', dialog).textContent = `${availableTalentCount} / ${TALENTS.length} talents playable.${availableTalentCount === TALENTS.length ? ' All branches are ready to mix.' : ' Coming-soon nodes can be inspected but cannot be allocated.'}`;
     openButton.textContent = `Talents (${spent}/${TALENT_TUNING.points})`;
     for (const button of tabs.querySelectorAll<HTMLButtonElement>('button')) {
       const id = button.dataset.branch!;

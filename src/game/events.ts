@@ -5,8 +5,8 @@ export type DamageSchool = 'physical' | 'fire' | 'arcane' | 'holy' | 'shadow' | 
 type Position = { x: number; y: number };
 export type CombatEvent =
   | { type: 'hit' | 'kill'; targetId: number; amount: number; source: DamageSource; school: DamageSchool; position: Position; critical?: boolean; slowed?: boolean; dots?: readonly DamageOverTime[] }
-  | { type: 'frost-consumed'; targetId: number; amount: number; position: Position }
-  | { type: 'hurt' | 'healed' | 'shield-broken' | 'absorbed' | 'dot-expired' | 'momentum-spent'; amount: number; position: Position };
+  | { type: 'frost-consumed' | 'mark-consumed'; targetId: number; amount: number; position: Position }
+  | { type: 'hurt' | 'healed' | 'shield-broken' | 'absorbed' | 'dot-expired' | 'momentum-spent' | 'overhealed' | 'pickup'; amount: number; position: Position };
 interface Context { depth: number; ancestry: string[] }
 interface QueuedEffect extends Context { event: CombatEvent }
 export interface EffectQueue {
@@ -18,7 +18,9 @@ export interface EffectQueue {
   suppressed: number;
 }
 export interface EffectHandler<C> { id: string; on: CombatEvent['type']; apply: (context: C, event: CombatEvent) => void }
-export const EFFECT_LIMITS = { perTick: 256, pending: 256, depth: 6 } as const;
+// Enough for simultaneous ticks on 80 foes with two DoTs plus their reactions.
+// Ancestry and depth still stop cycles; the finite work/queue caps stop runaway fan-out.
+export const EFFECT_LIMITS = { perTick: 512, pending: 512, depth: 6 } as const;
 
 export function createEffectQueue(): EffectQueue {
   return { pending: [], current: null, draining: false, processedThisTick: 0, dropped: 0, suppressed: 0 };

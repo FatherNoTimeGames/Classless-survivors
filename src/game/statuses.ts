@@ -7,6 +7,7 @@ import { addSpark } from './effects';
 
 export function updateStatuses(run: Run): void {
   for (const enemy of run.enemies) {
+    enemy.holyMark = Math.max(0, enemy.holyMark - STEP);
     enemy.frost = Math.max(0, enemy.frost - STEP);
     enemy.stun = Math.max(0, enemy.stun - STEP);
     enemy.root = Math.max(0, enemy.root - STEP);
@@ -19,6 +20,8 @@ export function updateStatuses(run: Run): void {
   run.talentMemory.ironWardIn = Math.max(0, run.talentMemory.ironWardIn - STEP);
   run.talentMemory.riftIn = Math.max(0, run.talentMemory.riftIn - STEP);
   run.talentMemory.wildHuntIn = Math.max(0, run.talentMemory.wildHuntIn - STEP);
+  run.talentMemory.sanctuaryIn = Math.max(0, run.talentMemory.sanctuaryIn - STEP);
+  run.talentMemory.dawnIn = Math.max(0, run.talentMemory.dawnIn - STEP);
 }
 
 /** Snapshot consumption before damage so lethal hits and both Frost talents agree. */

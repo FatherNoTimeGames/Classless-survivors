@@ -2,6 +2,7 @@ import { RULES, STEP } from './rules';
 import type { Point, Run } from './state';
 import { distance } from './geometry';
 import { addSpark } from './effects';
+import { emitEffect } from './events';
 import { awardXp } from './progression';
 
 export function dropShard(run: Run, point: Point): void {
@@ -25,6 +26,7 @@ export function updatePickups(run: Run, magnetRadius: number): void {
     }
     if (distance(shard, player) <= RULES.pickupRadius) {
       awardXp(run, shard.value);
+      emitEffect(run.effects, { type: 'pickup', amount: shard.value, position: { x: player.x, y: player.y } });
       addSpark(run, shard, 'pickup');
       return false;
     }

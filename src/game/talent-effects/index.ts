@@ -5,8 +5,8 @@ import { drainEffects } from '../events';
 import type { EffectHandler } from '../events';
 import { reprisal, spellsteel, ironWard, lastStand } from './warrior';
 import { arcaneEcho, rimeSigil, chainSpark, shatterglass, manaWard, riftweaver } from './mage';
-import { communion, searingGrace } from './priest';
-import { soulCinder } from './warlock';
+import { communion, searingGrace, sanctuary, atonementMark, atonementStrike, martyrWard, dawnChorus } from './priest';
+import { soulCinder, detonation, soulLink, harvest } from './warlock';
 import { huntingMomentum, snaringShot, frostTrap, wildHunt } from './hunter';
 import { siphonToxin, contagion, nightfall } from './rogue';
 
@@ -24,6 +24,10 @@ export const TALENT_IMPLEMENTATIONS: Partial<Record<TalentId, readonly EffectHan
   // Companion creation/ticks and Pack Link eligibility use their shared systems.
   falcon: [], 'pack-link': [], snare: [snaringShot], 'frost-trap': [frostTrap], 'wild-hunt': [wildHunt],
   communion: [communion], 'searing-grace': [searingGrace],
+  sanctuary: [sanctuary], atonement: [atonementMark, atonementStrike],
+  'martyr-ward': [martyrWard], 'dawn-chorus': [dawnChorus],
+  // Agony is an on-hit modifier; Grim Pact creates a companion during state construction.
+  agony: [], 'grim-pact': [], detonation: [detonation], 'soul-link': [soulLink], harvest: [harvest],
   'soul-cinder': [soulCinder], 'hunting-momentum': [huntingMomentum],
 };
 

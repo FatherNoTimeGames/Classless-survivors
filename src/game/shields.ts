@@ -10,6 +10,12 @@ export function grantShield(run: Run, amount: number, duration: number): void {
   addSpark(run, run.player, 'shield');
 }
 
+/** Overhealing is the explicit bounded exception to nonstacking ward grants. */
+export function addShield(run: Run, amount: number, cap: number, duration: number): void {
+  if (!Number.isFinite(amount) || amount <= 0 || !Number.isFinite(cap) || cap <= 0) return;
+  grantShield(run, Math.min(cap, run.player.shield.amount + amount), duration);
+}
+
 /** Only absorption can break a shield. Expiration/replacement never emit a break. */
 export function absorbDamage(run: Run, amount: number): number {
   const shield = run.player.shield;

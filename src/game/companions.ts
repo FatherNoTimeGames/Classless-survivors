@@ -1,31 +1,46 @@
 import type { Companion, Run } from './state';
-import { TALENT_TUNING as T } from '../content/talent-tuning';
+import { COMPANIONS } from '../content/companions';
 import { STEP, WORLD } from './rules';
 import { clamp } from './geometry';
 import { nearestEnemy } from './targeting';
 import { damageEnemy } from './damage';
 import { addSpark } from './effects';
+import { fireBolt } from './projectiles';
+import { getRunStats } from './stats';
 
 function strike(run: Run, companion: Companion): boolean {
-  const target = nearestEnemy(run.enemies, run.player, T.falconRange);
+  const definition = COMPANIONS[companion.kind];
+  const target = nearestEnemy(run.enemies, run.player, definition.range);
   if (!target) { companion.targetId = null; return false; }
   companion.targetId = target.id;
-  companion.x = clamp(target.x, 12, WORLD.width - 12);
-  companion.y = clamp(target.y - 16, 12, WORLD.height - 12);
-  companion.attackIn = T.falconInterval;
-  damageEnemy(run, target, T.falconDamage, { source: 'summon', school: 'physical' });
-  addSpark(run, target, 'falcon');
+  const damage = definition.damage + companion.bonusDamage;
+  if (definition.mode === 'projectile') {
+    if (!fireBolt(run, companion, target, {
+      damage, source: 'summon', school: definition.school, pierce: getRunStats(run.progression.ranks).pierce,
+    })) return false; // Keep the stored bonus/cooldown if the projectile budget is full.
+    companion.attackIn = definition.interval;
+    companion.bonusDamage = 0;
+    addSpark(run, companion, 'imp');
+  } else {
+    companion.x = clamp(target.x, 12, WORLD.width - 12);
+    companion.y = clamp(target.y - 16, 12, WORLD.height - 12);
+    companion.attackIn = definition.interval;
+    companion.bonusDamage = 0;
+    damageEnemy(run, target, damage, { source: 'summon', school: definition.school });
+    addSpark(run, target, 'falcon');
+  }
   return true;
 }
 
 export function updateCompanions(run: Run): void {
   for (const companion of run.companions) {
+    const definition = COMPANIONS[companion.kind];
     companion.attackIn = Math.max(0, companion.attackIn - STEP);
     if (companion.attackIn === 0 && strike(run, companion)) continue;
     // Return toward the player between strikes; rendering never updates companion positions.
     const follow = Math.min(1, STEP * 6);
-    companion.x += (clamp(run.player.x - 20, 12, WORLD.width - 12) - companion.x) * follow;
-    companion.y += (clamp(run.player.y - 24, 12, WORLD.height - 12) - companion.y) * follow;
+    companion.x += (clamp(run.player.x + definition.offsetX, 12, WORLD.width - 12) - companion.x) * follow;
+    companion.y += (clamp(run.player.y + definition.offsetY, 12, WORLD.height - 12) - companion.y) * follow;
   }
 }
 

@@ -18,7 +18,7 @@ test('inspect six branches, allocate and refund prerequisites, respec, and run a
   await expect(editor).toBeVisible();
   await expect(editor.getByRole('tab')).toHaveCount(6);
   await expect(editor.locator('.talent-node')).toHaveCount(6);
-  await expect(editor.locator('#talent-catalog-status')).toContainText('27 / 36 talents playable');
+  await expect(editor.locator('#talent-catalog-status')).toContainText('36 / 36 talents playable');
 
   await editor.getByRole('tab', { name: /Warrior/ }).focus();
   await page.keyboard.press('ArrowRight');
@@ -26,7 +26,7 @@ test('inspect six branches, allocate and refund prerequisites, respec, and run a
   await expect(editor.getByRole('tab', { name: /Mage/ })).toHaveAttribute('aria-selected', 'true');
   await activate(editor.getByRole('tab', { name: /Priest/ }));
   await activate(editor.getByRole('button', { name: /Inspect Sanctuary/ }));
-  await expect(editor.locator('#talent-availability')).toContainText('Coming soon');
+  await expect(editor.locator('#talent-availability')).toContainText('requires Ember Communion');
   await expect(editor.getByRole('button', { name: 'Allocate point' })).toBeDisabled();
   await expect(editor.getByRole('tooltip')).toContainText('XP shard');
 

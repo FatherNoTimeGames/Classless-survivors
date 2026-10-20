@@ -13,6 +13,10 @@ export function prepareHit(run: Run, enemy: Enemy, amount: number, source: Damag
       run.player.meleeIn = Math.max(0, run.player.meleeIn - T.exposedRefund);
       for (const companion of run.companions) companion.attackIn = Math.max(0, companion.attackIn - T.exposedRefund);
     }
+    if (run.talents.includes('agony')) applyDot(enemy, {
+      kind: 'curse', school: 'shadow', owner: source === 'summon' ? 'companion' : 'player',
+      damage: T.curseDamage, interval: T.dotInterval, remaining: T.curseDuration, tickIn: T.dotInterval,
+    });
     if (run.talents.includes('venom-edge')) applyDot(enemy, {
       kind: 'poison', school: 'poison', owner: source === 'summon' ? 'companion' : 'player',
       damage: T.poisonDamage, interval: T.dotInterval, remaining: T.poisonDuration, tickIn: T.dotInterval,

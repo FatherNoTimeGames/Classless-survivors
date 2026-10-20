@@ -26,3 +26,10 @@ export function applyDot(enemy: Enemy, effect: DamageOverTime): void {
 export function snapshotDots(enemy: Enemy): DamageOverTime[] {
   return enemy.dots.filter((dot) => dot.remaining > 0).map((dot) => ({ ...dot }));
 }
+
+/** Count scheduled ticks, including one due exactly at expiration, rather than fractional DPS. */
+export function remainingDotDamage(effect: DamageOverTime): number {
+  if (effect.remaining <= 0 || effect.tickIn > effect.remaining + 1e-8) return 0;
+  const ticks = Math.floor((effect.remaining - effect.tickIn + 1e-8) / effect.interval) + 1;
+  return Math.max(0, ticks) * effect.damage;
+}
