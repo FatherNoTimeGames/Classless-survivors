@@ -1,0 +1,173 @@
+# Classless Survivors — development tasks
+
+## Working agreement
+
+Complete one numbered task per user-authorized work cycle. After completing it,
+run its checks, commit it, update PROGRESS.md, report what finished and any known
+issues, and wait for the user to say **continue**. This usage-control instruction
+takes precedence over the project brief's request to continue automatically.
+Do not start the next task in the same cycle. Make ordinary design and technical
+decisions independently. If a task exceeds a cycle's limits, preserve unfinished
+work and record exact resumption steps; do not mark it complete.
+
+This list is implementation order. Each task builds on completed tasks. Fix
+regressions caused by the current task before marking it complete. Any newly
+discovered substantial work must be recorded explicitly, with its effect on the
+remaining plan. Never silently drop a requirement.
+
+## Product and technical direction
+
+- A single-player dark fantasy survival game, with a complete run targeting 15
+  minutes and three boss encounters. Victory and defeat return to build planning.
+- TypeScript, HTML5 Canvas for the arena, accessible HTML/CSS for menus, and Vite
+  for local development and production builds. Keep runtime dependencies small.
+- Keyboard and touch movement; automatic combat. Portrait-first layout that also
+  supports tablets and desktop. Original programmatic pixel art and effects.
+- Six talent branches, six meaningful talents each: Warrior, Mage, Rogue, Priest,
+  Warlock, and Hunter. Branches are freely mixable categories, never classes.
+- Permanent unlocks broaden options within a bounded talent budget. Free respecs
+  and saved builds encourage experimentation. Run upgrades are separate and reset.
+- Local versioned saves, static hosting, offline caching, and an installable PWA
+  where supported. No accounts, backend, paid services, or external gameplay APIs.
+- Separate testable simulation/progression logic from rendering and input. Use
+  seeded randomness for repeatable checks. Add meaningful automated tests as each
+  system appears and browser tests for the user journey.
+
+Detailed mechanics and tuning may change based on playtesting while preserving
+these requirements. No subscription-usage or completion-time estimates are implied.
+
+## Checklist and acceptance checks
+
+- [x] **0. Inspect the repository and establish the task list.**
+  Inspect existing instructions and files; save this plan and the progress log.
+  Done when the implementation sequence and completion checks are committed.
+
+- [ ] **1. Establish the web project and validation tools.**
+  Add the TypeScript/Vite application, responsive page shell, development/build
+  commands, test runner, and browser-test tooling. Document local startup.
+  Done when a clean install, type check, production build, meaningful initial
+  test, and browser rendering check pass.
+
+- [ ] **2. Build the smallest playable survival loop.**
+  Add a bounded arena, frame-rate-independent movement, keyboard and virtual-stick
+  controls, one enemy, an automatic attack, health, XP pickups, and defeat/restart.
+  Done when a player can move, kill enemies, collect XP, die, and restart;
+  automated checks cover movement, hits, and run-state resets.
+
+- [ ] **3. Add leveling and randomized run upgrades.**
+  Implement XP thresholds, paused upgrade selection, a useful initial upgrade
+  pool, rarity/eligibility rules, and visible ability improvements.
+  Done when successive levels offer valid choices, selections change combat,
+  excessive XP is handled correctly, and a new run clears temporary upgrades.
+
+- [ ] **4. Build the classless talent framework and visual tree.**
+  Define all 36 talents, prerequisites, descriptions, and cross-branch interactions.
+  Implement bounded point allocation, refunds/free respecs, selection validation,
+  touch-friendly tooltips, and the combat event/effect framework. Expose only
+  implemented talents as usable; definitions alone do not count as completed content.
+  Done when mixed-branch allocation works, invalid builds are rejected, and
+  prerequisites, refunds, and bounded effect-trigger chains are tested.
+
+- [ ] **5. Implement Warrior and Mage talents.**
+  Deliver six working talents per branch, melee and elemental attacks, frost/
+  physical interactions, shields or retaliation, icons, and accurate tooltips.
+  Done when every talent has a behavior test and melee/caster hybrids visibly
+  play differently from either branch alone.
+
+- [ ] **6. Implement Rogue and Hunter talents.**
+  Deliver six working talents per branch, critical-hit and damage-over-time
+  interactions, ranged attacks, and a summon with defined inheritance rules.
+  Done when all twelve talents function and tests cover critical propagation,
+  summon ownership/inheritance, targeting, and interactions with existing branches.
+
+- [ ] **7. Implement Priest and Warlock talents.**
+  Deliver six working talents per branch, healing-to-offense effects, curses,
+  damage-over-time detonations, and further summon/defensive synergies.
+  Done when all 36 talents function, descriptions match behavior, and tests cover
+  overhealing rules, damage attribution, detonations, and recursive-trigger limits.
+
+- [ ] **8. Add persistent progression and saved character builds.**
+  Implement run rewards, bounded talent-point progression, option unlocks, multiple
+  named build slots, and free between-run respecs. Add versioned local saves,
+  validation/migrations, recovery from invalid data, and export/import backups.
+  Done when rewards cannot be claimed twice, early losses cannot trap progression,
+  reloads retain unlocks/builds, and incompatible or damaged saves fail gracefully.
+
+- [ ] **9. Expand enemy variety, elites, and wave pacing.**
+  Add distinct pursuers, ranged attackers, chargers, and area-denial enemies,
+  elite modifiers, spawn pacing, and readable attack warnings. Use appropriate
+  spatial queries/entity caps to support dense waves.
+  Done when behavior tests pass and mixed waves create distinct positioning
+  decisions without spawning unavoidable hits on the player.
+
+- [ ] **10. Complete the timed run and boss encounters.**
+  Add three bosses with distinct, telegraphed positioning mechanics across the
+  15-minute run, including a final encounter. Implement victory, defeat, pause,
+  result summaries, rewards, and return to build planning.
+  Done when winning and losing both complete the progression loop, boss transitions
+  and rewards are tested, and boss mechanics are exercised in the browser.
+
+- [ ] **11. Deepen temporary upgrades and hybrid builds.**
+  Expand run upgrades to support all ability families and add temporary cross-branch
+  synergies. Provide readable build/ability summaries and sensible fallback offers
+  for capped upgrades. Preserve viable options for narrow and mixed builds.
+  Done when representative retaliation, frost/melee, critical/DoT, healing/offense,
+  and summon builds each have tested, noticeably different play patterns.
+
+- [ ] **12. Finish the visual and audio presentation.**
+  Replace temporary visuals with cohesive original pixel art: player/enemy
+  silhouettes, arena, all talent/ability icons, boss warnings, and distinct effects.
+  Add restrained hit feedback, procedural audio, volume/mute, and reduced-motion
+  support. Prioritize readability during dense combat.
+  Done when gameplay has a consistent style, implemented content has finished
+  presentation, and audio activation/settings work under browser restrictions.
+
+- [ ] **13. Harden mobile, tablet, and desktop usability.**
+  Tune portrait HUD, thumb reach, safe areas, touch targets, tooltips, and upgrade
+  menus. Handle resizing, orientation, focus loss, and page visibility correctly;
+  prevent touch controls from triggering browser gestures during play.
+  Done when keyboard and simulated touch journeys pass across phone/tablet/desktop
+  viewports and controls recover correctly after interruptions. Record any physical
+  Android-device validation that cannot be performed here as an explicit limitation.
+
+- [ ] **14. Add and verify offline installation.**
+  Add the app manifest, original install icons, production service worker, cache
+  versioning, and safe update behavior. Cache all required gameplay assets locally.
+  Done when the built game loads and completes its core journey with networking
+  disabled after initial loading, saves survive relaunches, and cache upgrades do
+  not delete player progress. Document browser-specific installation limitations.
+
+- [ ] **15. Balance builds and optimize full runs.**
+  Playtest full-length runs and use repeatable simulation checks to tune difficulty,
+  rewards, upgrade offers, and representative hybrids. Profile dense waves and
+  optimize measured bottlenecks; bound particles, projectiles, and chained effects.
+  Done when early progression is fair, several hybrids can complete a run, and
+  measured performance is documented with workload and test-environment limits.
+  Do not claim Android hardware performance from desktop emulation alone.
+
+- [ ] **16. Complete regression testing and fix release blockers.**
+  Exercise all completion criteria: mixed build, combat, leveling, different enemies
+  and bosses, win/loss, rewards, respec, replay, browser closure/reopen, and offline
+  return. Test every talent, representative cross-branch pairs, and high-risk effect
+  combinations. Check save migration, long-run stability, and repeated restarts.
+  Done when required checks pass, reported failures are diagnosed/fixed, and remaining
+  limitations are explicit. No unused or inert talent may be called complete.
+
+- [ ] **17. Prepare and deliver the playable release.**
+  Produce and smoke-test the production build. Finish instructions for playing,
+  development, checks, saves/backups, controls, static deployment, and PWA updates.
+  Deploy if a suitable authorized deployment target is available; otherwise provide
+  the verified build and exact remaining hosting step, including HTTPS requirements.
+  Done when delivery evidence and known limitations are documented and committed.
+
+## Completion standard
+
+Each task reports checks actually executed, their outcomes, and any limits. Tests
+that run zero cases or merely verify an implementation constant do not establish
+readiness. Later polish does not excuse broken earlier functionality. Intermediate
+playable builds are milestones, not claims that the whole game is finished.
+
+The finished game must satisfy all nine user completion criteria, run without a
+backend, retain progress after browser restarts, and support offline gameplay after
+initial caching. Commit completed tasks locally; pushing and production publication
+are distinct actions and must be reported accurately.
