@@ -72,7 +72,7 @@ test('clear held keys and real pointer capture after resize, focus loss and capt
 test('pause for reading and settings without stealing focus or resuming on Escape in a control', async ({ page }, testInfo) => {
   const { errors } = await startGame(page);
   const activate = (locator: Locator) => testInfo.project.use.hasTouch ? locator.tap() : locator.click();
-  for (const id of ['presentation-settings', 'enemy-guide', 'run-build']) {
+  for (const id of ['presentation-settings', 'offline-settings', 'enemy-guide', 'run-build']) {
     const summary = page.locator(`#${id} summary`).first();
     await activate(summary);
     await expect(page.getByRole('button', { name: 'Resume run' })).toBeVisible();

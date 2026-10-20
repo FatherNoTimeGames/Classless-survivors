@@ -217,12 +217,20 @@ these requirements. No subscription-usage or completion-time estimates are impli
   1,088 unit tests and the production build pass. Physical-device ergonomics,
   browser chrome, soft keyboards and OS interruptions remain unverified.
 
-- [ ] **14. Add and verify offline installation.**
+- [x] **14. Add and verify offline installation.**
   Add the app manifest, original install icons, production service worker, cache
   versioning, and safe update behavior. Cache all required gameplay assets locally.
   Done when the built game loads and completes its core journey with networking
   disabled after initial loading, saves survive relaunches, and cache upgrades do
   not delete player progress. Document browser-specific installation limitations.
+  Delivered a relative manifest, original mask-safe install icons, generated
+  integrity-checked offline shell, readiness/repair/install UI and safe waiting
+  updates. Native Chromium restart/offline play, two-client updates, failed
+  integrity/retry, subdirectory hosting and save/cache preservation pass. Complete
+  campaign/reward/respec/reload/replay journeys run offline on all three projects.
+  All 1,098 unit tests, 88 browser cases and the production build pass. HTTPS,
+  installation/update/hosting instructions and physical-device/OS limits are
+  documented. Publication remains task 17; balance/performance remains task 15.
 
 - [ ] **15. Balance builds and optimize full runs.**
   Playtest full-length runs and use repeatable simulation checks to tune difficulty,

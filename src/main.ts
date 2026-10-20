@@ -1,6 +1,7 @@
 import './styles.css';
 import './ui/usability.css';
 import { createPlayLayout } from './ui/play-layout';
+import { createOfflinePanel } from './ui/offline-panel';
 import { createSynth } from './audio/synth';
 import { createSoundDirector } from './audio/director';
 import { openPresentationStore } from './persistence/presentation-store';
@@ -70,6 +71,7 @@ const layout = createPlayLayout(element('.shell'), element('#sanctuary'), hud, e
   onResize: () => { controls.clear(); renderer?.draw(run); },
   onRotate: pause,
 });
+const offline = createOfflinePanel(import.meta.env.PROD, () => pauseRun(false));
 for (const id of ['enemy-guide', 'run-build']) {
   const details = element<HTMLDetailsElement>(`#${id}`);
   details.addEventListener('toggle', () => { if (details.open) pauseRun(false); }, { signal: events.signal });
@@ -218,5 +220,5 @@ if (!renderer) {
 }
 
 if (import.meta.hot) {
-  import.meta.hot.dispose(() => { stopFrames(); controls.destroy(); layout.destroy(); presentation.destroy(); sound.destroy(); picker.destroy(); talentEditor.destroy(); events.abort(); observer.disconnect(); });
+  import.meta.hot.dispose(() => { stopFrames(); controls.destroy(); layout.destroy(); offline.destroy(); presentation.destroy(); sound.destroy(); picker.destroy(); talentEditor.destroy(); events.abort(); observer.disconnect(); });
 }

@@ -4,6 +4,7 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": true,
     "types": ["vite/client", "node"],
     "strict": true,
     "noUncheckedIndexedAccess": true,
@@ -15,5 +16,5 @@
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": ["src", "tests", "e2e", "*.config.ts"]
+  "include": ["src", "build", "tests", "e2e", "*.config.ts"]
 }

@@ -6,6 +6,8 @@
     <meta name="theme-color" content="#101416" />
     <meta name="description" content="Forge your own path in a dark fantasy, classless survival roguelite." />
     <link rel="icon" type="image/svg+xml" href="./sigil.svg" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./icons/icon-192.png" />
     <title>Classless Survivors</title>
   </head>
   <body>
@@ -82,6 +84,15 @@
             <label class="setting-motion" for="motion-preference">Motion</label>
             <select id="motion-preference"><option value="system">Follow device setting</option><option value="reduced">Reduced motion</option><option value="full">Full motion</option></select>
             <p id="motion-status"></p><p id="presentation-save-notice" role="status"></p>
+          </details>
+          <details class="build-summary" id="offline-settings">
+            <summary>Offline &amp; installation</summary>
+            <p id="offline-status" role="status">Checking offline support…</p>
+            <button class="quiet-button" id="cache-game" type="button">Save game offline</button>
+            <button class="quiet-button" id="check-updates" type="button">Check for updates</button>
+            <p id="offline-notice" role="status"></p>
+            <button class="quiet-button" id="install-game" type="button" hidden>Install game</button>
+            <p id="install-help">Install from your browser menu when available. Browser play works without installation.</p>
           </details>
           <details class="build-summary" id="enemy-guide">
             <summary>Enemy field guide</summary>

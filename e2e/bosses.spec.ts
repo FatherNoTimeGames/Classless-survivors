@@ -3,7 +3,7 @@ import type { Locator } from '@playwright/test';
 import { seedRuns, choosePreferredUpgrade, installRunPilot } from './game-helpers';
 import { SAVE_KEY } from '../src/persistence/profile-store';
 
-test('complete fifteen minutes, fight three guardians, claim victory, respec, reload and replay', async ({ page }, testInfo) => {
+test('complete fifteen minutes offline, fight three guardians, claim victory, respec, reload and replay', async ({ page, context }, testInfo) => {
   test.setTimeout(180_000);
   const errors: string[] = []; page.on('pageerror', (error) => errors.push(error.message));
   await seedRuns(page);
@@ -36,6 +36,9 @@ test('complete fifteen minutes, fight three guardians, claim victory, respec, re
     };
   });
   await page.goto('/');
+  await expect(page.locator('#offline-status')).toContainText('Offline ready');
+  await expect.poll(() => page.evaluate(() => Boolean(navigator.serviceWorker.controller))).toBe(true);
+  await context.setOffline(true);
   const activate = async (locator: Locator) => testInfo.project.use.hasTouch ? locator.tap() : locator.click();
   await activate(page.locator('#edit-talents'));
   const editor = page.getByRole('dialog', { name: 'Classless talents' });

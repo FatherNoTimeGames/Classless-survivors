@@ -10,8 +10,9 @@ Poison/curses, companions, healing offense, shields, and retaliation. Runs inclu
 movement, automatic combat, XP, 20 run-upgrade choices, defeat, and replay. Local
 saves, research, named builds, and backups now work. Five enemy types, two elite
 modifiers, escalating waves, and three telegraphed guardians form a timed
-15-minute run with victory, defeat, rewards, and return to build planning. Offline
-installation remains upcoming.
+15-minute run with victory, defeat, rewards, and return to build planning. Production
+builds now support offline play and optional home-screen installation. Difficulty,
+performance tuning and final release validation remain upcoming.
 See [the task list](DEVELOPMENT_PLAN.md) and [progress log](PROGRESS.md).
 
 ## Play this milestone
@@ -411,7 +412,41 @@ reload that tab to use the latest profile.
 A run identity is saved before combat. Its reward consumes that identity in the
 same profile write. Repeated defeat handling and reloads cannot claim the reward
 again. Reloading discards an unfinished run without a reward and keeps completed
-progress and builds. Combat snapshots and offline installation are later work.
+progress and builds. Closing the browser does not preserve unfinished combat.
+
+## Offline play and installation
+
+Open the production game while connected, then expand **Offline & installation**
+below the arena. Opening the panel pauses combat. Wait for **Offline ready** before
+disconnecting: it means the complete game files have been saved on this device.
+You can then close and reopen the game, make builds, finish runs, earn rewards,
+and replay offline. Installation is optional; the normal browser game also works
+offline. Sound is generated locally and needs no downloaded audio or service.
+
+To install:
+
+1. On Android Chrome, choose **Install game** when offered, or use the browser
+   menu's **Install app / Add to Home screen** option.
+2. On iPhone/iPad Safari, use **Share → Add to Home Screen**. On desktop, use the
+   browser's install icon/menu when supported.
+3. Open the installed app once while online and confirm **Offline ready** there.
+   Some browsers use separate storage for installed apps; export a character
+   backup before switching browsers, devices or app containers.
+
+If a download fails or browser storage evicts files, reconnect and select **Save
+game offline** to retry/repair. A newer deployment can require the update process
+below instead. Blocked or unsupported offline APIs leave connected browser play
+usable. Clearing site data removes both the offline copy and local saves; keep
+backups. Browsers control storage retention and installation prompts. Actual
+Android/iOS installation and physical-device storage policy remain unverified.
+
+**Updates:** registration checks for updates on opening; **Check for updates**
+requests another check while connected. A downloaded update waits: finish your
+runs, close all game tabs and installed windows, then reopen. No update forces a
+reload or takes over an active run, even when another tab checks for updates.
+The old version keeps working offline until the replacement is complete and can
+activate. Updates preserve character profiles, builds, preferences and unrelated
+applications' caches. Reopening still discards unfinished combat as described above.
 
 ## Develop
 
@@ -540,6 +575,17 @@ touch scrolling. Small-screen talent and saved-build journeys also run. Headless
 tabs do not become hidden when another tab opens here, so visibility recovery uses
 an explicit document-property/event fixture; it does not simulate an Android OS.
 
+Offline worker tests cover complete/failed installs, scoped cache cleanup, allowed
+requests, navigation, repair and readiness. Native PWA journeys validate the
+manifest/icons, repair a removed cached file, fully close and restart Chromium
+with its on-disk profile, and load HTML/JS/CSS from the worker with networking
+disabled before playing/leveling. Subdirectory-host tests serve two releases via
+the production worker emitter, verify updates wait for two clients, preserve
+profiles/settings/foreign caches, and reject a wrong-content HTTP-200 response
+before retrying. The full guardian/victory/respec/reload/replay journey runs
+offline after initial caching on all three projects. Install offer/acceptance
+events are explicit test fixtures; headless tests do not validate an OS install UI.
+
 Screenshots and failure traces are
 written to ignored `test-results/`. Emulation does not replace physical device
 testing, and Chromium checks do not establish support in other browser engines.
@@ -552,9 +598,37 @@ npm run preview
 ```
 
 Preview serves the built app on port 4173. Deploy the contents of `dist/` to a
-static web host. Asset URLs are relative to support subdirectory hosting. The
-preview command is for local validation, not a production server. HTTPS and
-offline installation guidance will be completed with the PWA milestone.
+static web host over **HTTPS**, preserving all generated files and paths. The
+preview command is for local validation, not a production server. Loopback
+localhost/127.0.0.1 is a secure-context exception for testing; ordinary LAN HTTP
+can play online but cannot provide service-worker installation. Opening files
+directly is unsupported. `npm run dev` does not register the production worker.
+
+Asset, manifest, start and worker URLs are relative: the same build works at `/`
+or a folder such as `/Classless-survivors/`. Use the folder's trailing-slash URL.
+Prefer a dedicated folder when sharing a host with other applications. Serve
+`sw.js` with JavaScript MIME type, the manifest with a JSON/manifest MIME type,
+and PNGs as images. Let `sw.js`, `index.html` and `manifest.webmanifest` revalidate
+(for example `Cache-Control: no-cache`); hashed `assets/` files may be immutable.
+Do not rewrite missing asset URLs to HTML or inject/modify built file contents.
+
+The build emits `sw.js` from the actual bundle/public files. Every asset, including
+HTML and install metadata, has a SHA-256 integrity digest. Installation/repair uses
+atomic `Cache.addAll`; a partial or mixed deployment cannot replace a good cache.
+Known verified files ignore host `Vary` headers during cache lookup so module/CSS
+request headers do not break cold offline starts. Navigation is limited to the
+game root/index, and unknown/cross-origin/non-GET/range requests are not cached.
+No `skipWaiting` or forced reload is used. Activation deletes only obsolete shell
+caches for this game's path; local profiles/preferences are separate and untouched.
+
+Upload a complete release atomically where supported, or upload hashed assets
+first and HTML/manifest/worker last, retaining older hashed assets during rollout.
+Incomplete updates fail safely and can be retried after all files are available.
+No deployment target is configured yet; production publication remains task 17.
+
+Original install icons can be regenerated from the repository root with
+`node scripts/generate-icons.mjs`. The script uses built-in Node APIs and keeps
+the sigil inside the mask-safe area; no asset services or added dependencies.
 
 ## Layout
 
@@ -570,6 +644,10 @@ offline installation guidance will be completed with the PWA milestone.
 - `src/audio/`: original tone definitions, lazy bounded Web Audio synthesis, and read-only cue direction.
 - `src/ui/presentation-settings.ts`: accessible settings and device-motion observation.
 - `src/ui/play-layout.ts` and `src/ui/usability.css`: viewport fitting, rotation boundaries, safe areas and responsive play/menu layout.
+- `src/offline/client.ts`: guarded worker registration, readiness, repair and update checks.
+- `src/ui/offline-panel.ts`: offline status and optional browser installation affordance.
+- `build/`: deterministic release digests, worker runtime and Vite build integration.
+- `public/manifest.webmanifest`, `public/icons/`, `scripts/generate-icons.mjs`: local installation metadata and original mask-safe icons.
 - `src/persistence/presentation-store.ts`: separate settings storage and current-tab fallback.
 - `src/styles.css` and `index.html`: responsive, semantic page shell.
 - `tests/`: unit tests for logic independent of the browser.
