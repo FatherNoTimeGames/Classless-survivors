@@ -41,6 +41,10 @@
 - Task 17 delivers a versioned ZIP, SHA-256 inventory/checksum, short player and
   hosting guides, and a manual GitHub Pages workflow. Separate packaging and smoke
   scripts rebuild and verify the extracted game without changing shipped gameplay.
+- Hosting follow-up: the user's screenshots confirm GitHub Actions as the Pages
+  source and HTTPS enabled. Release `1494cf3` was pushed to `origin/main` and its
+  exact remote commit verified. The site has not yet been deployed: starting the
+  manual workflow through the API is blocked by the environment proxy (CONNECT 403).
 
 ## Standing requirements
 
@@ -60,10 +64,12 @@ No numbered implementation tasks remain. The generated artifact is
 [DEPLOYMENT.md](DEPLOYMENT.md) covers development, verification and exact hosting
 steps, including the prepared manual GitHub Pages workflow. Generated artifacts
 are ignored by Git; recreate with `npm run release` and `npm run test:release`.
-Remote hosting is the remaining external step: source must be pushed/merged to
-GitHub's default branch, Pages set to GitHub Actions, then the manual workflow run;
-alternatively upload `web/` to another suitable HTTPS static host. No deployment
-target was configured and no push/publication was performed. Pause after delivery.
+The source and `.github/workflows/pages.yml` are now on `origin/main`, and the
+user has selected GitHub Actions in Pages settings. The remaining hosting step is
+**Actions → Deploy game to GitHub Pages → Run workflow → main → Run workflow**.
+Use the deployment job's returned URL after success. The remote workflow has not
+been started or verified here; the API dispatch request was blocked before reaching
+GitHub. Alternatively upload `web/` to another suitable HTTPS static host.
 
 ## Latest validation
 
@@ -113,7 +119,8 @@ target was configured and no push/publication was performed. Pause after deliver
 
 ## Remaining work and limits
 
-- No implementation tasks remain. Hosting publication is pending as described above.
+- No implementation tasks remain. Source publication is complete; the Pages
+  workflow run and live-site verification are pending as described above.
   Seeded wins alone do not prove enjoyable balance or Android hardware performance.
   Broader seeds/pilots and physical playtesting remain useful. The fixed pilot
   has six losses; the health-aware pilot has two. Synthetic saturation deliberately
@@ -129,8 +136,9 @@ target was configured and no push/publication was performed. Pause after deliver
   progress remains local; export character backups before clearing data or
   switching browser/device/origin/container. Preferences are separate from those
   backups. Failed local profile writes require exporting the in-memory profile.
-- No configured deployment, remote publication or push this cycle. GitHub Pages
-  is the recommended free option for a public repository; ChatGPT Sites' static
+- GitHub Pages settings are configured and source is pushed; no successful site
+  deployment is claimed. GitHub Pages is the recommended free option for a public
+  repository; ChatGPT Sites' static
   hosting/service-worker support has not been verified. Guides cover both contracts.
 
 ## Milestone history
