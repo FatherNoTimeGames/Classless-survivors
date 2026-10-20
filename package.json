@@ -1,6 +1,6 @@
 {
   "name": "classless-survivors",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "description": "A classless dark fantasy survival roguelite for the browser.",
@@ -17,6 +17,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:browser": "playwright test",
+    "release": "node scripts/package-release.mjs",
+    "test:release": "node scripts/smoke-release.mjs",
     "analyze": "node analysis/run.mjs",
     "analyze:browser": "node analysis/browser.mjs",
     "check": "npm run test && npm run build && npm run test:browser"

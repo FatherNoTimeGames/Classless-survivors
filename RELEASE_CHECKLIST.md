@@ -1,8 +1,8 @@
-# Release regression evidence — task 16
+# Release regression and delivery evidence — tasks 16–17
 
 Checked on 2026-10-20 with Node 24.19.0, npm 11.9.0 and Chromium
-154.0.8037.57 in the managed Linux workspace. This milestone checks the playable
-game and fixes release blockers; packaging/hosting is task 17.
+154.0.8037.57 in the managed Linux workspace. Task 16 checks the playable game and
+fixes release blockers. Task 17 packages and verifies the delivered 1.0.0 release.
 
 ## User completion criteria
 
@@ -116,6 +116,50 @@ the existing local SVG, manifest and icons. Final production browser regression:
 The first failure and its diagnosis remain recorded above and in
 [PROGRESS.md](PROGRESS.md).
 
+## Delivered 1.0.0 artifact
+
+```sh
+npm test -- --disableConsoleIntercept
+npm run release
+PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:release
+```
+
+The repeated unit regression passes **1,647/1,647** (24 files, 28.17 seconds).
+Release packaging passes TypeScript and rebuilds the same HTML/JS/CSS/worker bytes
+as task 16; its full **97/97** browser regression remains applicable. No combat,
+rendering, save, input or offline runtime code changes in task 17.
+
+`release/classless-survivors-1.0.0.zip` is **63,837 bytes**. It contains eight
+production files under `web/`, PLAYING.md, DEPLOYMENT.md, START-HERE.txt and
+release-manifest.json (twelve files total). The manifest covers all other files;
+the adjacent `.sha256` covers the archive. The verified archive SHA-256 is:
+
+```text
+1f7b0a58e9c6b2506dd57df7068db433e4578a32eaaef2b527287174a9f582ae
+```
+
+The smoke command extracts the actual ZIP, checks its exact file inventory and
+hashes, then serves those extracted files, using fresh browser contexts:
+
+| Served path | Desktop | Touch tablet | Android portrait |
+| --- | --- | --- | --- |
+| `/` | Pass | Pass | Pass |
+| `/Classless-survivors/` | Pass | Pass | Pass |
+
+All six journeys allocate and save a Warrior/Mage build through the real UI,
+wait for native offline readiness, disconnect and reload from the worker cache,
+verify local progress, move by keyboard or native touch, kill enemies, navigate
+to real XP shards and select an earned upgrade. No state/XP injection or external
+requests; no browser errors or horizontal overflow. Screenshots and a report
+identifying this archive hash are generated in `release/`. Time is accelerated
+with Playwright's clock; these checks do not establish physical-device performance.
+
+Both release scripts pass Node syntax checks. The manually triggered Pages YAML
+parses and uploads only `dist/` after successful tests/build. Its official action
+versions were checked against their sources/current Pages template. It has not
+been executed on GitHub. [DEPLOYMENT.md](DEPLOYMENT.md) provides exact setup steps.
+No dependencies were added; package/lockfile version metadata is now 1.0.0.
+
 ## Remaining limits
 
 - Physical Android/tablet ergonomics, OS installation, thermal/battery/memory
@@ -130,5 +174,9 @@ The first failure and its diagnosis remain recorded above and in
 - Local progress is tied to browser/origin/container and can be evicted or denied.
   Export backups before clearing data or switching devices. In-memory changes
   after saving fails need an export. Closing unfinished combat gives no reward.
-- No deployment target is configured. There is no push or remote publication in
-  this milestone. Task 17 prepares the verified release and hosting instructions.
+- No deployment target was configured. The environment is connected/running with
+  no hosting capability or credential binding; read-only Git access succeeds but
+  the GitHub Pages API request is blocked by network policy (proxy CONNECT 403).
+  There is no push, executed remote workflow or live deployment to claim. The ZIP
+  is ready for HTTPS static hosting; GitHub Pages is recommended for a public repo.
+  ChatGPT Sites' required static-file/service-worker support remains unverified.

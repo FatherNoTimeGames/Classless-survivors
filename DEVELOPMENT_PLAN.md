@@ -266,12 +266,21 @@ these requirements. No subscription-usage or completion-time estimates are impli
   all 97 browser cases pass. Physical-device and synthetic-overload limits remain explicit in
   RELEASE_CHECKLIST.md. Packaging/publication remain task 17.
 
-- [ ] **17. Prepare and deliver the playable release.**
+- [x] **17. Prepare and deliver the playable release.**
   Produce and smoke-test the production build. Finish instructions for playing,
   development, checks, saves/backups, controls, static deployment, and PWA updates.
   Deploy if a suitable authorized deployment target is available; otherwise provide
   the verified build and exact remaining hosting step, including HTTPS requirements.
   Done when delivery evidence and known limitations are documented and committed.
+  Delivered version 1.0.0 as a ready-to-host ZIP with eight production files,
+  checksum/inventory and concise player/hosting guides. Separate release scripts
+  rebuild, extract and verify it; six root/subdirectory desktop/tablet/Android
+  offline play journeys pass. All 1,647 unit tests and the production build pass;
+  shipped game bytes match task 16's 97-case browser-tested release. A manual-only
+  GitHub Pages workflow is prepared. No host was configured and the Pages API was
+  blocked by the environment network policy, so the production-build fallback and
+  exact remaining publication steps are delivered. No push or remote deployment
+  occurred. Physical-device/OS/other-browser limits remain in RELEASE_CHECKLIST.md.
 
 ## Completion standard
 

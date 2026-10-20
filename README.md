@@ -3,7 +3,7 @@
 A single-player dark fantasy survival roguelite built with TypeScript and Canvas.
 Mix talents freely across six fantasy archetypes. No accounts or backend required.
 
-**Current milestone:** all **36 talents across six freely mixed branches** are
+**Version 1.0.0:** all **36 talents across six freely mixed branches** are
 implemented. Persistent progress unlocks capstones and a bounded talent budget.
 Builds support melee/spell combos, critical effects,
 Poison/curses, companions, healing offense, shields, and retaliation. Runs include
@@ -13,10 +13,12 @@ modifiers, escalating waves, and three telegraphed guardians form a timed
 15-minute run with victory, defeat, rewards, and return to build planning. Production
 builds support offline play and optional home-screen installation. The first balance
 and measured performance pass is complete. Release regression evidence is in
-[RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md); final packaging and delivery remain.
+[RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md). The complete game is ready for static
+hosting. Start with [the player guide](PLAYING.md) or
+[running, release packaging and GitHub Pages deployment](DEPLOYMENT.md).
 See [the task list](DEVELOPMENT_PLAN.md) and [progress log](PROGRESS.md).
 
-## Play this milestone
+## Play
 
 Open **Talents** before a run. You start with eight talent points, can mix any branches,
 and may leave points unspent. Select a branch tab, then a node to inspect its
@@ -633,7 +635,14 @@ caches for this game's path; local profiles/preferences are separate and untouch
 Upload a complete release atomically where supported, or upload hashed assets
 first and HTML/manifest/worker last, retaining older hashed assets during rollout.
 Incomplete updates fail safely and can be retried after all files are available.
-No deployment target is configured yet; production publication remains task 17.
+`npm run release` rebuilds and packages the site into
+`release/classless-survivors-1.0.0.zip` with player/hosting guides and SHA-256
+checksums. `npm run test:release` verifies the extracted archive and plays it
+offline at root and subdirectory paths in three Chromium layouts. These commands
+need `zip`/`unzip` and a configured Playwright browser; see
+[DEPLOYMENT.md](DEPLOYMENT.md). The manual GitHub Pages workflow is ready; remote
+publication still needs the committed source on GitHub and Pages enabled there.
+No hosting deployment or push was performed during release preparation.
 
 Original install icons can be regenerated from the repository root with
 `node scripts/generate-icons.mjs`. The script uses built-in Node APIs and keeps
@@ -661,6 +670,10 @@ the sigil inside the mask-safe area; no asset services or added dependencies.
 - `src/styles.css` and `index.html`: responsive, semantic page shell.
 - `tests/`: unit tests for logic independent of the browser.
 - `e2e/`: browser checks against the production build.
+- `scripts/package-release.mjs`, `scripts/smoke-release.mjs`: versioned static ZIP
+  generation and verification/play of the extracted artifact; no shipped runtime code.
+- `.github/workflows/pages.yml`: manually triggered GitHub Pages build/deployment.
+- `PLAYING.md`, `DEPLOYMENT.md`: concise player guide and hosting/development handoff.
 
 The simulation module map:
 
