@@ -117,6 +117,47 @@ footer span { padding-inline: 8px; color: #b8a77f; }
 :focus-visible { outline: 2px solid #e7b66c; outline-offset: 4px; }
 noscript { display: block; padding: 20px; text-align: center; }
 
+#talent-editor { width: min(900px, calc(100% - 24px)); max-height: calc(100svh - 24px); padding: 22px; color: #e5dfce; background: #111b1d; border: 1px solid #988156; overscroll-behavior: contain; scroll-padding-top: 100px; }
+#talent-editor::backdrop { background: #050a0de0; }
+.talent-editor-header, .talent-budget { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.talent-editor-header { position: sticky; top: -22px; z-index: 3; padding-block: 8px; background: #111b1d; border-bottom: 1px solid #52614e; }
+.talent-editor-header h2 { font-size: 1.8rem; }
+.talent-intro, #talent-catalog-status, .talent-help { font-size: 0.75rem; color: #acbbac; line-height: 1.5; }
+#talent-points { color: #e7c38c; font-size: 0.8rem; }
+#branch-tabs { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-top: 12px; }
+#branch-tabs button { background: #1c2a29; border-color: #506352; color: #c4cdbb; padding: 9px 5px; font-size: 0.75rem; }
+#branch-tabs button[aria-selected="true"] { border-color: #e0be78; background: #3c3b2c; color: #f2dbac; }
+#talent-branch-title { font-size: 0.8rem; color: #d8c79e; line-height: 1.5; }
+.talent-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; align-items: start; }
+.talent-tree { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(4, 84px); gap: 16px 12px; padding: 8px; }
+.talent-links { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.talent-links path { fill: none; stroke: #687354; stroke-width: 1.5; }
+.talent-links .selected-link { stroke: #e0be78; }
+.talent-node { position: relative; background: #24352f; color: #e1e0c8; border-color: #819977; padding: 6px; z-index: 1; }
+.talent-node strong { display: block; font-size: 0.78rem; }
+.talent-node span { display: block; margin-top: 6px; color: #b1c5ac; font-size: 0.65rem; }
+.talent-node.center-node { width: calc(50% - 6px); justify-self: center; }
+.talent-node.planned { background: #1b2527; color: #aab3aa; border-style: dashed; border-color: #59635b; }
+.talent-node.selected { background: #3c3b2c; border-color: #e0be78; }
+.talent-node.selected span { color: #f0d99b; }
+.talent-inspector { background: #1b2827; border: 1px solid #52614e; padding: 16px; }
+.talent-inspector h3 { margin: 0 0 12px; font: 400 1.4rem Georgia, serif; color: #e7c38c; }
+.talent-inspector p { font-size: 0.8rem; line-height: 1.6; color: #bdc8b7; }
+#talent-availability { color: #ead09b; }
+.talent-actions { display: flex; gap: 10px; }
+.talent-actions button { padding: 10px; }
+.talent-actions .primary-button { width: auto; flex: 1; }
+button:disabled { opacity: 0.45; cursor: default; }
+
+@media (max-width: 650px) {
+  #talent-editor { padding: 14px; }
+  .talent-editor-header { top: -14px; }
+  #branch-tabs { grid-template-columns: repeat(3, 1fr); }
+  .talent-layout { grid-template-columns: 1fr; gap: 10px; }
+  .talent-inspector { position: relative; }
+  .talent-editor-header h2 { font-size: 1.5rem; }
+}
+
 @media (min-width: 700px) {
   .shell { display: grid; grid-template-columns: 1fr 420px; align-items: center; gap: 32px; min-height: 100svh; }
   .masthead { text-align: left; margin: 0; }

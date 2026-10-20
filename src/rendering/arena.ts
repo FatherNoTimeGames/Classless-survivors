@@ -1,5 +1,5 @@
 import type { Run } from '../game/state';
-import { RULES } from '../game/rules';
+import { drawFeedback } from './feedback';
 import { drawSanctuary } from './sanctuary';
 import { ARENA_HEIGHT, ARENA_WIDTH, fitViewport } from './viewport';
 
@@ -96,18 +96,7 @@ export function createArenaRenderer(canvas: HTMLCanvasElement) {
         context.stroke();
         block(bolt.x - 2, bolt.y - 2, 4, 4, bolt.blastRadius > 0 ? '#ffb878' : '#ffe2a2');
       }
-      for (const effect of run.sparks) {
-        const radius = effect.kind === 'burst'
-          ? (effect.radius ?? 20) * (1 - effect.life / RULES.sparkLifetime)
-          : 3 + (RULES.sparkLifetime - effect.life) * 35;
-        context.globalAlpha = effect.life / RULES.sparkLifetime;
-        context.strokeStyle = effect.kind === 'pickup' ? '#91e2ba' : effect.kind === 'hurt' ? '#ec8b75' : effect.kind === 'burst' ? '#ffb878' : '#f4c77c';
-        context.lineWidth = 2;
-        context.beginPath();
-        context.arc(effect.x, effect.y, radius, 0, Math.PI * 2);
-        context.stroke();
-      }
-      context.globalAlpha = 1;
+      drawFeedback(context, run.sparks);
     },
   };
 }

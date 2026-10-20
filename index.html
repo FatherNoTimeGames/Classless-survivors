@@ -24,6 +24,7 @@
             <span class="small-label">The borderlands</span>
             <h2 id="sanctuary-title">An ember in the dark</h2>
           </div>
+          <button class="quiet-button" id="edit-talents" type="button">Talents (0/3)</button>
           <button class="quiet-button" id="pause-run" type="button" hidden>Pause</button>
         </div>
         <div class="run-hud" id="run-hud" hidden>
@@ -69,6 +70,8 @@
             <summary>Run upgrades</summary>
             <p id="ember-stats"></p>
             <ul id="active-upgrades"></ul>
+            <p>Active talents</p>
+            <ul id="active-talents"></ul>
           </details>
         </div>
         <p class="sr-only" id="announcement" role="status" aria-live="polite"></p>
@@ -76,6 +79,27 @@
 
       <footer>Single player <span aria-hidden="true">·</span> A world without classes</footer>
     </main>
+    <dialog id="talent-editor" aria-labelledby="talent-editor-title">
+      <div class="talent-editor-header">
+        <div><p class="small-label">No classes. Your choices.</p><h2 id="talent-editor-title">Classless talents</h2></div>
+        <button class="quiet-button" id="close-talents" type="button" aria-label="Close talent editor">Close</button>
+      </div>
+      <p class="talent-intro">Mix any branches. Allocate before a run and respec freely between runs.</p>
+      <div class="talent-budget"><p id="talent-points" aria-live="polite"></p><button class="quiet-button" id="respec-talents" type="button">Free respec</button></div>
+      <div id="branch-tabs" role="tablist" aria-label="Talent branches"></div>
+      <p id="talent-branch-title"></p>
+      <div class="talent-layout">
+        <div><div class="talent-tree" id="talent-tree" role="tabpanel"></div><p class="talent-help">Lines show prerequisites. Select a node to inspect it.</p></div>
+        <section class="talent-inspector" aria-labelledby="talent-name">
+          <h3 id="talent-name"></h3>
+          <p id="talent-description" role="tooltip"></p>
+          <p id="talent-requires"></p><p id="talent-synergies"></p><p id="talent-availability"></p>
+          <div class="talent-actions"><button class="primary-button" id="allocate-talent" type="button">Allocate point</button><button class="quiet-button" id="refund-talent" type="button">Refund</button></div>
+          <p id="talent-message" role="status" aria-live="polite"></p>
+        </section>
+      </div>
+      <p id="talent-catalog-status"></p>
+    </dialog>
     <noscript>This game needs JavaScript enabled in your browser.</noscript>
     <script type="module" src="/src/main.ts"></script>
   </body>

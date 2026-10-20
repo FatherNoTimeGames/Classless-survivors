@@ -25,7 +25,7 @@ function spawnEnemy(run: Run): void {
       };
     }
   }
-  run.enemies.push({ ...position, id: run.nextId++, health: RULES.enemyHealth, grace: RULES.spawnGrace });
+  run.enemies.push({ ...position, id: run.nextId++, health: RULES.enemyHealth, maxHealth: RULES.enemyHealth, grace: RULES.spawnGrace });
 }
 
 export function updateSpawns(run: Run): void {

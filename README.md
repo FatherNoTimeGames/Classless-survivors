@@ -3,13 +3,43 @@
 A single-player dark fantasy survival roguelite built with TypeScript and Canvas.
 Mix talents freely across six fantasy archetypes. No accounts or backend required.
 
-**Current milestone:** leveling and randomized run upgrades. Move through a bounded
-clearing, fight pursuing enemies, collect XP, and change your run with faster,
-multi-target, piercing, or exploding ember attacks. Talents, persistent saves,
-bosses, and offline installation are upcoming milestones. See
+**Current milestone:** the classless talent foundation. Build across six branches
+before a run, then move, fight, collect XP, and choose temporary upgrades.
+The visual tree contains 36 talent designs; **7 are functioning and selectable**.
+The other 29 are clearly marked coming soon and cannot be allocated. Full branch
+content, persistent saves, bosses, and offline installation remain upcoming. See
 [the task list](DEVELOPMENT_PLAN.md) and [progress log](PROGRESS.md).
 
 ## Play this milestone
+
+Open **Talents** before a run. You have three talent points, can mix any branches,
+and may leave points unspent. Select a branch tab, then a node to inspect its
+description, prerequisites, and suggested synergies. Hover/focus help and a
+persistent detail panel support mouse, keyboard, and touch. Allocate a point,
+refund individual talents, or use **Free respec** to clear the whole build.
+Refunding a prerequisite also refunds dependent talents. Planned nodes remain
+inspectable, with allocation disabled.
+
+| Playable foundation talent | Branch | Behavior |
+| --- | --- | --- |
+| Iron Reprisal | Warrior | Surviving contact retaliates for 12 physical damage within 44 range |
+| Arcane Echo | Mage | Every third direct ember hit strikes another nearby enemy for 9 arcane damage |
+| Expose Weakness | Rogue | Wounded direct-hit targets take 6 extra damage and refund 0.15s of ember cooldown |
+| Ember Communion | Priest | Every fourth direct ember kill restores 3 health |
+| Searing Grace | Priest | Requires Communion; actual healing strikes the nearest foe within 110 range for 6 holy damage |
+| Soul Cinder | Warlock | Every fourth direct ember kill bursts for 9 shadow damage within 36 range, without chaining |
+| Hunting Momentum | Hunter | A direct ember kill stores one additional target for the next attack with enough targets |
+
+Try **Iron Reprisal + Expose Weakness + Arcane Echo** for retaliation and wounded
+follow-ups, or **Ember Communion + Searing Grace + Expose Weakness** to turn healing
+into damage that primes your next ember. Effects use distinct rings, diamonds,
+crosses, and colors. Overhealing has no effect; fatal hits cannot be healed into
+a resurrection. These talents are separate from randomized run upgrades.
+
+Your chosen talents are copied into the new run. Editing is available before the
+first run and after defeat; paused runs cannot be respecced. **Try again** uses
+your current talent allocation but resets temporary upgrades. Builds currently
+last only while this page remains open; local saves and slots arrive in task 8.
 
 Choose **Enter the clearing** to begin. Move with **WASD** or **arrow keys**, or
 press and drag anywhere in the arena to create a floating virtual stick (touch,
@@ -42,7 +72,7 @@ counted in the run total and no more choices are required.
 Piercing bolts have a pale trail; explosive bolts produce expanding impact rings.
 Open **Run upgrades** beneath the arena to inspect your ranks and ember stats.
 Enemy numbers build over time, and you lose when health reaches zero. **Try again**
-starts a fresh run with level 1, base stats, and no upgrades. There is no victory
+starts a fresh run with level 1, your chosen talents, and no run upgrades. There is no victory
 condition or persistent progress in this milestone. Full enemy variety and balancing
 remain later milestones; some weapon combinations can outpace the starter enemy.
 
@@ -101,6 +131,10 @@ every upgrade's gameplay effect, piercing/explosion interactions, and maximum-le
 completion. Browser leveling journeys navigate to actual rendered XP shards, verify
 the frozen choice screen, select with keyboard/touch, inspect the improved ability,
 earn a second level, and start a fresh run.
+Talent tests cover all seven functioning effects, mixed-branch synergies, valid
+and invalid builds, prerequisites, cascading refunds, snapshots, and trigger
+budgets/cycles. Browser checks inspect branch trees with keyboard/touch, enforce
+the point limit, respec, and start a three-branch build.
 Screenshots and failure traces are
 written to ignored `test-results/`. Emulation does not replace physical device
 testing, and Chromium checks do not establish support in other browser engines.
@@ -135,22 +169,28 @@ The simulation module map:
 | --- | --- |
 | Tick order and defeated-run guard | `run.ts` |
 | Entity types and fresh-run state | `state.ts` |
+| Talent allocation, validation, and cascading refunds | `builds.ts` |
 | Dimensions, timing, and gameplay tuning | `rules.ts` |
 | Player movement, boundaries, and enemy pursuit | `movement.ts` |
 | Spawn pacing and safe placement | `spawning.ts` |
 | Targeting, cooldowns, projectile hits, and enemy contact | `combat.ts` |
 | Shared enemy damage, kill credit, and death drops | `damage.ts` |
+| Actual healing, overheal rejection, and healing events | `healing.ts` |
+| Bounded typed combat-event queue | `events.ts` |
+| Talent behavior modules by branch and active-handler registry | `talent-effects/` |
 | XP drops, attraction, collection, and overflow merging | `pickups.ts` |
 | XP thresholds, queued levels, offers, and validated choices | `progression.ts` |
 | Deriving current run stats from selected upgrade ranks | `stats.ts` |
 | Feedback events and their lifetimes | `effects.ts` |
 | Distances, bounds, and swept collision geometry | `geometry.ts` |
 | Run-owned seeded randomness | `random.ts` |
+| Shared nearest-foe queries for talent effects | `targeting.ts` |
 | Rendering-frame to fixed-tick scheduling | `clock.ts` |
 
 `run.ts` coordinates the systems in a deliberate order: advance time/cooldowns,
 expire feedback, move the player, spawn and move enemies, attack, resolve bolts,
-collect XP, then apply contact damage if no level reward paused the run. This keeps
+resolve talent effects, collect XP, then apply contact damage and its reactions if
+no level reward paused the run. This keeps
 killed enemies from damaging the player and gives a level reward priority over
 contact. Systems mutate their own
 parts of the explicit `Run` state; there is no hidden singleton state. Rendering
@@ -158,6 +198,19 @@ and input import only the state types and shared tuning they need. Keep new rule
 in focused systems. Offer randomness has a separate run-owned seed stream, so
 drawing upgrade cards does not consume enemy-spawn randomness. Projectile upgrades
 are captured when a bolt is fired; existing shots retain their original properties.
+
+Talent definitions live in `src/content/talents.ts`, with current numerical tuning
+in `talent-tuning.ts`. Availability flags must match working implementations;
+changing a preview flag alone does not implement a talent. Branch handlers live in
+`src/game/talent-effects/`; Rogue's direct-damage modifier runs before hit events.
+The editor and graph renderer are separate UI modules, and feedback drawing is
+isolated in `src/rendering/feedback.ts`.
+
+Combat effects use FIFO events with source/school information, a six-generation
+depth limit, 256-event queue/tick limits, and handler-ancestry suppression. Limits
+apply to secondary triggers; primary damage and death drops are applied directly.
+`run.effects.dropped` and `suppressed` provide diagnostics for debugging chains.
+The queue stores data only, so run state stays cloneable and contains no callbacks.
 
 Simulation/progression stays separate from rendering and input. The background
 is cached, screen-density buffers are capped, and enemy/projectile/pickup/effect

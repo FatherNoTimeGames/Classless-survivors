@@ -2,89 +2,90 @@
 
 ## Current state
 
-- Completed: tasks 0–3 and the separately requested modular refactor (2a).
-- Playable: keyboard/floating-stick movement, automatic ember attacks, pursuing
-  enemies, health/contact protection, XP collection, leveling, randomized upgrade
-  choices, pause/resume, defeat/results, and clean restart.
-- Task 3 delivers seven functioning run upgrades: Quickened Ember, Fleetfoot,
-  Soul Gatherer, Living Ember, Forked Ember, Soul Needle, and Ashburst.
-- Level choices freeze simulation and clear movement input. Batch XP queues every
-  earned reward; excess XP carries over. Offers are distinct, rarity-weighted,
-  level-eligible, and respect rank caps, with a weapon choice when available.
-- The finite initial pool supports 20 levels without exhausting rewards early.
-  XP still counts after the cap. Fresh runs reset levels, ranks, stats, and choices.
-- HUD shows level/XP progress and current build. Extra targets, piercing trails,
-  and non-chaining impact explosions change visible combat. Health upgrades
-  correctly change maximum health and heal once.
-- Original programmatic artwork is preserved. No runtime package dependencies.
-- Architecture: focused simulation, content/tuning, input, rendering, and UI
-  modules. run.ts coordinates ticks; progression.ts owns XP/offers/selection,
-  stats.ts derives stats, damage.ts credits deaths once. See README.md's module map.
-- Separate seeded randomness streams isolate offer rolls from enemy spawns.
+- Completed: tasks 0–4 and the separately requested modular refactor (2a).
+- Playable: keyboard/touch movement, automatic combat, enemies, health, XP,
+  leveling, seven randomized run upgrades, pause/resume, defeat, and restart.
+- Task 4: six-branch connected talent trees with all 36 designs. Seven talents
+  are functioning/selectable; 29 coming-soon previews are inspectable but cannot
+  be allocated. Availability is explicit in the UI and validated in simulation.
+- Playable talents: Iron Reprisal, Arcane Echo, Expose Weakness, Ember Communion,
+  Searing Grace, Soul Cinder, and Hunting Momentum. All have behavior tests.
+- Three initial points may be mixed freely across branches. Prerequisites,
+  duplicate/unknown/unavailable selection, and budgets are validated. Refunds
+  cascade through dependents; full respecs are free. Editor is available before
+  runs and after defeat, with keyboard/touch inspection and a sticky Close control.
+- New runs copy the chosen build; talent changes cannot affect an existing run.
+  Talent draft persists within this page session only. Temporary run upgrades
+  reset separately. Permanent persistence remains task 8.
+- Original programmatic art is retained; simple feedback shapes distinguish
+  physical, arcane, holy, shadow, healing, and existing attack effects.
+- Typed combat events carry damage source/school, hit/death origin, and actual
+  healing. Processing is bounded by depth, event budgets, and handler ancestry.
+  Effects store data, not functions. Fatal hits cannot trigger healing resurrection.
 
 ## Standing requirements
 
 - Complete one authorized task, validate, update this log, commit, report, and
   pause until **continue**. Make ordinary design decisions independently.
-- Keep systems modular with explicit typed boundaries and state ownership.
-  Keep simulation independent of the browser. Avoid large coordinator functions,
-  circular dependencies, and unnecessary frameworks. See AGENTS.md.
-- Prefer the simplest readable original art: Canvas shapes, vectors, or limited-
-  palette pixels. Reuse readable art; elaborate asset production is unnecessary.
+- Keep systems modular with typed boundaries and clear state ownership. Simulation
+  stays browser-independent; run.ts only coordinates systems. See AGENTS.md and
+  README.md's module map. No extra frameworks or runtime package dependencies.
+- Use the simplest readable original art: Canvas shapes, vectors, or limited-
+  palette pixels. Reuse readable art; avoid elaborate asset-production work.
 - Follow [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md) for the complete checklist.
 
 ## Next task
 
-**Task 4: Build the classless talent framework and visual tree.**
+**Task 5: Implement Warrior and Mage talents.**
 
-Wait for **continue**. Define all 36 talents across the six freely mixable
-branches, prerequisites, descriptions, and cross-branch interactions. Add bounded
-allocation, refunds/free respecs, accessible tooltips, build validation, and the
-combat event/effect framework in focused modules. Only functioning talents may
-be usable; definitions alone are not completed content. Tasks 5–7 implement the
-full branch content; persistent builds/unlocks remain task 8. Test mixed-branch
-allocation, invalid builds, refunds, and bounded trigger chains. Commit and pause.
+Wait for **continue**. Iron Reprisal and Arcane Echo already function; implement
+and test the remaining five talents in each branch, updating availability only
+when behavior is working. Add melee/elemental attacks, Frost/physical interactions,
+shields/retaliation, and readable symbols/effects matching descriptions. Extend
+branch modules and shared damage/healing/event boundaries; keep the coordinator
+small. Revisit the three-point starter budget as deeper paths become playable,
+while keeping a bounded budget and leaving permanent unlock progression for task 8.
+Test each talent and melee/caster hybrids, document, commit, and pause.
 
 ## Latest validation
 
 - `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run check` passed:
-  **46 unit tests**, TypeScript checks, production build, **14 browser tests**.
+  **66 unit tests**, TypeScript checks, production build, **17 browser tests**.
   No failed or skipped tests in the final run.
-- Progression coverage: exact thresholds, queued rewards, leftover XP, rarity
-  weighting/unlocks, capped/invalid/stale selections, whole-world choice pause,
-  level-up priority over contact, all seven upgrades' actual effects, combined
-  piercing/explosion kill attribution, existing-shot snapshots, final-level
-  completion, and reset. Existing movement/combat regressions still pass.
-- Browser tests collect actual visible XP shards, freeze for selection, choose
-  upgrades using keyboard and touch, inspect improved cooldown/ranks, level again,
-  and reset. Desktop, tablet, and Android portrait emulation pass, alongside
-  defeat/restart, pause/focus handling, multi-touch cancellation, and shell checks.
-- Reviewed desktop and phone level-choice screenshots. Inspected 23 source modules:
-  no circular runtime imports. No runtime errors observed in browser checks.
-- Current output: about 20.87 kB JavaScript and 6.49 kB CSS before compression.
-- Runtime validated on Node 24.19.0, npm 11.9.0, system Chromium 154. README.md
-  documents startup and validation. Browser tests stop their preview server.
+- Talent coverage: catalog completeness/acyclic prerequisites, mixed allocation,
+  invalid/over-budget/planned selections, cascading refunds, build snapshots,
+  proc reset, all seven effects, overheal/fatal protection, upgrade-healing hooks,
+  Warrior/Rogue and Priest/Rogue interactions, and direct-vs-triggered kill rules.
+- Effect tests cut recursive chains, bound unique-handler depth and fan-out,
+  preserve the shared per-tick budget across drains, reject recursive draining,
+  and restore queue context after handler errors. Existing progression/combat
+  regressions still pass.
+- Browser flows inspect all six branches using keyboard and touch, inspect locked
+  previews, allocate a real prerequisite/child pair, refund both together, enforce
+  points, respec, and start a three-branch build. Desktop/tablet/Android portrait
+  pass alongside leveling, pause/focus, multi-touch, defeat/restart, and shell tests.
+- Reviewed desktop and phone talent screenshots; Close remains visible when the
+  phone editor scrolls. Inspected 39 source modules: no circular runtime imports.
+- Current output: approximately 40.76 kB JavaScript and 9.12 kB CSS uncompressed.
+- Runtime: Node 24.19.0, npm 11.9.0, system Chromium 154. README.md has commands.
+  Browser tests start/stop their own production preview server.
 
 ## Remaining work and limits
 
-- Tasks 4–17: classless talents; persistent progression; enemy/boss variety;
-  temporary synergies; presentation/audio; device polish; offline/PWA; balancing;
-  final regression fixes; production delivery.
-- No talent tree, permanent unlocks/saves, bosses, victory condition, or offline
-  installation yet. Reloading intentionally starts fresh at this stage.
-- Only the starter enemy exists. Strong weapon combinations can outpace it;
-  enemy variety and full-run balancing remain later milestones. Scenery is
-  decorative; only arena boundaries block movement.
-- Physical Android/tablet hardware and other browser engines are unverified.
+- Tasks 5–17: remaining branch talents; permanent progression; enemy/boss variety;
+  temporary synergies; presentation/audio; device polish; offline/PWA; balance;
+  final regressions; release. Definitions alone are not completed talent content.
+- No local saves/build slots, permanent unlocks, bosses, victory, or offline
+  installation yet. Reloading resets this intermediate build.
+- Only the starter enemy exists. Strong combinations can outpace it; full-run
+  balance remains later work. Scenery is decorative; arena boundaries are solid.
+- Physical Android/tablet hardware and other browser engines remain unverified.
   Emulation is not a hardware performance claim. Deployment is not configured.
 - No current setup blockers or known failing checks.
 
 ## Milestone history
 
-- Task 0: planning, `90daca7`.
-- Task 1: project foundation/tooling, `8332fcb`.
-- Task 2: playable survival loop, `50cee85`.
-- Standing modularity/art requirements: `93558f1`.
-- Refactor 2a: separate simulation systems, `851082a`; 244 captured full-state
-  checkpoints matched the pre-refactor behavior across four seeded routes.
-- Task 3 commit: `feat: add leveling and randomized run upgrades` (this milestone).
+- Task 0: `90daca7`; task 1: `8332fcb`; task 2: `50cee85`.
+- Modularity/art requirements: `93558f1`; refactor 2a: `851082a`.
+- Task 3: leveling and run upgrades, `c10a1b7`.
+- Task 4 commit: `feat: add classless talent framework and visual tree` (this milestone).

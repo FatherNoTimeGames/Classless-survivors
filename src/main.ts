@@ -9,6 +9,7 @@ import { chooseUpgrade } from './game/progression';
 import { element, formatTime } from './ui/dom';
 import { createHud } from './ui/hud';
 import { createUpgradePicker } from './ui/upgrade-picker';
+import { createTalentEditor } from './ui/talent-editor';
 
 const canvas = element<HTMLCanvasElement>('#arena');
 const renderer = createArenaRenderer(canvas);
@@ -17,6 +18,7 @@ const title = element('#overlay-title');
 const description = element('#overlay-description');
 const startButton = element<HTMLButtonElement>('#start-run');
 const pauseButton = element<HTMLButtonElement>('#pause-run');
+const talentButton = element<HTMLButtonElement>('#edit-talents');
 const hud = element('#run-hud');
 const hudView = createHud();
 const arenaFrame = element('.arena-frame');
@@ -30,6 +32,7 @@ let frameId = 0;
 let previousTime: number | null = null;
 
 const controls = createControls(canvas, element('#joystick'), () => mode === 'running');
+const talentEditor = createTalentEditor(talentButton, () => mode === 'ready' || mode === 'defeated');
 const picker = createUpgradePicker(element('#upgrade-picker'), (id) => {
   if (!run || mode !== 'choosing' || !chooseUpgrade(run, id)) return;
   updateHud();
@@ -76,6 +79,7 @@ function defeated(): void {
   startButton.textContent = 'Try again';
   pauseButton.hidden = true;
   announcement.textContent = 'Run ended. You can try again.';
+  talentButton.hidden = false;
   startButton.focus({ preventScroll: true });
 }
 
@@ -109,6 +113,7 @@ function beginRun(): void {
   results.hidden = true;
   hud.hidden = false;
   pauseButton.hidden = false;
+  talentButton.hidden = true;
   document.body.classList.add('playing');
   arenaFrame.classList.add('is-active');
   element('#run-build').hidden = false;
@@ -122,7 +127,7 @@ function beginRun(): void {
 
 function start(): void {
   if (!renderer || mode === 'running' || mode === 'choosing') return;
-  if (mode !== 'paused') run = createRun(crypto.getRandomValues(new Uint32Array(1))[0]!);
+  if (mode !== 'paused') run = createRun(crypto.getRandomValues(new Uint32Array(1))[0]!, talentEditor.getBuild());
   beginRun();
 }
 
@@ -149,5 +154,5 @@ if (!renderer) {
 }
 
 if (import.meta.hot) {
-  import.meta.hot.dispose(() => { stopFrames(); controls.destroy(); picker.destroy(); events.abort(); observer.disconnect(); });
+  import.meta.hot.dispose(() => { stopFrames(); controls.destroy(); picker.destroy(); talentEditor.destroy(); events.abort(); observer.disconnect(); });
 }

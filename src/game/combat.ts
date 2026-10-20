@@ -3,7 +3,7 @@ import type { Player, Run } from './state';
 import type { RunStats } from './stats';
 import { distance, hitTime } from './geometry';
 import { addSpark } from './effects';
-import { damageEnemy } from './damage';
+import { damageEnemy, damagePlayer } from './damage';
 
 export function updateCombatTimers(player: Player): void {
   player.invulnerable = Math.max(0, player.invulnerable - STEP);
@@ -15,7 +15,7 @@ export function updateAttacks(run: Run, stats: RunStats): void {
   if (player.attackIn <= 0 && run.bolts.length < RULES.maxBolts) {
     const targets = run.enemies.filter((enemy) => distance(enemy, player) <= RULES.attackRange)
       .sort((a, b) => distance(a, player) - distance(b, player))
-      .slice(0, Math.min(stats.projectileCount, RULES.maxBolts - run.bolts.length));
+      .slice(0, Math.min(stats.projectileCount + Number(run.talentMemory.huntingCharge), RULES.maxBolts - run.bolts.length));
     for (const target of targets) {
       const dx = target.x - player.x;
       const dy = target.y - player.y;
@@ -27,6 +27,7 @@ export function updateAttacks(run: Run, stats: RunStats): void {
         damage: RULES.attackDamage, pierce: stats.pierce, blastRadius: stats.blastRadius, hitIds: [],
       });
     }
+    if (targets.length > stats.projectileCount) run.talentMemory.huntingCharge = false;
     if (targets.length) player.attackIn = stats.attackInterval;
   }
 }
@@ -46,7 +47,7 @@ export function updateProjectiles(run: Run): void {
         addSpark(run, enemy, 'burst', bolt.blastRadius);
         for (const neighbor of run.enemies) {
           if (neighbor.id !== enemy.id && distance(neighbor, enemy) <= bolt.blastRadius) {
-            damageEnemy(run, neighbor, bolt.damage / 2);
+            damageEnemy(run, neighbor, bolt.damage / 2, { source: 'blast' });
           }
         }
       }
@@ -66,9 +67,6 @@ export function applyContactDamage(run: Run): void {
   if (player.invulnerable <= 0 && run.enemies.some((enemy) =>
     enemy.grace <= 0 && distance(enemy, player) < RULES.playerRadius + RULES.enemyRadius,
   )) {
-    player.health = Math.max(0, player.health - RULES.contactDamage);
-    player.invulnerable = RULES.invulnerability;
-    addSpark(run, player, 'hurt');
-    if (player.health === 0) run.status = 'defeated';
+    damagePlayer(run, RULES.contactDamage);
   }
 }

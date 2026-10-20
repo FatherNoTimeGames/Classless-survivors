@@ -1,5 +1,9 @@
 import { RULES, WORLD } from './rules';
 import type { UpgradeId, UpgradeRanks } from '../content/upgrades';
+import type { TalentId } from '../content/talents';
+import { validateBuild } from './builds';
+import { createEffectQueue } from './events';
+import type { EffectQueue } from './events';
 
 export interface Point { x: number; y: number }
 export interface Player extends Point {
@@ -9,13 +13,13 @@ export interface Player extends Point {
   facing: number;
   moving: boolean;
 }
-export interface Enemy extends Point { id: number; health: number; grace: number }
+export interface Enemy extends Point { id: number; health: number; maxHealth: number; grace: number }
 export interface Bolt extends Point {
   id: number; vx: number; vy: number; life: number;
   damage: number; pierce: number; blastRadius: number; hitIds: number[];
 }
 export interface Shard extends Point { id: number; value: number }
-export interface Spark extends Point { kind: 'hit' | 'pickup' | 'hurt' | 'burst'; life: number; radius?: number }
+export interface Spark extends Point { kind: 'hit' | 'pickup' | 'hurt' | 'burst' | 'heal' | 'physical' | 'arcane' | 'holy' | 'shadow'; life: number; radius?: number }
 export interface Progression {
   level: number;
   xpIntoLevel: number;
@@ -30,6 +34,9 @@ export interface Run {
   kills: number;
   xp: number;
   progression: Progression;
+  talents: readonly TalentId[];
+  talentMemory: { arcaneHits: number; communionKills: number; cinderKills: number; huntingCharge: boolean };
+  effects: EffectQueue;
   player: Player;
   enemies: Enemy[];
   bolts: Bolt[];
@@ -40,9 +47,13 @@ export interface Run {
   nextId: number;
 }
 
-export function createRun(seed: number): Run {
+export function createRun(seed: number, talents: readonly TalentId[] = []): Run {
+  const validation = validateBuild(talents);
+  if (!validation.valid) throw new Error(`Invalid talent build: ${validation.errors.join(' ')}`);
   return {
     status: 'running', elapsed: 0, kills: 0, xp: 0,
+    talents: [...talents], effects: createEffectQueue(),
+    talentMemory: { arcaneHits: 0, communionKills: 0, cinderKills: 0, huntingCharge: false },
     progression: {
       level: 1, xpIntoLevel: 0, pendingLevels: 0, offers: [], ranks: {},
       randomState: ((seed ^ 0xa5a5a5a5) >>> 0) || 0x9e3779b9,

@@ -81,13 +81,17 @@ these requirements. No subscription-usage or completion-time estimates are impli
   Delivered seven upgrades, queued rewards, weighted/eligible offers, a finite
   level-20 cap, accessible keyboard/touch selection, and visible combat changes.
 
-- [ ] **4. Build the classless talent framework and visual tree.**
+- [x] **4. Build the classless talent framework and visual tree.**
   Define all 36 talents, prerequisites, descriptions, and cross-branch interactions.
   Implement bounded point allocation, refunds/free respecs, selection validation,
   touch-friendly tooltips, and the combat event/effect framework. Expose only
   implemented talents as usable; definitions alone do not count as completed content.
   Done when mixed-branch allocation works, invalid builds are rejected, and
   prerequisites, refunds, and bounded effect-trigger chains are tested.
+  Delivered all 36 designs, seven functioning/selectable foundation talents,
+  three-point mixed builds, connected branch graphs, touch/keyboard inspection,
+  cascading refunds, free respec, and bounded typed effect processing. The other
+  29 nodes are explicitly unavailable previews, to be implemented in tasks 5–7.
 
 - [ ] **5. Implement Warrior and Mage talents.**
   Deliver six working talents per branch, melee and elemental attacks, frost/

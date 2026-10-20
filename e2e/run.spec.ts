@@ -68,6 +68,7 @@ test('automatic combat earns XP, ends in defeat, and restarts with clean stats',
     await page.clock.runFor(5000);
   }
   await expect(page.getByRole('heading', { name: 'The ember fades' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Talents (0/3)', exact: true })).toBeVisible();
   await expect(page.locator('#health-text')).toHaveText(/^0 \/ \d+$/);
   await expect(page.locator('#health')).toHaveJSProperty('value', 0);
   expect(Number(await page.locator('#run-xp').textContent())).toBeGreaterThan(0);

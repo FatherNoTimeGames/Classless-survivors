@@ -3,6 +3,7 @@ import type { Run } from '../game/state';
 import { getRunStats } from '../game/stats';
 import { xpForLevel } from '../game/progression';
 import { element, formatTime, setText } from './dom';
+import { talentById } from '../content/talents';
 
 /** HUD presentation reads state; it never awards XP or applies upgrades. */
 export function createHud() {
@@ -17,10 +18,27 @@ export function createHud() {
   const statsLabel = element('#ember-stats');
   const active = element('#active-upgrades');
   let previousRanks = '';
+  let previousTalents = '';
 
   return {
     update(run: Run): void {
       const stats = getRunStats(run.progression.ranks);
+      const talentKey = JSON.stringify(run.talents);
+      if (talentKey !== previousTalents) {
+        previousTalents = talentKey;
+        const list = element('#active-talents');
+        list.replaceChildren();
+        for (const id of run.talents) {
+          const item = document.createElement('li');
+          item.textContent = talentById(id)!.name;
+          list.append(item);
+        }
+        if (!run.talents.length) {
+          const item = document.createElement('li');
+          item.textContent = 'No talents selected.';
+          list.append(item);
+        }
+      }
       if (health.max !== stats.maxHealth) health.max = stats.maxHealth;
       if (health.value !== run.player.health) health.value = run.player.health;
       setText(healthText, `${run.player.health} / ${stats.maxHealth}`);
