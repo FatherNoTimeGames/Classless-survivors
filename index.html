@@ -20,21 +20,43 @@
 
       <section class="sanctuary" id="sanctuary" aria-labelledby="sanctuary-title" tabindex="-1">
         <div class="scene-heading">
-          <span class="small-label">The borderlands</span>
-          <h2 id="sanctuary-title">An ember in the dark</h2>
+          <div>
+            <span class="small-label">The borderlands</span>
+            <h2 id="sanctuary-title">An ember in the dark</h2>
+          </div>
+          <button class="quiet-button" id="pause-run" type="button" hidden>Pause</button>
+        </div>
+        <div class="run-hud" id="run-hud" hidden>
+          <div class="health-row">
+            <label for="health">Health <span id="health-text">60 / 60</span></label>
+            <progress id="health" max="60" value="60">60 / 60</progress>
+          </div>
+          <dl class="run-stats">
+            <div><dt>Time</dt><dd id="run-time">00:00</dd></div>
+            <div><dt>Slain</dt><dd id="run-kills">0</dd></div>
+            <div><dt>XP gathered</dt><dd id="run-xp">0</dd></div>
+          </dl>
         </div>
         <div class="arena-frame">
-          <canvas id="arena" role="img" aria-label="A pixel-art sanctuary: an ember burns among ruined stones and dark trees.">
-            A ruined sanctuary in a dark forest, with a small fire at its heart.
+          <canvas id="arena" tabindex="0" role="img" aria-describedby="control-help" aria-label="A pixel-art sanctuary. Move your wanderer to survive pursuing enemies.">
+            The survival arena. Use the controls described below to move; attacks are automatic.
           </canvas>
+          <div class="joystick" id="joystick" aria-hidden="true" hidden><span></span></div>
+          <section class="run-overlay" id="run-overlay" aria-labelledby="overlay-title">
+            <span class="small-label">The first ember</span>
+            <h3 id="overlay-title">Hold back the dark</h3>
+            <p id="overlay-description">Move to evade the restless. Your ember attacks automatically. Gather the green XP shards they leave behind.</p>
+            <p id="run-results" hidden></p>
+            <button class="primary-button" id="start-run" type="button">Enter the clearing</button>
+          </section>
           <p class="canvas-error" id="canvas-error" role="alert" hidden>
             The sanctuary could not be drawn. Please try a browser with Canvas support.
           </p>
         </div>
         <div class="milestone-note">
-          <span class="small-label">The first ember</span>
-          <p>The sanctuary is taking shape. Playable runs arrive in the next milestone.</p>
+          <p id="control-help"><strong>Move:</strong> WASD / arrows, or drag in the clearing.<br />Attacks are automatic. Escape pauses the run.</p>
         </div>
+        <p class="sr-only" id="announcement" role="status" aria-live="polite"></p>
       </section>
 
       <footer>Single player <span aria-hidden="true">·</span> A world without classes</footer>

@@ -1,6 +1,8 @@
+import { WORLD } from '../game/run';
+
 /** Logical arena coordinates stay stable across CSS size and device density. */
-export const ARENA_WIDTH = 360;
-export const ARENA_HEIGHT = 480;
+export const ARENA_WIDTH = WORLD.width;
+export const ARENA_HEIGHT = WORLD.height;
 
 export interface Viewport {
   bufferWidth: number;

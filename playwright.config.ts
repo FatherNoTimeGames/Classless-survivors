@@ -18,7 +18,7 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
   projects: [
-    { name: 'desktop', use: { viewport: { width: 1280, height: 900 } } },
+    { name: 'desktop', testIgnore: '**/touch.spec.ts', use: { viewport: { width: 1280, height: 900 } } },
     { name: 'tablet', use: { viewport: { width: 768, height: 1024 }, hasTouch: true } },
     {
       name: 'android-portrait',

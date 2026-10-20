@@ -3,9 +3,28 @@
 A single-player dark fantasy survival roguelite built with TypeScript and Canvas.
 Mix talents freely across six fantasy archetypes. No accounts or backend required.
 
-**Current milestone:** project foundation. The responsive sanctuary scene is
-implemented; combat and playable runs start in task 2. See
+**Current milestone:** the first playable survival loop. Move through a bounded
+clearing, fight pursuing enemies with an automatic ember attack, gather XP, and
+try again after defeat. Leveling, talents, persistent saves, bosses, and offline
+installation are upcoming milestones. See
 [the task list](DEVELOPMENT_PLAN.md) and [progress log](PROGRESS.md).
+
+## Play this milestone
+
+Choose **Enter the clearing** to begin. Move with **WASD** or **arrow keys**, or
+press and drag anywhere in the arena to create a floating virtual stick (touch,
+pen, or mouse). Release to stop. Keyboard movement works while the arena has
+focus; click/tap it to refocus. The arena edge is solid; ruined scenery is visual.
+
+Your ember fires automatically at nearby enemies. Green shards are XP: move
+near them to attract and collect them. XP is counted for this milestone; it does
+not grant levels yet. Enemy numbers build over time, and you lose when health
+reaches zero. **Try again** starts a fresh run with fresh stats. There is no
+victory condition or persistent progress in this milestone.
+
+Use **Pause** or **Escape** to pause and **Resume run** or **Escape** to resume.
+Leaving the browser tab/window pauses the game automatically. After an input
+interruption, release and press movement keys again to resume movement.
 
 ## Develop
 
@@ -47,8 +66,13 @@ that command when using a system browser. `npm run test:watch` watches unit test
 
 Browser checks launch their own production preview server on port 4173 and fail
 if that port is already occupied. They verify real canvas pixels, local asset
-loading, resize behavior, keyboard navigation, and no horizontal overflow at
-desktop, tablet, and Android-sized viewports. Screenshots and failure traces are
+loading, resize behavior, keyboard navigation, combat through defeat/restart, and
+no horizontal overflow at desktop, tablet, and Android-sized viewports. Real
+browser touch dispatch tests on touch-enabled profiles cover virtual-stick
+movement, multiple fingers, release/cancellation, and gesture suppression. The
+simulation tests cover movement across frame rates, targeting, swept collision,
+damage protection, XP, spawning, bounded entities, and reset behavior.
+Screenshots and failure traces are
 written to ignored `test-results/`. Emulation does not replace physical device
 testing, and Chromium checks do not establish support in other browser engines.
 
@@ -67,12 +91,16 @@ offline installation guidance will be completed with the PWA milestone.
 ## Layout
 
 - `src/main.ts`: browser initialization and canvas lifecycle.
+- `src/game/`: deterministic simulation and fixed-timestep clock, without DOM APIs.
+- `src/input/`: keyboard and captured-pointer movement controls.
 - `src/rendering/`: canvas sizing and original procedural scene art.
 - `src/styles.css` and `index.html`: responsive, semantic page shell.
 - `tests/`: unit tests for logic independent of the browser.
 - `e2e/`: browser checks against the production build.
 
-Future simulation/progression modules will remain separate from rendering and
-input. All current assets are original SVG or programmatic Canvas artwork;
+Simulation/progression stays separate from rendering and input. The background
+is cached, screen-density buffers are capped, and enemy/projectile/pickup/effect
+counts are bounded. These are basic safeguards; full-run optimization remains a
+later milestone. All current assets are original SVG or programmatic Canvas artwork;
 fonts are local system fonts. All dependencies are development tools and use
 open-source licenses. There are no runtime package dependencies.

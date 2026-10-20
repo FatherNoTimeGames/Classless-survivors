@@ -48,7 +48,7 @@ these requirements. No subscription-usage or completion-time estimates are impli
   Done when a clean install, type check, production build, meaningful initial
   test, and browser rendering check pass.
 
-- [ ] **2. Build the smallest playable survival loop.**
+- [x] **2. Build the smallest playable survival loop.**
   Add a bounded arena, frame-rate-independent movement, keyboard and virtual-stick
   controls, one enemy, an automatic attack, health, XP pickups, and defeat/restart.
   Done when a player can move, kill enemies, collect XP, die, and restart;

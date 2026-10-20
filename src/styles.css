@@ -9,6 +9,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 body { margin: 0; min-width: 280px; }
 body::before {
   content: "";
@@ -51,13 +52,41 @@ h1 span { color: #e7b66c; }
   background: #12191a;
   box-shadow: 0 24px 80px #0006;
 }
-.scene-heading { padding: 18px 20px 16px; border-bottom: 1px solid #343c33; }
+.scene-heading { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 18px 20px 16px; border-bottom: 1px solid #343c33; }
 h2 { margin: 6px 0 0; font-size: 1.3rem; }
-.arena-frame { position: relative; width: 100%; aspect-ratio: 3 / 4; background: #0c1415; }
+.arena-frame { position: relative; width: 100%; aspect-ratio: 3 / 4; background: #0c1415; overflow: hidden; }
 canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+.arena-frame.is-active { touch-action: none; user-select: none; -webkit-user-select: none; }
+.arena-frame.is-active canvas { touch-action: none; }
+.arena-frame.is-active canvas:focus-visible { outline-offset: -3px; }
 .canvas-error { position: absolute; inset: 16px; margin: 0; padding: 20px; background: #171c1e; }
 .milestone-note { padding: 18px 20px; border-top: 1px solid #343c33; }
 .milestone-note p { color: #afb6ab; font-size: 0.8rem; line-height: 1.6; margin: 6px 0 0; }
+button { font: inherit; cursor: pointer; border: 1px solid #8a784e; border-radius: 3px; min-height: 44px; }
+.primary-button { background: #dfb66e; color: #1d211c; font-weight: 700; padding: 12px 20px; width: 100%; }
+.primary-button:hover { background: #f0cc8e; }
+.quiet-button { background: #202d2b; color: #d7cfb7; font-size: 0.75rem; padding: 8px 12px; }
+.run-overlay {
+  position: absolute; inset: auto 16px 20px; padding: 22px; border: 1px solid #7b704e;
+  background: #10191bf5; box-shadow: 0 8px 28px #0009; text-align: center;
+}
+.run-overlay h3 { font: 400 1.65rem Georgia, serif; margin: 10px 0; color: #e7c38c; }
+.run-overlay p { font-size: 0.8rem; color: #bfc6ba; line-height: 1.65; margin: 12px 0 18px; }
+#run-results { color: #ead09d; font-variant-numeric: tabular-nums; }
+.run-hud { padding: 10px 16px; background: #111d1e; border-bottom: 1px solid #343c33; }
+.health-row label { display: flex; justify-content: space-between; color: #c5cbbb; font-size: 0.65rem; margin-bottom: 4px; }
+progress { display: block; width: 100%; height: 7px; border: 0; background: #3a282b; accent-color: #b86756; }
+progress::-webkit-progress-bar { background: #3a282b; }
+progress::-webkit-progress-value { background: #b86756; }
+progress::-moz-progress-bar { background: #b86756; }
+.run-stats { display: flex; justify-content: space-between; margin: 8px 0 0; gap: 8px; font-variant-numeric: tabular-nums; }
+.run-stats div { display: flex; gap: 6px; align-items: baseline; }
+.run-stats dt { color: #a0b1a5; font-size: 0.65rem; }
+.run-stats dd { margin: 0; color: #e0d6ba; font-size: 0.8rem; }
+.joystick { position: absolute; width: 84px; height: 84px; margin: -42px; border: 1px solid #d6c48a77; border-radius: 50%; background: #17292755; pointer-events: none; }
+.joystick span { display: block; position: absolute; top: 26px; left: 26px; width: 30px; height: 30px; border-radius: 50%; background: #b9b69188; transform: translate(var(--stick-x, 0px), var(--stick-y, 0px)); }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.playing .sanctuary { width: min(100%, calc((100svh - 190px) * 0.75)); }
 footer { text-align: center; color: #949f95; margin-top: 24px; font-size: 0.7rem; }
 footer span { padding-inline: 8px; color: #b8a77f; }
 .skip-link { position: fixed; top: -80px; left: 12px; padding: 12px; background: #e7b66c; color: #101416; z-index: 2; }
@@ -79,4 +108,12 @@ noscript { display: block; padding: 20px; text-align: center; }
 @media (max-width: 359px) {
   h1 span { display: block; }
   footer span { padding-inline: 2px; }
+}
+
+@media (max-width: 699px) {
+  .playing .masthead, .playing footer { display: none; }
+  .playing .shell { padding-top: max(8px, env(safe-area-inset-top)); padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+  .playing .scene-heading { padding: 10px 14px; }
+  .playing .milestone-note { padding: 8px 14px; }
+  .playing .milestone-note p { font-size: 0.7rem; margin: 0; }
 }
