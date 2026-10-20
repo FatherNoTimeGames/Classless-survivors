@@ -4,6 +4,7 @@ import type { Run } from './state';
 import { random } from './random';
 import { getRunStats } from './stats';
 import { healPlayer } from './healing';
+import { rescaleAttackTimers } from './attack-timing';
 
 export function xpForLevel(level: number): number {
   return PROGRESSION_RULES.firstLevelXp + (level - 1) * PROGRESSION_RULES.extraXpPerLevel;
@@ -76,7 +77,7 @@ export function chooseUpgrade(run: Run, id: string): boolean {
   run.progression.ranks[upgrade.id] = (run.progression.ranks[upgrade.id] ?? 0) + 1;
   const after = getRunStats(run.progression.ranks);
   healPlayer(run, after.maxHealth - before.maxHealth);
-  run.player.attackIn = Math.min(run.player.attackIn, after.attackInterval);
+  if (after.attackInterval !== before.attackInterval) rescaleAttackTimers(run, after.attackInterval / before.attackInterval);
   run.progression.pendingLevels--;
   run.progression.offers = [];
   if (run.progression.pendingLevels > 0) prepareChoice(run);

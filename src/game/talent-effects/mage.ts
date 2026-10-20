@@ -7,11 +7,13 @@ import { addSpark } from '../effects';
 import { distance } from '../geometry';
 import { grantShield } from '../shields';
 import type { CombatEvent } from '../events';
+import { inheritsOnHit } from '../hit-policy';
+import { refundAttacks } from '../attack-timing';
 
 export const arcaneEcho: EffectHandler<Run> = {
   id: 'arcane-echo', on: 'hit',
   apply(run, event) {
-    if (event.type !== 'hit' || event.source !== 'ember') return;
+    if (event.type !== 'hit' || event.school !== 'fire' || !inheritsOnHit(run, event.source)) return;
     run.talentMemory.arcaneHits++;
     if (run.talentMemory.arcaneHits < T.echoHits) return;
     run.talentMemory.arcaneHits = 0;
@@ -26,7 +28,7 @@ export const arcaneEcho: EffectHandler<Run> = {
 export const rimeSigil: EffectHandler<Run> = {
   id: 'rime-sigil', on: 'hit',
   apply(run, event) {
-    if (event.type !== 'hit' || !(event.source === 'ember' || (event.source === 'talent' && event.school === 'fire') || (event.source === 'summon' && run.talents.includes('pack-link')))) return;
+    if (event.type !== 'hit' || !inheritsOnHit(run, event.source) || (event.school !== 'fire' && event.source !== 'summon')) return;
     const target = run.enemies.find((enemy) => enemy.id === event.targetId && enemy.health > 0);
     if (target) target.frost = T.frostDuration;
   },
@@ -56,14 +58,15 @@ export const shatterglass: EffectHandler<Run> = {
   },
 };
 
-function isTriggeredSpell(event: CombatEvent): boolean {
-  return event.type === 'hit' && event.source === 'talent' && event.school !== 'physical';
+function isTriggeredSpell(run: Run, event: CombatEvent): boolean {
+  return event.type === 'hit' && event.school !== 'physical' && inheritsOnHit(run, event.source)
+    && (event.source === 'talent' || event.source === 'blast' || event.source === 'summon');
 }
 
 export const manaWard: EffectHandler<Run> = {
   id: 'mana-ward', on: 'hit',
   apply(run, event) {
-    if (!isTriggeredSpell(event)) return;
+    if (!isTriggeredSpell(run, event)) return;
     if (++run.talentMemory.spellHits < T.manaWardHits) return;
     run.talentMemory.spellHits = 0;
     grantShield(run, T.wardAmount, T.wardDuration);
@@ -73,9 +76,8 @@ export const manaWard: EffectHandler<Run> = {
 export const riftweaver: EffectHandler<Run> = {
   id: 'riftweaver', on: 'hit',
   apply(run, event) {
-    if (!isTriggeredSpell(event) || run.talentMemory.riftIn > 0) return;
-    run.player.attackIn = Math.max(0, run.player.attackIn - T.riftRefund);
-    run.player.meleeIn = Math.max(0, run.player.meleeIn - T.riftRefund);
+    if (!isTriggeredSpell(run, event) || run.talentMemory.riftIn > 0) return;
+    refundAttacks(run, T.riftRefund);
     run.talentMemory.riftIn = T.riftCooldown;
   },
 };

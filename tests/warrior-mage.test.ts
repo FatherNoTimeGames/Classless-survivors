@@ -12,7 +12,7 @@ import { grantShield } from '../src/game/shields';
 import { moveEnemies } from '../src/game/movement';
 import { tickRun } from '../src/game/run';
 import { RULES, STEP } from '../src/game/rules';
-import { advance, enemy, STILL } from './fixtures';
+import { advance, bolt, enemy, STILL } from './fixtures';
 
 const WARRIOR = TALENTS.filter((talent) => talent.branch === 'warrior').map((talent) => talent.id);
 const MAGE = TALENTS.filter((talent) => talent.branch === 'mage').map((talent) => talent.id);
@@ -55,7 +55,7 @@ describe('melee and Warrior talents', () => {
     expect(target.health).toBe(984);
   });
 
-  it('Spellsteel counts melee hits, fires from the victim, skips that victim, and preserves triggered attribution', () => {
+  it('Spellsteel counts physical hits, fires from the victim, skips that victim, and preserves triggered attribution', () => {
     const run = setup(['reprisal', 'sweeping-blade', 'spellsteel', 'arcane-echo', 'rime-sigil']);
     const primary = tough(101, 200), secondary = tough(102, 240);
     run.enemies.push(primary, secondary);
@@ -69,31 +69,38 @@ describe('melee and Warrior talents', () => {
     expect(primary.health).toBe(996);
     expect(secondary.health).toBe(988);
     expect(secondary.frost).toBe(2);
-    expect(run.talentMemory.arcaneHits).toBe(0);
-    expect(run.talentMemory.meleeHits).toBe(0);
+    expect(run.talentMemory.arcaneHits).toBe(1);
+    expect(run.talentMemory.physicalHits).toBe(1);
   });
 
   it('Spellsteel cannot hit its own victim when no other target exists or exceed the projectile cap', () => {
     const run = setup(['reprisal', 'spellsteel']);
     const target = tough(101);
     run.enemies.push(target);
-    for (let i = 0; i < 3; i++) damageEnemy(run, target, 1, { source: 'melee' });
+    for (let i = 0; i < 3; i++) damageEnemy(run, target, 1, { source: 'melee', school: 'physical' });
     resolveTalentEffects(run);
     expect(run.bolts).toHaveLength(0);
     run.enemies.push(tough(102, 240));
-    for (let i = 0; i < 120; i++) damageEnemy(run, target, 1, { source: 'melee' });
-    // Isolate per-tick cap behavior from the queue's deliberately smaller event budget.
+    run.bolts = Array.from({ length: RULES.maxBolts }, (_, id) => bolt({ id }));
+    damageEnemy(run, target, 1, { source: 'melee', school: 'physical' });
     resolveTalentEffects(run);
     expect(run.bolts).toHaveLength(RULES.maxBolts);
+    expect(run.talentMemory.physicalHits).toBe(3);
+    run.bolts.pop();
+    damageEnemy(run, target, 1, { source: 'melee', school: 'physical' });
+    resolveTalentEffects(run);
+    expect(run.bolts).toHaveLength(RULES.maxBolts);
+    expect(run.bolts.at(-1)!.source).toBe('talent');
+    expect(run.talentMemory.physicalHits).toBe(0);
   });
 
-  it('Frostbreak consumes once for bonus damage and a stun, excluding other physical sources', () => {
+  it('Frostbreak consumes once for bonus damage and a stun across physical sources', () => {
     const run = setup(['reprisal', 'sweeping-blade', 'frostbreak']);
     const target = tough(101);
     run.enemies.push(target);
     target.frost = 2;
     damageEnemy(run, target, 10, { source: 'talent', school: 'physical' });
-    expect(target.frost).toBe(2);
+    expect(target.frost).toBe(0);
     damageEnemy(run, target, 16, { source: 'melee', school: 'physical' });
     expect(target.health).toBe(966);
     expect(target.frost).toBe(0);
@@ -175,7 +182,7 @@ describe('Frost, triggered spells, and Mage talents', () => {
     expect(target.frost).toBe(0);
     damageEnemy(run, target, 1, { source: 'blast' });
     resolveTalentEffects(run);
-    expect(target.frost).toBe(0);
+    expect(target.frost).toBe(2);
   });
 
   it('stunned enemies neither move nor attack until the stun expires', () => {

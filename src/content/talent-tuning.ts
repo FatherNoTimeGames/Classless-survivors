@@ -17,7 +17,7 @@ export const TALENT_TUNING = {
   snareHits: 4, snareDuration: 2, snareRange: 36, snareSlow: 0.35, maxSnares: 8,
   rootDuration: 0.75, rootCooldown: 3, wildHuntCooldown: 2,
   meleeDamage: 16, meleeInterval: 1.1, meleeRange: 50, meleeHalfAngle: Math.PI / 3,
-  spellsteelHits: 3, spellsteelDamage: 12, spellsteelRange: 120,
+  spellsteelCooldown: 0.25, spellsteelHits: 3, spellsteelDamage: 12, spellsteelRange: 120,
   frostDuration: 2, frostSlow: 0.3, frostbreakDamage: 8, frostbreakStun: 0.6,
   wardAmount: 8, wardDuration: 3, ironWardCooldown: 5,
   lastStandDamage: 20, lastStandRange: 60,

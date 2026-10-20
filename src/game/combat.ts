@@ -4,8 +4,8 @@ import type { RunStats } from './stats';
 import { distance, hitTime } from './geometry';
 import { addSpark } from './effects';
 import { damageEnemy, damagePlayer } from './damage';
-import { fireBolt } from './projectiles';
-import { emitEffect } from './events';
+import { fireVolley } from './projectiles';
+import { emitEffect, withEffectContext } from './events';
 
 export function updateCombatTimers(player: Player): void {
   player.invulnerable = Math.max(0, player.invulnerable - STEP);
@@ -15,20 +15,14 @@ export function updateCombatTimers(player: Player): void {
 export function updateAttacks(run: Run, stats: RunStats): void {
   const player = run.player;
   if (player.attackIn <= 0 && run.bolts.length < RULES.maxBolts) {
-    const targets = run.enemies.filter((enemy) => enemy.health > 0 && distance(enemy, player) <= RULES.attackRange)
-      .sort((a, b) => distance(a, player) - distance(b, player))
-      .slice(0, Math.min(stats.projectileCount + Number(run.talentMemory.huntingCharge), RULES.maxBolts - run.bolts.length));
-    for (const target of targets) {
-      fireBolt(run, player, target, {
-        damage: RULES.attackDamage, source: 'ember', school: 'fire',
-        pierce: stats.pierce, blastRadius: stats.blastRadius,
-      });
-    }
-    if (targets.length > stats.projectileCount) {
+    const fired = fireVolley(run, player, player, RULES.attackRange, {
+      damage: RULES.attackDamage, source: 'ember', school: 'fire', extraTargets: Number(run.talentMemory.huntingCharge),
+    }, stats);
+    if (fired > stats.projectileCount) {
       run.talentMemory.huntingCharge = false;
       emitEffect(run.effects, { type: 'momentum-spent', amount: 1, position: { x: player.x, y: player.y } });
     }
-    if (targets.length) player.attackIn = stats.attackInterval;
+    if (fired) player.attackIn = stats.attackInterval;
   }
 }
 
@@ -41,16 +35,19 @@ export function updateProjectiles(run: Run): void {
       .sort((a, b) => a.time - b.time);
     for (const { enemy } of hits) {
       if (enemy.health <= 0) continue;
-      damageEnemy(run, enemy, bolt.damage, { source: bolt.source, school: bolt.school });
-      bolt.hitIds.push(enemy.id);
-      if (bolt.blastRadius > 0) {
-        addSpark(run, enemy, 'burst', bolt.blastRadius);
-        for (const neighbor of run.enemies) {
-          if (neighbor.id !== enemy.id && distance(neighbor, enemy) <= bolt.blastRadius) {
-            damageEnemy(run, neighbor, bolt.damage / 2, { source: 'blast' });
+      withEffectContext(run.effects, bolt.effectContext, () => {
+        damageEnemy(run, enemy, bolt.damage, { source: bolt.source, school: bolt.school });
+        if (bolt.blastRadius > 0) {
+          addSpark(run, enemy, 'burst', bolt.blastRadius);
+          for (const neighbor of run.enemies) {
+            if (neighbor.id !== enemy.id && distance(neighbor, enemy) <= bolt.blastRadius) {
+              // Companion explosions retain ownership and Pack Link gating.
+              damageEnemy(run, neighbor, bolt.damage / 2, { source: bolt.source === 'summon' ? 'summon' : 'blast', school: bolt.school });
+            }
           }
         }
-      }
+      });
+      bolt.hitIds.push(enemy.id);
       if (bolt.pierce > 0) bolt.pierce--;
       else { bolt.life = 0; break; }
     }

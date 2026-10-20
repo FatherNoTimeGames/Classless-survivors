@@ -24,7 +24,7 @@ export interface UpgradeDefinition {
 
 export const UPGRADES: readonly UpgradeDefinition[] = [
   { id: 'haste', name: 'Quickened Ember', rarity: 'common', minLevel: 2, maxRank: 4, category: 'weapon',
-    description: 'Reduce ember cooldown by 0.08 seconds.', bonuses: { attackInterval: -0.08 } },
+    description: 'Reduce ember cooldown by 0.08 seconds; melee and companion attack intervals shorten by the same proportion. Does not speed periodic ticks or talent cooldowns.', bonuses: { attackInterval: -0.08 } },
   { id: 'fleet', name: 'Fleetfoot', rarity: 'common', minLevel: 2, maxRank: 3, category: 'survival',
     description: 'Move faster: +12 movement speed.', bonuses: { moveSpeed: 12 } },
   { id: 'magnet', name: 'Soul Gatherer', rarity: 'common', minLevel: 2, maxRank: 3, category: 'utility',
@@ -32,11 +32,11 @@ export const UPGRADES: readonly UpgradeDefinition[] = [
   { id: 'vitality', name: 'Living Ember', rarity: 'common', minLevel: 2, maxRank: 3, category: 'survival',
     description: 'Gain 12 maximum health and restore 12 health.', bonuses: { maxHealth: 12 } },
   { id: 'fork', name: 'Forked Ember', rarity: 'uncommon', minLevel: 3, maxRank: 2, category: 'weapon',
-    description: 'Fire at one additional nearby enemy per attack, when available.', bonuses: { projectileCount: 1 } },
+    description: 'Each ember, Spellsteel, and imp volley fires at one additional distinct nearby foe, when available. Does not add melee or falcon strikes.', bonuses: { projectileCount: 1 } },
   { id: 'pierce', name: 'Soul Needle', rarity: 'uncommon', minLevel: 3, maxRank: 2, category: 'weapon',
-    description: 'Each ember can pass through one additional enemy.', bonuses: { pierce: 1 } },
+    description: 'Ember, Spellsteel, and imp projectiles pass through one additional enemy.', bonuses: { pierce: 1 } },
   { id: 'burst', name: 'Ashburst', rarity: 'rare', minLevel: 4, maxRank: 2, category: 'weapon',
-    description: 'Direct ember hits explode for half damage around the target. Each rank adds 20 blast range. Explosions do not chain.', bonuses: { blastRadius: 20 } },
+    description: 'Ember, Spellsteel, and imp projectile impacts explode for half their shot damage. Each rank adds 20 blast range. Explosions retain ownership and cannot chain.', bonuses: { blastRadius: 20 } },
 ];
 
 export const PROGRESSION_RULES = {

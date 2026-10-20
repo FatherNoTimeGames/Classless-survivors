@@ -6,7 +6,7 @@ import type { UpgradeId, UpgradeRanks } from '../content/upgrades';
 import type { TalentId } from '../content/talents';
 import { validateBuild } from './builds';
 import { createEffectQueue } from './events';
-import type { DamageSchool, DamageSource, EffectQueue } from './events';
+import type { DamageSchool, DamageSource, EffectContext, EffectQueue } from './events';
 
 export interface Point { x: number; y: number }
 export interface Player extends Point {
@@ -29,6 +29,7 @@ export interface Bolt extends Point {
   id: number; vx: number; vy: number; life: number;
   source: DamageSource; school: DamageSchool;
   damage: number; pierce: number; blastRadius: number; hitIds: number[];
+  effectContext?: EffectContext;
 }
 export interface Shard extends Point { id: number; value: number }
 export interface Spark extends Point { kind: 'hit' | 'pickup' | 'hurt' | 'burst' | 'heal' | 'physical' | 'arcane' | 'holy' | 'shadow' | 'cleave' | 'frost' | 'lightning' | 'shield' | 'critical' | 'poison' | 'root' | 'falcon' | 'curse' | 'detonation' | 'mark' | 'atonement' | 'imp'; life: number; radius?: number; angle?: number }
@@ -49,7 +50,7 @@ export interface Run {
   talents: readonly TalentId[];
   talentMemory: {
     arcaneHits: number; communionKills: number; cinderKills: number; huntingCharge: boolean;
-    meleeHits: number; chainHits: number; spellHits: number; ironWardIn: number; riftIn: number;
+    physicalHits: number; spellsteelIn: number; chainHits: number; spellHits: number; ironWardIn: number; riftIn: number;
     criticalHits: number; snareHits: number; wildHuntIn: number; sanctuaryIn: number; dawnIn: number;
   };
   effects: EffectQueue;
@@ -71,7 +72,7 @@ export function createRun(seed: number, talents: readonly TalentId[] = []): Run 
   return {
     status: 'running', elapsed: 0, kills: 0, xp: 0,
     talents: [...talents], effects: createEffectQueue(),
-    talentMemory: { arcaneHits: 0, communionKills: 0, cinderKills: 0, huntingCharge: false, meleeHits: 0, chainHits: 0, spellHits: 0, ironWardIn: 0, riftIn: 0, criticalHits: 0, snareHits: 0, wildHuntIn: 0, sanctuaryIn: 0, dawnIn: 0 },
+    talentMemory: { arcaneHits: 0, communionKills: 0, cinderKills: 0, huntingCharge: false, physicalHits: 0, spellsteelIn: 0, chainHits: 0, spellHits: 0, ironWardIn: 0, riftIn: 0, criticalHits: 0, snareHits: 0, wildHuntIn: 0, sanctuaryIn: 0, dawnIn: 0 },
     progression: {
       level: 1, xpIntoLevel: 0, pendingLevels: 0, offers: [], ranks: {},
       randomState: ((seed ^ 0xa5a5a5a5) >>> 0) || 0x9e3779b9,

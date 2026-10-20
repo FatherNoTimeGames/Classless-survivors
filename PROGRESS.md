@@ -2,7 +2,7 @@
 
 ## Current state
 
-- Completed: tasks 0–7 and the separately requested modular refactor (2a).
+- Completed: tasks 0–7, the modular refactor (2a), and the talent/upgrade synergy pass (7a).
 - Playable: keyboard/touch movement, automatic combat, enemies, health, XP,
   leveling, seven randomized run upgrades, pause/resume, defeat, and restart.
 - Task 7: all 36 talents across all six branches function and are selectable.
@@ -16,7 +16,16 @@
   companion, and periodic-kill healing/extensions for either DoT family.
 - Shared companion definitions/construction keep state creation independent of
   damage code. Falcon/imp behavior shares targeting, commands, cooldowns, bonuses,
-  and explicit Pack Link inheritance; live projectiles snapshot damage/piercing.
+  and explicit Pack Link inheritance; live projectiles snapshot upgrades, damage,
+  ownership, and proc ancestry.
+- Synergy pass (7a): haste affects all automatic attackers; fork/piercing/blasts
+  affect ember, Spellsteel, and imp volleys. Physical/fire triggers cover compatible
+  retaliation, explosions, and linked companions. Riftweaver refunds all attack
+  timers. Shared timing and volley modules keep inheritance rules centralized.
+- Spellsteel has a 0.25s volley limit and retains charged hits when no target or
+  projectile slot is available. Delayed projectiles preserve proc ancestry, and
+  companion explosions retain ownership. The existing event budgets are unchanged.
+  See [SYNERGY_AUDIT.md](SYNERGY_AUDIT.md) for the review and intentional exclusions.
 - Eight temporary points permit full branches with supporting pairs. Permanent
   points/unlocks remain task 8. Allocation order does not change handler order.
 - Simple marks, distinct curse/detonation symbols, imp/falcon silhouettes, and
@@ -58,27 +67,31 @@ commit, and pause. Keep gameplay, persistence, and UI modular.
 
 ## Latest validation
 
-- `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run check` passed:
-  **165 unit tests**, TypeScript checks, production build, and **32 browser tests**.
-  No failed or skipped tests in the final run.
-- Reviewed desktop/tablet/phone branch and combat screenshots; all talent names,
-  icons, descriptions, Close, fractional health/ward labels, and imp/falcon shapes
-  remain readable. Physical hardware and other browser engines remain unverified.
-- Production output: approximately 64.57 kB JavaScript (21.39 kB gzip) and 9.25 kB
-  CSS uncompressed.
-- Every playable talent has behavior coverage. New tests exercise actual vs excess
-  healing, expiration/absorption, pickup throttling, holy marks, curses, periodic
-  snapshots, exact remaining tick counts, explosion caps/nonrecursion, shared
-  companion commands/buffs, shot snapshots, pause/reset, and dense hybrids.
-- Dense 80-enemy dual-DoT testing exposed the former 256-event budget; the bounded
-  budget is now 512, retaining six-generation depth and ancestry guards. No primary
-  damage or death drops depend on processing a secondary event.
-- Browser journeys cover complete supported Priest/Warlock builds and observe real
-  healing cross geometry (not just pickup color), wards, holy attacks, curses,
-  imp drawing, and detonations. Existing combat/input/progression checks remain.
-- Inspected 56 source modules: no circular runtime imports. No new dependencies,
-  external assets, accounts, paid services, or backend requirements.
-- Runtime: Node 24.19.0, npm 11.9.0, system Chromium 154. README.md has commands.
+- `npm test`: **476 unit tests passed**, including 288 catalog/upgrade sweep cases,
+  focused cross-branch regressions, and six 80-enemy hybrids at maximum upgrade ranks.
+- `npm run build`: TypeScript checks and production build passed.
+- `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:browser`:
+  **32 browser tests passed**. No failed or skipped cases in the final runs.
+- Each catalog sweep uses a legal prerequisite build, each upgrade at its cap plus
+  all maximum ranks, and reversed allocation order. These short routes verify real
+  damage, deterministic results, finite state, entity bounds, and no dropped effects;
+  they do not establish exhaustive pair coverage or full-run balance.
+- Targeted checks cover melee/companion haste, timer progress, inherited fork/pierce/
+  splash, companion blast ownership/Pack Link, fire counters, ward/refund triggers,
+  Frost/physical companions, Living Ember healing, Soul Link volley snapshots,
+  Sanctuary actual/excess healing, delayed ancestry, and Spellsteel charge limits.
+- Reviewed tablet and portrait-phone screenshots of the longer Spellsteel tooltip;
+  text remains readable and Close stays reachable. Existing combat, input, and
+  progression journeys pass across all three viewport profiles. Physical hardware
+  and other browser engines remain unverified.
+- Production output: approximately 66.36 kB JavaScript (21.92 kB gzip) and 9.25 kB
+  CSS uncompressed. Inspected 57 source modules: no circular runtime imports.
+- Dense Spellsteel/maximum-upgrade testing exposed area-hit projectile fan-out.
+  The new volley cooldown fixed the failing workload without raising the existing
+  512-event limits. Tested dense hybrid routes drop no secondary events. Deliberate
+  hostile fan-out/depth tests still verify that the safety caps reject excess work.
+- No new dependencies, external assets, accounts, paid services, or backend needs.
+  Runtime: Node 24.19.0, npm 11.9.0, system Chromium 154. README.md has commands.
   Browser tests start/stop their own production preview server.
 
 ## Remaining work and limits
@@ -104,5 +117,6 @@ commit, and pause. Keep gameplay, persistence, and UI modular.
   six-point hybrid builds, `d9eb89a`.
 - Task 6: complete Rogue/Hunter talents, open hit rules, DoTs, companions, and
   eight-point supported builds, `c2c7237`.
-- Task 7: complete Priest/Warlock branches and the full 36-talent catalog
-  (this milestone).
+- Task 7: complete Priest/Warlock branches and the full 36-talent catalog, `b20621d`.
+- Task 7a: separately requested synergy audit, shared upgrade inheritance, open
+  triggers, bounded delayed effects, and catalog/hybrid regressions (this milestone).

@@ -24,16 +24,16 @@ are available; prerequisites and the eight-point budget still apply.
 | --- | --- | --- |
 | Iron Reprisal | Warrior | Surviving contact health loss retaliates for 12 physical damage within 44 range |
 | Sweeping Blade | Warrior | Auto-aim a 120° melee cleave within 50 range: 16 physical damage every 1.1s |
-| Spellsteel | Warrior | Every third melee hit fires a triggered 12-damage ember from the victim at another foe within 120 range |
-| Frostbreak | Warrior | Melee consumes Frost for 8 extra physical damage and a 0.6s stun |
+| Spellsteel | Warrior | Every third non-periodic physical hit fires a 12-damage ember volley within 120 range; inherits projectile upgrades; 0.25s volley limit |
+| Frostbreak | Warrior | Non-periodic physical hits, including companions and retaliation, consume Frost for 8 extra physical damage and a 0.6s stun |
 | Iron Ward | Warrior | Surviving health loss grants an 8-point, 3s shield; 5s cooldown |
 | Last Stand | Warrior | Enemy damage breaking a shield triggers 20 physical damage within 60 range |
-| Arcane Echo | Mage | Every third direct ember hit strikes another nearby enemy for 9 arcane damage |
-| Rime Sigil | Mage | Direct and triggered ember hits refresh 2s Frost, slowing enemies by 30% |
+| Arcane Echo | Mage | Every third non-periodic fire hit strikes another nearby enemy for 9 arcane damage; linked companions qualify |
+| Rime Sigil | Mage | Non-periodic fire hits and linked companion hits refresh 2s Frost, slowing enemies by 30% |
 | Chain Spark | Mage | Every third arcane hit chains 10 lightning damage to a different foe within 96 range |
 | Shatterglass | Mage | Physical hits consume Frost for a 10-damage arcane explosion within 36 range |
 | Mana Ward | Mage | Every third triggered spell hit grants an 8-point shield for 3s |
-| Riftweaver | Mage | Triggered spell hits refund 0.15s of ember/melee cooldown, at most once per second |
+| Riftweaver | Mage | Triggered spell hits refund 0.15s of ember, melee, and companion cooldowns, at most once per second |
 | Expose Weakness | Rogue | Non-periodic hits against wounded foes add 6 damage and refund 0.15s of automatic attack cooldowns |
 | Venom Edge | Rogue | Non-periodic hits apply 3 Poison damage each second for 2s; refreshes do not delay ticks |
 | Killer Instinct | Rogue | Every fourth non-periodic hit crits for 1.75× damage; all schools and companions share the cadence |
@@ -48,14 +48,14 @@ are available; prerequisites and the eight-point budget still apply.
 | Dawn Chorus | Priest | Any shield absorption attempts 2 healing and strikes the nearest foe for 8 holy damage, at most once per second |
 | Soul Cinder | Warlock | Every fourth kill from any source bursts for 9 shadow damage within 36 range; its own chain cannot count itself |
 | Agony | Warlock | Non-periodic hits curse for 3 shadow damage each second for 3s; refreshes do not delay ticks |
-| Grim Pact | Warlock | An imp fires 9-damage embers every 1.4s within 180 range, inheriting piercing and critical rules |
+| Grim Pact | Warlock | An imp fires 9-damage embers every 1.4s before haste within 180 range; inherits projectile upgrades and critical rules |
 | Detonation | Warlock | Afflicted deaths explode for remaining scheduled Poison/curse damage within 36 range, capped at 18 base damage; immediate chains cannot detonate again |
 | Soul Link | Warlock | Actual healing stores 40% as bonus damage for each companion's next attack, capped at 12 per companion |
 | Harvest | Warlock | DoT kills attempt 2 healing and extend one nearby DoT by 1s, capped at 4s remaining |
 | Hunting Momentum | Hunter | Any kill stores one additional target for the next ember volley with enough distinct targets |
 | Falcon Companion | Hunter | A falcon strikes the nearest foe within 180 range for 8 physical damage each second; shares critical rules |
 | Snaring Shot | Hunter | Every fourth non-periodic hit places a 2s snare within 36 range, slowing by 35%; at most eight zones |
-| Pack Link | Hunter | Companions also inherit wound bonuses and talent-based Poison, curses, Frost, snares, and roots |
+| Pack Link | Hunter | Companions inherit wound/DoT/status effects, physical/fire triggers, and triggered-spell effects |
 | Frost Trap | Hunter | Hits against any slowed foe root for 0.75s and apply 2s Frost, with a 3s cooldown per foe |
 | Wild Hunt | Hunter | Spending Momentum commands all companions to strike immediately, at most once per 2s |
 
@@ -77,14 +77,19 @@ consume marks. These attacks add their holy strike only if the primary hit leave
 the foe alive, making them more useful against tougher targets.
 Talent points are temporarily all available; bounded permanent unlocks arrive in task 8.
 
-Spellsteel needs a melee ability to trigger. Its ember skips the original victim,
-can apply Frost, and counts as a triggered spell; it cannot count as a direct ember
-for Arcane Echo. Kills from any source now feed Communion, Soul Cinder, and Momentum,
-with ancestry guards against counting their own proc chains. Spellsteel can apply
-Rogue wound bonuses, Poison, curses, and critical hits, like other non-periodic damage. Triggered spells include
-nonphysical talent hits such as arcane echoes, lightning, holy healing attacks,
-and shadow bursts. Shields refresh without stacking or weakening; they absorb
-before health. Expiration never triggers Last Stand, and fully absorbed hits do
+Spellsteel counts non-periodic physical hits from melee and retaliation, plus
+companions with Pack Link. Its volley skips the original victim on direct hits,
+can apply Frost, feeds Arcane Echo, and inherits fork, piercing, and explosions.
+A 0.25s volley limit bounds area-hit fan-out; a full charge waits for an eligible
+physical hit with another target and projectile space. Frostbreak and Shatterglass
+react to physical hits from any attacker, without requiring Pack Link.
+Kills from any source feed Communion, Soul Cinder, and Momentum, with ancestry
+guards against counting their own proc chains. Spellsteel can apply Rogue wound
+bonuses, Poison, curses, and critical hits, like other non-periodic damage.
+Triggered spells include nonphysical talent hits, projectile explosions, and
+linked magical companion hits. Direct starting embers, physical hits, and periodic
+ticks do not count for Mana Ward or Riftweaver. Shields refresh without stacking
+or weakening; they absorb before health. Expiration never triggers Last Stand, and fully absorbed hits do
 not trigger health-loss talents. Frost has ice prongs; stuns stop movement and
 contact attacks. Cleaves use arcs, wards use an oval plus a health-line amount/timer,
 and spell effects have distinct shapes. Excess healing is separate from actual
@@ -97,15 +102,15 @@ Rogue and Hunter use open hit rules: weapons, spells, blasts, and retaliation
 qualify. Periodic damage cannot crit, reapply Poison/curses, or generate hit-based snares;
 periodic and companion kills still supply Momentum. Companions always share your
 critical cadence and critical effects; Pack Link adds the listed noncritical
-on-hit effects. Explicit ability-specific rules such as Arcane Echo still require
-their described source. Roots stop movement but allow contact attacks; stuns stop
-both. Slows use the strongest value rather than stacking. Poison can spread on
+on-hit and spell-trigger effects. Fire/physical school requirements still apply.
+Roots stop movement but allow contact attacks; stuns stop both. Slows use the strongest value rather than stacking. Poison can spread on
 lethal hits, and Nightfall pulses those newly spread effects once. These rules
 prevent recursive proc loops without limiting talents to one fantasy archetype.
 
 Imps and falcons share ownership, targeting, cooldowns, Soul Link bonuses, and
 Wild Hunt commands. Pack Link also lets either apply your on-hit Poison, curses,
-Frost, snares, and roots. The imp snapshots piercing and stored damage at launch;
+Frost, snares, and roots. The imp snapshots extra targets, piercing, blast radius,
+and stored damage at launch. A Soul Link bonus applies to every shot of one volley;
 healing or upgrades cannot alter already-fired shots. Failed/full-budget launches
 retain its stored bonus. Curse marks, holy crosses, detonation crescents, and the
 horned imp silhouette distinguish the new effects with simple original shapes.
@@ -135,13 +140,22 @@ counted in the run total and no more choices are required.
 
 | Run upgrade | Effect per rank | Rank cap |
 | --- | --- | --- |
-| Quickened Ember | Ember cooldown −0.08 seconds | 4 |
+| Quickened Ember | Ember cooldown −0.08s; melee/companion intervals shorten by the same proportion | 4 |
 | Fleetfoot | Movement speed +12 | 3 |
 | Soul Gatherer | XP attraction range +18 | 3 |
 | Living Ember | Maximum health +12; restore 12 health | 3 |
-| Forked Ember | Attack one additional distinct nearby target, if available | 2 |
-| Soul Needle | Each ember passes through one additional enemy | 2 |
-| Ashburst | Direct hits explode for half damage; blast radius +20, without chaining | 2 |
+| Forked Ember | Ember, Spellsteel, and imp volleys attack one additional distinct nearby target | 2 |
+| Soul Needle | Ember, Spellsteel, and imp shots pass through one additional enemy | 2 |
+| Ashburst | Ember, Spellsteel, and imp impacts explode for half shot damage before on-hit bonuses; radius +20, without chaining | 2 |
+
+
+Haste changes automatic attack intervals, not DoT timing, proc counters, or talent
+cooldowns. Picking it preserves elapsed cooldown progress for every attacker;
+unrelated upgrades do not reset attack timers. Projectile upgrades leave falcon
+strikes and melee arcs unchanged. Ashburst retains companion ownership, so imp
+explosions require Pack Link for inherited on-hit effects. Already-fired shots
+retain their captured upgrades and damage. See [SYNERGY_AUDIT.md](SYNERGY_AUDIT.md)
+for the talent/upgrade review, tested combinations, and intentional exclusions.
 
 Piercing bolts have a pale trail; explosive bolts produce expanding impact rings.
 Open **Run upgrades** beneath the arena to inspect your ranks and ember stats.
@@ -264,7 +278,8 @@ The simulation module map:
 | Targeting, cooldowns, projectile hits, and enemy contact | `combat.ts` |
 | Shared enemy damage, kill credit, and death drops | `damage.ts` |
 | Automatic directional melee arcs | `melee.ts` |
-| Shared projectile creation and attribution snapshots | `projectiles.ts` |
+| Shared projectile volleys, upgrade inheritance, and attribution snapshots | `projectiles.ts` |
+| Shared automatic-attack haste, timer rescaling, and refunds | `attack-timing.ts` |
 | Frost/stun/root lifetimes, consumption, and status/cooldown timers | `statuses.ts` |
 | Hit eligibility and companion inheritance | `hit-policy.ts` |
 | Shared wound bonuses, Poison/curse application, and critical cadence | `hit-modifiers.ts` |
@@ -323,7 +338,7 @@ in `src/rendering/feedback.ts`; companions, snares, and afflictions each have a
 focused renderer under `src/rendering/`.
 
 Combat effects use FIFO events with source/school information, a six-generation
-depth limit, 512-event queue/tick limits, and handler-ancestry suppression. Limits
+depth limit, 512-event queue/tick limits, and handler-ancestry suppression, retained by delayed projectiles. Limits
 apply to secondary triggers; primary damage and death drops are applied directly.
 `run.effects.dropped` and `suppressed` provide diagnostics for debugging chains.
 The queue stores data only, so run state stays cloneable and contains no callbacks.

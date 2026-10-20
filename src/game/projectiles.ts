@@ -1,6 +1,10 @@
 import type { Point, Run } from './state';
 import type { DamageSchool, DamageSource } from './events';
 import { RULES } from './rules';
+import { getRunStats } from './stats';
+import type { RunStats } from './stats';
+import { distance } from './geometry';
+import { snapshotEffectContext } from './events';
 
 /** Every projectile snapshots its origin, attribution, and upgrades at launch. */
 export function fireBolt(run: Run, origin: Point, target: Point, options: {
@@ -14,8 +18,22 @@ export function fireBolt(run: Run, origin: Point, target: Point, options: {
     x: origin.x, y: origin.y, id: run.nextId++,
     vx: gap > 0 ? dx / gap * RULES.boltSpeed : RULES.boltSpeed,
     vy: gap > 0 ? dy / gap * RULES.boltSpeed : 0,
+    effectContext: snapshotEffectContext(run.effects),
     life: RULES.boltLifetime, damage: options.damage, source: options.source, school: options.school,
     pierce: options.pierce ?? 0, blastRadius: options.blastRadius ?? 0, hitIds: options.excludeId === undefined ? [] : [options.excludeId],
   });
   return true;
+}
+
+/** Shared inheritance for player, triggered, and companion projectile volleys. */
+export function fireVolley(run: Run, origin: Point, center: Point, range: number, options: {
+  damage: number; source: DamageSource; school: DamageSchool; excludeId?: number; extraTargets?: number;
+}, stats: RunStats = getRunStats(run.progression.ranks)): number {
+  const targets = run.enemies.filter((enemy) => enemy.health > 0 && enemy.id !== options.excludeId && distance(enemy, center) <= range)
+    .sort((a, b) => distance(a, center) - distance(b, center))
+    .slice(0, Math.min(stats.projectileCount + (options.extraTargets ?? 0), RULES.maxBolts - run.bolts.length));
+  for (const target of targets) fireBolt(run, origin, target, {
+    ...options, pierce: stats.pierce, blastRadius: stats.blastRadius,
+  });
+  return targets.length;
 }

@@ -7,11 +7,11 @@ export type CombatEvent =
   | { type: 'hit' | 'kill'; targetId: number; amount: number; source: DamageSource; school: DamageSchool; position: Position; critical?: boolean; slowed?: boolean; dots?: readonly DamageOverTime[] }
   | { type: 'frost-consumed' | 'mark-consumed'; targetId: number; amount: number; position: Position }
   | { type: 'hurt' | 'healed' | 'shield-broken' | 'absorbed' | 'dot-expired' | 'momentum-spent' | 'overhealed' | 'pickup'; amount: number; position: Position };
-interface Context { depth: number; ancestry: string[] }
-interface QueuedEffect extends Context { event: CombatEvent }
+export interface EffectContext { depth: number; ancestry: string[] }
+interface QueuedEffect extends EffectContext { event: CombatEvent }
 export interface EffectQueue {
   pending: QueuedEffect[];
-  current: Context | null;
+  current: EffectContext | null;
   draining: boolean;
   processedThisTick: number;
   dropped: number;
@@ -37,6 +37,17 @@ export function emitEffect(queue: EffectQueue, event: CombatEvent): void {
     return;
   }
   queue.pending.push({ event, depth: context.depth, ancestry: [...context.ancestry] });
+}
+
+/** Snapshot plain data so delayed projectiles cannot restart an ancestor's proc chain. */
+export function snapshotEffectContext(queue: EffectQueue): EffectContext | undefined {
+  return queue.current ? { depth: queue.current.depth, ancestry: [...queue.current.ancestry] } : undefined;
+}
+
+export function withEffectContext(queue: EffectQueue, context: EffectContext | undefined, apply: () => void): void {
+  const previous = queue.current;
+  queue.current = context ?? null;
+  try { apply(); } finally { queue.current = previous; }
 }
 
 /** FIFO secondary effects. Ancestor suppression prevents a talent retriggering itself. */

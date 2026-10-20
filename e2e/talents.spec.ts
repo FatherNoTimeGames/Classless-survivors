@@ -61,6 +61,12 @@ test('inspect six branches, allocate and refund prerequisites, respec, and run a
     await activate(editor.getByRole('button', { name: new RegExp(`Inspect ${talent}`) }));
     await activate(editor.getByRole('button', { name: 'Allocate point' }));
   }
+  await expect(editor.getByRole('tooltip')).toContainText('non-periodic physical hits');
+  await expect(editor.getByRole('tooltip')).toContainText('Inherits projectile upgrades');
+  await expect(editor.getByRole('tooltip')).toContainText('0.25 seconds');
+  await expect(editor.getByRole('button', { name: 'Close talent editor' })).toBeInViewport();
+  expect(await editor.evaluate((node) => node.scrollWidth <= node.clientWidth)).toBe(true);
+  await page.screenshot({ path: testInfo.outputPath('synergy-description.png'), fullPage: true });
   await expect(editor.locator('#talent-points')).toContainText('8 / 8');
   await activate(editor.getByRole('button', { name: /Inspect Frostbreak/ }));
   await expect(editor.getByRole('button', { name: 'Allocate point' })).toBeDisabled();

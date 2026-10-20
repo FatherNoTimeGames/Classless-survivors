@@ -3,15 +3,14 @@ import type { DamageSource } from './events';
 import { TALENT_TUNING as T } from '../content/talent-tuning';
 import { inheritsOnHit } from './hit-policy';
 import { applyDot } from './dot-state';
+import { refundAttacks } from './attack-timing';
 
 /** Pre-damage modifiers have no damage/effect-handler imports, avoiding proc cycles. */
 export function prepareHit(run: Run, enemy: Enemy, amount: number, source: DamageSource) {
   if (inheritsOnHit(run, source)) {
     if (enemy.health < enemy.maxHealth && run.talents.includes('expose-weakness')) {
       amount += T.exposedDamage;
-      run.player.attackIn = Math.max(0, run.player.attackIn - T.exposedRefund);
-      run.player.meleeIn = Math.max(0, run.player.meleeIn - T.exposedRefund);
-      for (const companion of run.companions) companion.attackIn = Math.max(0, companion.attackIn - T.exposedRefund);
+      refundAttacks(run, T.exposedRefund);
     }
     if (run.talents.includes('agony')) applyDot(enemy, {
       kind: 'curse', school: 'shadow', owner: source === 'summon' ? 'companion' : 'player',

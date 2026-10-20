@@ -5,8 +5,8 @@ import { clamp } from './geometry';
 import { nearestEnemy } from './targeting';
 import { damageEnemy } from './damage';
 import { addSpark } from './effects';
-import { fireBolt } from './projectiles';
-import { getRunStats } from './stats';
+import { fireVolley } from './projectiles';
+import { attackInterval } from './attack-timing';
 
 function strike(run: Run, companion: Companion): boolean {
   const definition = COMPANIONS[companion.kind];
@@ -15,16 +15,16 @@ function strike(run: Run, companion: Companion): boolean {
   companion.targetId = target.id;
   const damage = definition.damage + companion.bonusDamage;
   if (definition.mode === 'projectile') {
-    if (!fireBolt(run, companion, target, {
-      damage, source: 'summon', school: definition.school, pierce: getRunStats(run.progression.ranks).pierce,
+    if (!fireVolley(run, companion, run.player, definition.range, {
+      damage, source: 'summon', school: definition.school,
     })) return false; // Keep the stored bonus/cooldown if the projectile budget is full.
-    companion.attackIn = definition.interval;
+    companion.attackIn = attackInterval(run, definition.interval);
     companion.bonusDamage = 0;
     addSpark(run, companion, 'imp');
   } else {
     companion.x = clamp(target.x, 12, WORLD.width - 12);
     companion.y = clamp(target.y - 16, 12, WORLD.height - 12);
-    companion.attackIn = definition.interval;
+    companion.attackIn = attackInterval(run, definition.interval);
     companion.bonusDamage = 0;
     damageEnemy(run, target, damage, { source: 'summon', school: definition.school });
     addSpark(run, target, 'falcon');

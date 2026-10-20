@@ -125,6 +125,13 @@ these requirements. No subscription-usage or completion-time estimates are impli
   periodic detonations, and healing/DoT companion synergies. Bounded trigger tests
   cover dense builds, lethal snapshots, actual vs excess healing, and effect cycles.
 
+- [x] **7a. Audit talent synergies against the initial run upgrades.**
+  Separately requested before task 8. Share haste, projectile volleys, and attack
+  refunds; open compatible physical/fire triggers; preserve companion ownership
+  and delayed proc ancestry. Test every talent against each upgrade plus maximum
+  ranks, focused cross-branch behavior, and dense hybrid routes. Record the review
+  in SYNERGY_AUDIT.md. This does not replace task 11's expanded upgrade content.
+
 - [ ] **8. Add persistent progression and saved character builds.**
   Implement run rewards, bounded talent-point progression, option unlocks, multiple
   named build slots, and free between-run respecs. Add versioned local saves,
