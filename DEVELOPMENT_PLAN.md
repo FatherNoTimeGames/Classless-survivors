@@ -42,7 +42,7 @@ these requirements. No subscription-usage or completion-time estimates are impli
   Inspect existing instructions and files; save this plan and the progress log.
   Done when the implementation sequence and completion checks are committed.
 
-- [ ] **1. Establish the web project and validation tools.**
+- [x] **1. Establish the web project and validation tools.**
   Add the TypeScript/Vite application, responsive page shell, development/build
   commands, test runner, and browser-test tooling. Document local startup.
   Done when a clean install, type check, production build, meaningful initial
