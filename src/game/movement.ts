@@ -1,5 +1,6 @@
 import { RULES, STEP, WORLD } from './rules';
 import type { Enemy, Player, Point } from './state';
+import { TALENT_TUNING as T } from '../content/talent-tuning';
 import { clamp, distance } from './geometry';
 
 export function movePlayer(player: Player, input: Point, moveSpeed: number): void {
@@ -15,10 +16,10 @@ export function movePlayer(player: Player, input: Point, moveSpeed: number): voi
 export function moveEnemies(enemies: Enemy[], player: Point): void {
   for (const enemy of enemies) {
     enemy.grace = Math.max(0, enemy.grace - STEP);
-    if (enemy.grace > 0) continue;
+    if (enemy.grace > 0 || enemy.stun > 0) continue;
     const gap = distance(enemy, player);
     if (gap > 0) {
-      const travel = Math.min(gap, RULES.enemySpeed * STEP);
+      const travel = Math.min(gap, RULES.enemySpeed * (enemy.frost > 0 ? 1 - T.frostSlow : 1) * STEP);
       enemy.x += (player.x - enemy.x) / gap * travel;
       enemy.y += (player.y - enemy.y) / gap * travel;
     }

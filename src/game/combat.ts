@@ -4,6 +4,7 @@ import type { RunStats } from './stats';
 import { distance, hitTime } from './geometry';
 import { addSpark } from './effects';
 import { damageEnemy, damagePlayer } from './damage';
+import { fireBolt } from './projectiles';
 
 export function updateCombatTimers(player: Player): void {
   player.invulnerable = Math.max(0, player.invulnerable - STEP);
@@ -13,18 +14,13 @@ export function updateCombatTimers(player: Player): void {
 export function updateAttacks(run: Run, stats: RunStats): void {
   const player = run.player;
   if (player.attackIn <= 0 && run.bolts.length < RULES.maxBolts) {
-    const targets = run.enemies.filter((enemy) => distance(enemy, player) <= RULES.attackRange)
+    const targets = run.enemies.filter((enemy) => enemy.health > 0 && distance(enemy, player) <= RULES.attackRange)
       .sort((a, b) => distance(a, player) - distance(b, player))
       .slice(0, Math.min(stats.projectileCount + Number(run.talentMemory.huntingCharge), RULES.maxBolts - run.bolts.length));
     for (const target of targets) {
-      const dx = target.x - player.x;
-      const dy = target.y - player.y;
-      const gap = Math.hypot(dx, dy);
-      run.bolts.push({
-        x: player.x, y: player.y, id: run.nextId++,
-        vx: gap > 0 ? dx / gap * RULES.boltSpeed : RULES.boltSpeed,
-        vy: gap > 0 ? dy / gap * RULES.boltSpeed : 0, life: RULES.boltLifetime,
-        damage: RULES.attackDamage, pierce: stats.pierce, blastRadius: stats.blastRadius, hitIds: [],
+      fireBolt(run, player, target, {
+        damage: RULES.attackDamage, source: 'ember', school: 'fire',
+        pierce: stats.pierce, blastRadius: stats.blastRadius,
       });
     }
     if (targets.length > stats.projectileCount) run.talentMemory.huntingCharge = false;
@@ -41,7 +37,7 @@ export function updateProjectiles(run: Run): void {
       .sort((a, b) => a.time - b.time);
     for (const { enemy } of hits) {
       if (enemy.health <= 0) continue;
-      damageEnemy(run, enemy, bolt.damage);
+      damageEnemy(run, enemy, bolt.damage, { source: bolt.source, school: bolt.school });
       bolt.hitIds.push(enemy.id);
       if (bolt.blastRadius > 0) {
         addSpark(run, enemy, 'burst', bolt.blastRadius);
@@ -65,7 +61,7 @@ export function updateProjectiles(run: Run): void {
 export function applyContactDamage(run: Run): void {
   const player = run.player;
   if (player.invulnerable <= 0 && run.enemies.some((enemy) =>
-    enemy.grace <= 0 && distance(enemy, player) < RULES.playerRadius + RULES.enemyRadius,
+    enemy.health > 0 && enemy.grace <= 0 && enemy.stun <= 0 && distance(enemy, player) < RULES.playerRadius + RULES.enemyRadius,
   )) {
     damagePlayer(run, RULES.contactDamage);
   }

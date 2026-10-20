@@ -1,8 +1,8 @@
 import { RULES, STEP } from './rules';
 import type { Point, Run, Spark } from './state';
 
-export function addSpark(run: Run, point: Point, kind: Spark['kind'], radius?: number): void {
-  if (run.sparks.length < RULES.maxSparks) run.sparks.push({ x: point.x, y: point.y, kind, life: RULES.sparkLifetime, radius });
+export function addSpark(run: Run, point: Point, kind: Spark['kind'], radius?: number, angle?: number): void {
+  if (run.sparks.length < RULES.maxSparks) run.sparks.push({ x: point.x, y: point.y, kind, life: RULES.sparkLifetime, radius, angle });
 }
 
 export function updateSparks(run: Run): void {

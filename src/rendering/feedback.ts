@@ -1,9 +1,11 @@
 import type { Spark } from '../game/state';
 import { RULES } from '../game/rules';
+import { TALENT_TUNING as T } from '../content/talent-tuning';
 
 const COLORS: Record<Spark['kind'], string> = {
   hit: '#f4c77c', pickup: '#91e2ba', hurt: '#ec8b75', burst: '#ffb878',
   heal: '#91e2ba', physical: '#d6c8ae', arcane: '#90d4e2', holy: '#ffe4a1', shadow: '#bf9bd8',
+  cleave: '#ece0bf', frost: '#a5dce8', lightning: '#d4c3ff', shield: '#8fbddc',
 };
 
 /** Color plus shape distinguishes feedback without making more asset files. */
@@ -19,7 +21,15 @@ export function drawFeedback(context: CanvasRenderingContext2D, effects: readonl
     if (effect.kind === 'holy' || effect.kind === 'heal') {
       context.moveTo(effect.x - radius, effect.y); context.lineTo(effect.x + radius, effect.y);
       context.moveTo(effect.x, effect.y - radius); context.lineTo(effect.x, effect.y + radius);
-    } else if (effect.kind === 'arcane') {
+    } else if (effect.kind === 'cleave') {
+      const angle = effect.angle ?? 0;
+      context.arc(effect.x, effect.y, radius, angle - T.meleeHalfAngle, angle + T.meleeHalfAngle);
+    } else if (effect.kind === 'lightning') {
+      context.moveTo(effect.x + radius / 2, effect.y - radius);
+      context.lineTo(effect.x - radius / 2, effect.y);
+      context.lineTo(effect.x + radius / 2, effect.y);
+      context.lineTo(effect.x - radius / 2, effect.y + radius);
+    } else if (effect.kind === 'arcane' || effect.kind === 'frost') {
       context.moveTo(effect.x, effect.y - radius); context.lineTo(effect.x + radius, effect.y);
       context.lineTo(effect.x, effect.y + radius); context.lineTo(effect.x - radius, effect.y);
       context.closePath();

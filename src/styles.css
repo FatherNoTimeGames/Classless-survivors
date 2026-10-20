@@ -135,6 +135,7 @@ noscript { display: block; padding: 20px; text-align: center; }
 .talent-links .selected-link { stroke: #e0be78; }
 .talent-node { position: relative; background: #24352f; color: #e1e0c8; border-color: #819977; padding: 6px; z-index: 1; }
 .talent-node strong { display: block; font-size: 0.78rem; }
+.talent-icon { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; }
 .talent-node span { display: block; margin-top: 6px; color: #b1c5ac; font-size: 0.65rem; }
 .talent-node.center-node { width: calc(50% - 6px); justify-self: center; }
 .talent-node.planned { background: #1b2527; color: #aab3aa; border-style: dashed; border-color: #59635b; }

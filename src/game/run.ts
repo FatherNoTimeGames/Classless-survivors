@@ -1,3 +1,5 @@
+import { updateStatuses } from './statuses';
+import { updateMelee } from './melee';
 import { STEP } from './rules';
 import type { Point, Run } from './state';
 import { updateCombatTimers, updateAttacks, updateProjectiles, applyContactDamage } from './combat';
@@ -16,12 +18,15 @@ export function tickRun(run: Run, input: Point): void {
   const stats = getRunStats(run.progression.ranks);
   run.elapsed += STEP;
   updateCombatTimers(run.player);
+  updateStatuses(run);
   updateSparks(run);
   movePlayer(run.player, input, stats.moveSpeed);
   updateSpawns(run);
   moveEnemies(run.enemies, run.player);
   updateAttacks(run, stats);
   updateProjectiles(run);
+  resolveTalentEffects(run);
+  updateMelee(run);
   resolveTalentEffects(run);
   updatePickups(run, stats.magnetRadius);
   // A level reward pauses the world before another enemy contact can occur.

@@ -62,6 +62,19 @@ export function createArenaRenderer(canvas: HTMLCanvasElement) {
         block(x - 4, y - 6, 8, 5, '#181c24');
         block(x - 3, y - 4, 2, 2, '#ed9c80');
         block(x + 1, y - 4, 2, 2, '#ed9c80');
+        if (enemy.frost > 0 || enemy.stun > 0) {
+          context.strokeStyle = enemy.stun > 0 ? '#fff3b5' : '#a5dce8';
+          context.lineWidth = 1.5;
+          context.strokeRect(x - 9, y - 12, 18, 23);
+          // A cap for stun, two ice prongs for Frost: status is not color alone.
+          context.beginPath();
+          context.moveTo(x - 5, y - 15); context.lineTo(x + 5, y - 15);
+          if (enemy.frost > 0) {
+            context.moveTo(x - 3, y - 18); context.lineTo(x - 3, y - 12);
+            context.moveTo(x + 3, y - 18); context.lineTo(x + 3, y - 12);
+          }
+          context.stroke();
+        }
         context.globalAlpha = 1;
       }
 
@@ -70,6 +83,13 @@ export function createArenaRenderer(canvas: HTMLCanvasElement) {
       const x = Math.round(player.x);
       const y = Math.round(player.y) + bob;
       shadow(x, y);
+      if (player.shield.amount > 0) {
+        context.strokeStyle = '#8fbddc';
+        context.lineWidth = 2;
+        context.beginPath();
+        context.ellipse(x, y - 2, 16, 21, 0, 0, Math.PI * 2);
+        context.stroke();
+      }
       if (player.invulnerable > 0) {
         context.strokeStyle = '#e88c71';
         context.lineWidth = 1.5;

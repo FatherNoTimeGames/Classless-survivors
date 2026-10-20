@@ -1,9 +1,10 @@
 export type DamageSource = 'ember' | 'blast' | 'talent' | 'melee' | 'dot' | 'summon';
-export type DamageSchool = 'physical' | 'fire' | 'arcane' | 'holy' | 'shadow' | 'frost';
+export type DamageSchool = 'physical' | 'fire' | 'arcane' | 'holy' | 'shadow' | 'frost' | 'lightning';
 type Position = { x: number; y: number };
 export type CombatEvent =
   | { type: 'hit' | 'kill'; targetId: number; amount: number; source: DamageSource; school: DamageSchool; position: Position }
-  | { type: 'hurt' | 'healed'; amount: number; position: Position };
+  | { type: 'frost-consumed'; targetId: number; amount: number; position: Position }
+  | { type: 'hurt' | 'healed' | 'shield-broken' | 'absorbed'; amount: number; position: Position };
 interface Context { depth: number; ancestry: string[] }
 interface QueuedEffect extends Context { event: CombatEvent }
 export interface EffectQueue {

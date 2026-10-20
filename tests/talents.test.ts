@@ -34,7 +34,7 @@ describe('talent catalog and build rules', () => {
     };
     for (const talent of TALENTS) visit(talent.id, []);
     expect(Object.keys(TALENT_IMPLEMENTATIONS).sort()).toEqual(TALENTS.filter((talent) => talent.implemented).map((talent) => talent.id).sort());
-    expect(TALENTS.filter((talent) => talent.implemented)).toHaveLength(7);
+    expect(TALENTS.filter((talent) => talent.implemented)).toHaveLength(17);
   });
 
   it('permits mixed branches, an empty starter build, and unordered valid prerequisites', () => {
@@ -44,7 +44,7 @@ describe('talent catalog and build rules', () => {
   });
 
   it('rejects unknown, duplicate, unavailable, over-budget, and prerequisite-breaking builds', () => {
-    for (const build of [null, 'reprisal', [42], ['unknown'], ['reprisal', 'reprisal'], ['sweeping-blade'], ['searing-grace'], ['reprisal', 'arcane-echo', 'expose-weakness', 'communion']]) {
+    for (const build of [null, 'reprisal', [42], ['unknown'], ['reprisal', 'reprisal'], ['venom-edge'], ['sweeping-blade'], ['searing-grace'], ['reprisal', 'arcane-echo', 'expose-weakness', 'communion', 'soul-cinder', 'hunting-momentum', 'searing-grace']]) {
       expect(validateBuild(build).valid, JSON.stringify(build)).toBe(false);
     }
     expect(validateBuild(['searing-grace']).errors.join(' ')).toContain('Ember Communion');
@@ -76,7 +76,7 @@ describe('talent catalog and build rules', () => {
     run.talentMemory.huntingCharge = true;
     expect(createRun(123, build).talentMemory.huntingCharge).toBe(false);
     expect(() => createRun(1, ['searing-grace'])).toThrow('Invalid talent build');
-    expect(() => createRun(1, ['sweeping-blade'])).toThrow('coming soon');
+    expect(() => createRun(1, ['venom-edge'])).toThrow('coming soon');
   });
 });
 

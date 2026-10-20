@@ -41,7 +41,8 @@ export function createHud() {
       }
       if (health.max !== stats.maxHealth) health.max = stats.maxHealth;
       if (health.value !== run.player.health) health.value = run.player.health;
-      setText(healthText, `${run.player.health} / ${stats.maxHealth}`);
+      const shield = run.player.shield;
+      setText(healthText, `${run.player.health} / ${stats.maxHealth}${shield.amount > 0 ? ` · Ward ${shield.amount} (${Math.ceil(shield.remaining)}s)` : ''}`);
       setText(xp, String(run.xp));
       setText(kills, String(run.kills));
       setText(timer, formatTime(run.elapsed));

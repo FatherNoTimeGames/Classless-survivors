@@ -1,5 +1,6 @@
 import { TALENTS, talentById } from '../content/talents';
 import type { BranchId, TalentDefinition, TalentId } from '../content/talents';
+import { TALENT_ICONS } from '../content/talent-icons';
 
 const centerX = (talent: TalentDefinition) => talent.tier === 0 || talent.tier === 3 ? 100 : 50 + talent.slot * 100;
 
@@ -39,6 +40,17 @@ export function renderTalentTree(root: HTMLElement, branch: BranchId, build: rea
     button.title = `${talent.description}\n${state}`;
     const name = document.createElement('strong');
     name.textContent = talent.name;
+    const iconPath = TALENT_ICONS[talent.id];
+    if (iconPath) {
+      const icon = document.createElementNS(svg.namespaceURI, 'svg');
+      icon.setAttribute('viewBox', '0 0 24 24');
+      icon.setAttribute('aria-hidden', 'true');
+      icon.setAttribute('class', 'talent-icon');
+      const path = document.createElementNS(svg.namespaceURI, 'path');
+      path.setAttribute('d', iconPath);
+      icon.append(path);
+      button.append(icon);
+    }
     const status = document.createElement('span');
     status.textContent = `${selected ? '✓ ' : ''}${state}`;
     button.append(name, status);

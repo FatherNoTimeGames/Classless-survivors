@@ -3,16 +3,16 @@
 A single-player dark fantasy survival roguelite built with TypeScript and Canvas.
 Mix talents freely across six fantasy archetypes. No accounts or backend required.
 
-**Current milestone:** the classless talent foundation. Build across six branches
-before a run, then move, fight, collect XP, and choose temporary upgrades.
-The visual tree contains 36 talent designs; **7 are functioning and selectable**.
-The other 29 are clearly marked coming soon and cannot be allocated. Full branch
-content, persistent saves, bosses, and offline installation remain upcoming. See
-[the task list](DEVELOPMENT_PLAN.md) and [progress log](PROGRESS.md).
+**Current milestone:** complete Warrior and Mage branches, with melee/spell hybrids,
+Frost, shields, and retaliation. Build across six branches before a run, then move,
+fight, collect XP, and choose temporary upgrades. The visual tree contains 36 talent
+designs; **17 are functioning and selectable**. The other 19 are clearly marked coming
+soon and cannot be allocated. Persistent saves, bosses, and offline installation
+remain upcoming. See [the task list](DEVELOPMENT_PLAN.md) and [progress log](PROGRESS.md).
 
 ## Play this milestone
 
-Open **Talents** before a run. You have three talent points, can mix any branches,
+Open **Talents** before a run. You have six talent points, can mix any branches,
 and may leave points unspent. Select a branch tab, then a node to inspect its
 description, prerequisites, and suggested synergies. Hover/focus help and a
 persistent detail panel support mouse, keyboard, and touch. Allocate a point,
@@ -20,21 +20,43 @@ refund individual talents, or use **Free respec** to clear the whole build.
 Refunding a prerequisite also refunds dependent talents. Planned nodes remain
 inspectable, with allocation disabled.
 
-| Playable foundation talent | Branch | Behavior |
+| Playable talent | Branch | Behavior |
 | --- | --- | --- |
-| Iron Reprisal | Warrior | Surviving contact retaliates for 12 physical damage within 44 range |
+| Iron Reprisal | Warrior | Surviving contact health loss retaliates for 12 physical damage within 44 range |
+| Sweeping Blade | Warrior | Auto-aim a 120° melee cleave within 50 range: 16 physical damage every 1.1s |
+| Spellsteel | Warrior | Every third melee hit fires a triggered 12-damage ember from the victim at another foe within 120 range |
+| Frostbreak | Warrior | Melee consumes Frost for 8 extra physical damage and a 0.6s stun |
+| Iron Ward | Warrior | Surviving health loss grants an 8-point, 3s shield; 5s cooldown |
+| Last Stand | Warrior | Enemy damage breaking a shield triggers 20 physical damage within 60 range |
 | Arcane Echo | Mage | Every third direct ember hit strikes another nearby enemy for 9 arcane damage |
+| Rime Sigil | Mage | Direct and triggered ember hits refresh 2s Frost, slowing enemies by 30% |
+| Chain Spark | Mage | Every third arcane hit chains 10 lightning damage to a different foe within 96 range |
+| Shatterglass | Mage | Physical hits consume Frost for a 10-damage arcane explosion within 36 range |
+| Mana Ward | Mage | Every third triggered spell hit grants an 8-point shield for 3s |
+| Riftweaver | Mage | Triggered spell hits refund 0.15s of ember/melee cooldown, at most once per second |
 | Expose Weakness | Rogue | Wounded direct-hit targets take 6 extra damage and refund 0.15s of ember cooldown |
 | Ember Communion | Priest | Every fourth direct ember kill restores 3 health |
 | Searing Grace | Priest | Requires Communion; actual healing strikes the nearest foe within 110 range for 6 holy damage |
 | Soul Cinder | Warlock | Every fourth direct ember kill bursts for 9 shadow damage within 36 range, without chaining |
 | Hunting Momentum | Hunter | A direct ember kill stores one additional target for the next attack with enough targets |
 
-Try **Iron Reprisal + Expose Weakness + Arcane Echo** for retaliation and wounded
-follow-ups, or **Ember Communion + Searing Grace + Expose Weakness** to turn healing
-into damage that primes your next ember. Effects use distinct rings, diamonds,
-crosses, and colors. Overhealing has no effect; fatal hits cannot be healed into
-a resurrection. These talents are separate from randomized run upgrades.
+Try **Iron Reprisal → Sweeping Blade → Frostbreak** alongside **Arcane Echo →
+Rime Sigil → Shatterglass**: embers freeze foes, then a cleave consumes Frost for
+bonus damage, a stun, and a burst. Both talents benefit from the same consumption,
+including when the primary hit kills. Physical retaliation can also shatter Frost.
+Allocate an entire six-point branch to try its capstone, or mix roots and side paths.
+Talent points are temporarily all available; bounded permanent unlocks arrive in task 8.
+
+Spellsteel needs a melee ability to trigger. Its ember skips the original victim,
+can apply Frost, and counts as a triggered spell; it cannot count as a direct ember
+for Arcane Echo, Expose Weakness, or direct-kill talents. Triggered spells include
+nonphysical talent hits such as arcane echoes, lightning, holy healing attacks,
+and shadow bursts. Shields refresh without stacking or weakening; they absorb
+before health. Expiration never triggers Last Stand, and fully absorbed hits do
+not trigger health-loss talents. Frost has ice prongs; stuns stop movement and
+contact attacks. Cleaves use arcs, wards use an oval plus a health-line amount/timer,
+and spell effects have distinct shapes. Overhealing and post-death effects cannot
+resurrect the player. Talents remain separate from randomized run upgrades.
 
 Your chosen talents are copied into the new run. Editing is available before the
 first run and after defeat; paused runs cannot be respecced. **Try again** uses
@@ -131,10 +153,13 @@ every upgrade's gameplay effect, piercing/explosion interactions, and maximum-le
 completion. Browser leveling journeys navigate to actual rendered XP shards, verify
 the frozen choice screen, select with keyboard/touch, inspect the improved ability,
 earn a second level, and start a fresh run.
-Talent tests cover all seven functioning effects, mixed-branch synergies, valid
+Talent tests cover all 17 functioning effects, mixed-branch synergies, valid
 and invalid builds, prerequisites, cascading refunds, snapshots, and trigger
 budgets/cycles. Browser checks inspect branch trees with keyboard/touch, enforce
-the point limit, respec, and start a three-branch build.
+the point limit, respec, and start a three-branch build. Additional browser journeys
+allocate both complete branches and observe real melee/ward drawing during combat.
+Shared-system tests cover arc targeting, attribution, Frost consumption on lethal hits,
+shield absorption/expiration, stuns, cooldown limits, and dense deterministic hybrids.
 Screenshots and failure traces are
 written to ignored `test-results/`. Emulation does not replace physical device
 testing, and Chromium checks do not establish support in other browser engines.
@@ -175,6 +200,10 @@ The simulation module map:
 | Spawn pacing and safe placement | `spawning.ts` |
 | Targeting, cooldowns, projectile hits, and enemy contact | `combat.ts` |
 | Shared enemy damage, kill credit, and death drops | `damage.ts` |
+| Automatic directional melee arcs | `melee.ts` |
+| Shared projectile creation and attribution snapshots | `projectiles.ts` |
+| Frost/stun lifetimes, consumption, and status/cooldown timers | `statuses.ts` |
+| Nonstacking wards, absorption, and shield-break events | `shields.ts` |
 | Actual healing, overheal rejection, and healing events | `healing.ts` |
 | Bounded typed combat-event queue | `events.ts` |
 | Talent behavior modules by branch and active-handler registry | `talent-effects/` |
@@ -189,7 +218,7 @@ The simulation module map:
 
 `run.ts` coordinates the systems in a deliberate order: advance time/cooldowns,
 expire feedback, move the player, spawn and move enemies, attack, resolve bolts,
-resolve talent effects, collect XP, then apply contact damage and its reactions if
+resolve projectile effects, cleave and resolve melee effects, collect XP, then apply contact damage and its reactions if
 no level reward paused the run. This keeps
 killed enemies from damaging the player and gives a level reward priority over
 contact. Systems mutate their own
@@ -202,7 +231,11 @@ are captured when a bolt is fired; existing shots retain their original properti
 Talent definitions live in `src/content/talents.ts`, with current numerical tuning
 in `talent-tuning.ts`. Availability flags must match working implementations;
 changing a preview flag alone does not implement a talent. Branch handlers live in
-`src/game/talent-effects/`; Rogue's direct-damage modifier runs before hit events.
+`src/game/talent-effects/`; Rogue's direct-damage modifier and Frost consumption run before hit events.
+Frost consumption snapshots a separate event, allowing both talents to react even
+when the victim dies. Projectile effects resolve before melee so same-tick Frost
+can be consumed. Shield-break events only come from enemy damage absorption.
+Simple original Warrior/Mage icon paths live in `src/content/talent-icons.ts`.
 The editor and graph renderer are separate UI modules, and feedback drawing is
 isolated in `src/rendering/feedback.ts`.
 

@@ -16,9 +16,9 @@ export function advance(run: Run, seconds: number, input: Point = STILL): void {
 }
 
 export function enemy(id: number, x: number, y: number): Enemy {
-  return { id, x, y, health: RULES.enemyHealth, maxHealth: RULES.enemyHealth, grace: 0 };
+  return { id, x, y, health: RULES.enemyHealth, maxHealth: RULES.enemyHealth, grace: 0, frost: 0, stun: 0 };
 }
 export function bolt(overrides: Partial<Bolt>): Bolt {
   return { id: 201, x: 100, y: 100, vx: 0, vy: 0, life: 1, damage: RULES.attackDamage,
-    pierce: 0, blastRadius: 0, hitIds: [], ...overrides };
+    source: 'ember', school: 'fire', pierce: 0, blastRadius: 0, hitIds: [], ...overrides };
 }

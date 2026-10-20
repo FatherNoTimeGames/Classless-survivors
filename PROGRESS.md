@@ -2,18 +2,21 @@
 
 ## Current state
 
-- Completed: tasks 0–4 and the separately requested modular refactor (2a).
+- Completed: tasks 0–5 and the separately requested modular refactor (2a).
 - Playable: keyboard/touch movement, automatic combat, enemies, health, XP,
   leveling, seven randomized run upgrades, pause/resume, defeat, and restart.
-- Task 4: six-branch connected talent trees with all 36 designs. Seven talents
-  are functioning/selectable; 29 coming-soon previews are inspectable but cannot
-  be allocated. Availability is explicit in the UI and validated in simulation.
-- Playable talents: Iron Reprisal, Arcane Echo, Expose Weakness, Ember Communion,
-  Searing Grace, Soul Cinder, and Hunting Momentum. All have behavior tests.
-- Three initial points may be mixed freely across branches. Prerequisites,
-  duplicate/unknown/unavailable selection, and budgets are validated. Refunds
-  cascade through dependents; full respecs are free. Editor is available before
-  runs and after defeat, with keyboard/touch inspection and a sticky Close control.
+- Task 5: all six Warrior and all six Mage talents function. Seventeen of the
+  36 total talents are selectable; the other 19 remain explicit coming-soon previews.
+  Every usable talent has a behavior test.
+- New shared systems: automatic 120° melee cleaves, attributed triggered bolts,
+  Frost/slows/stuns, nonstacking expiring shields, and shield-break events.
+  Branch handlers add Spellsteel, Frostbreak/Shatterglass, Chain Spark, Iron/Mana
+  Ward, Last Stand, and Riftweaver without growing the tick coordinator.
+- Six temporary talent points allow a complete branch or a deep Frost/melee hybrid.
+  Allocation validates availability, prerequisites, duplicates, and budget. Refunds
+  cascade; respecs remain free. Permanent points/unlocks remain task 8.
+- Original line icons and simple feedback communicate melee arcs, lightning,
+  frozen/stunned enemies, and protection. The health line shows shield amount/time.
 - New runs copy the chosen build; talent changes cannot affect an existing run.
   Talent draft persists within this page session only. Temporary run upgrades
   reset separately. Permanent persistence remains task 8.
@@ -36,43 +39,38 @@
 
 ## Next task
 
-**Task 5: Implement Warrior and Mage talents.**
+**Task 6: Implement Rogue and Hunter talents.**
 
-Wait for **continue**. Iron Reprisal and Arcane Echo already function; implement
-and test the remaining five talents in each branch, updating availability only
-when behavior is working. Add melee/elemental attacks, Frost/physical interactions,
-shields/retaliation, and readable symbols/effects matching descriptions. Extend
-branch modules and shared damage/healing/event boundaries; keep the coordinator
-small. Revisit the three-point starter budget as deeper paths become playable,
-while keeping a bounded budget and leaving permanent unlock progression for task 8.
-Test each talent and melee/caster hybrids, document, commit, and pause.
+Wait for **continue**. Expose Weakness and Hunting Momentum already function.
+Implement the remaining five talents in each branch: critical hits, Poison,
+critical/DoT propagation, falcon companion, inheritance, snares/roots, and Wild Hunt.
+Extend focused branch/shared systems, preserve attribution and effect bounds,
+and only enable nodes when working. Test each talent and cross-branch combinations,
+verify browser behavior, update docs, commit, and pause. See DEVELOPMENT_PLAN.md.
 
 ## Latest validation
 
 - `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run check` passed:
-  **66 unit tests**, TypeScript checks, production build, **17 browser tests**.
+  **85 unit tests**, TypeScript checks, production build, and **20 browser tests**.
   No failed or skipped tests in the final run.
-- Talent coverage: catalog completeness/acyclic prerequisites, mixed allocation,
-  invalid/over-budget/planned selections, cascading refunds, build snapshots,
-  proc reset, all seven effects, overheal/fatal protection, upgrade-healing hooks,
-  Warrior/Rogue and Priest/Rogue interactions, and direct-vs-triggered kill rules.
-- Effect tests cut recursive chains, bound unique-handler depth and fan-out,
-  preserve the shared per-tick budget across drains, reject recursive draining,
-  and restore queue context after handler errors. Existing progression/combat
-  regressions still pass.
-- Browser flows inspect all six branches using keyboard and touch, inspect locked
-  previews, allocate a real prerequisite/child pair, refund both together, enforce
-  points, respec, and start a three-branch build. Desktop/tablet/Android portrait
-  pass alongside leveling, pause/focus, multi-touch, defeat/restart, and shell tests.
-- Reviewed desktop and phone talent screenshots; Close remains visible when the
-  phone editor scrolls. Inspected 39 source modules: no circular runtime imports.
-- Current output: approximately 40.76 kB JavaScript and 9.12 kB CSS uncompressed.
+- Reviewed desktop/phone branch screenshots and the phone ward HUD; icons, names,
+  descriptions, and the sticky Close control remain readable. Inspected all
+  44 source modules: no circular runtime imports.
+- Production output: approximately 48.31 kB JavaScript (16.64 kB gzip) and 9.25 kB
+  CSS uncompressed. No new dependencies or external assets.
+- Unit coverage includes every playable talent, build validation/refunds, direct vs
+  triggered damage, Frost/melee hybrids and lethal consumption, shield absorption/
+  expiration, stun protection, proc cooldowns, and bounded deterministic dense combat.
+- Browser journeys cover both full branch allocations, real cleave/ward drawing,
+  and the existing mixed builds, keyboard/touch, leveling, pause, defeat/restart,
+  local assets, and layout checks across desktop/tablet/Android-sized viewports.
 - Runtime: Node 24.19.0, npm 11.9.0, system Chromium 154. README.md has commands.
   Browser tests start/stop their own production preview server.
 
 ## Remaining work and limits
 
-- Tasks 5–17: remaining branch talents; permanent progression; enemy/boss variety;
+- Tasks 6–17: Rogue/Hunter and Priest/Warlock branch completion; permanent
+  progression; enemy/boss variety;
   temporary synergies; presentation/audio; device polish; offline/PWA; balance;
   final regressions; release. Definitions alone are not completed talent content.
 - No local saves/build slots, permanent unlocks, bosses, victory, or offline
@@ -88,4 +86,6 @@ Test each talent and melee/caster hybrids, document, commit, and pause.
 - Task 0: `90daca7`; task 1: `8332fcb`; task 2: `50cee85`.
 - Modularity/art requirements: `93558f1`; refactor 2a: `851082a`.
 - Task 3: leveling and run upgrades, `c10a1b7`.
-- Task 4 commit: `feat: add classless talent framework and visual tree` (this milestone).
+- Task 4: classless talent framework and visual tree, `4462fd4`.
+- Task 5: complete Warrior/Mage talents, shared melee/status/shield systems, and
+  six-point hybrid builds (this milestone).

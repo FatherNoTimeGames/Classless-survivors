@@ -93,11 +93,14 @@ these requirements. No subscription-usage or completion-time estimates are impli
   cascading refunds, free respec, and bounded typed effect processing. The other
   29 nodes are explicitly unavailable previews, to be implemented in tasks 5–7.
 
-- [ ] **5. Implement Warrior and Mage talents.**
+- [x] **5. Implement Warrior and Mage talents.**
   Deliver six working talents per branch, melee and elemental attacks, frost/
   physical interactions, shields or retaliation, icons, and accurate tooltips.
   Done when every talent has a behavior test and melee/caster hybrids visibly
   play differently from either branch alone.
+  Delivered all twelve Warrior/Mage talents, shared cleave/projectile/status/shield
+  systems, six-point builds, readable icons/effects, and tests for each talent,
+  hybrid Frost consumption, shield lifecycles, attribution, and bounded dense combat.
 
 - [ ] **6. Implement Rogue and Hunter talents.**
   Deliver six working talents per branch, critical-hit and damage-over-time
