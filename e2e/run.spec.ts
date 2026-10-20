@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { SAVE_KEY } from '../src/persistence/profile-store';
 import { playerPosition, startGame } from './game-helpers';
 
 test('keyboard movement, pause, and focus loss preserve the run and clear held input', async ({ page }) => {
@@ -73,6 +74,9 @@ test('automatic combat earns XP, ends in defeat, and restarts with clean stats',
   await expect(page.locator('#health')).toHaveJSProperty('value', 0);
   expect(Number(await page.locator('#run-xp').textContent())).toBeGreaterThan(0);
   await expect(page.locator('#run-results')).toContainText('XP gathered');
+  const earned = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), SAVE_KEY);
+  expect(earned.completedRuns).toBe(1); expect(earned.activeRun).toBeNull();
+  await expect(page.locator('#run-reward')).toContainText('insight earned');
   const endedTime = await page.locator('#run-time').textContent();
   await page.clock.runFor(5000);
   await expect(page.locator('#run-time')).toHaveText(endedTime!);
@@ -86,5 +90,15 @@ test('automatic combat earns XP, ends in defeat, and restarts with clean stats',
   await expect(page.locator('#run-overlay')).toBeHidden();
   await page.clock.runFor(1500);
   await expect(page.locator('#run-time')).toHaveText('00:01');
+  await page.reload();
+  const reloaded = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), SAVE_KEY);
+  expect(reloaded.completedRuns).toBe(1); expect(reloaded.insight).toBe(earned.insight);
+  await page.locator('#edit-talents').click();
+  await expect(page.locator('#save-status')).toContainText('unfinished run was discarded');
+  await page.locator('#close-talents').click();
+  await page.locator('#start-run').click();
+  const restarted = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), SAVE_KEY);
+  expect(restarted.activeRun).toBeGreaterThan(earned.lastResult.id);
+  expect(restarted.completedRuns).toBe(1);
   expect(errors).toEqual([]);
 });

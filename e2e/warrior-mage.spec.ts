@@ -35,6 +35,7 @@ test('allocate both complete branches, then play a Warrior build with real cleav
     await expect(editor.locator('.talent-icon')).toHaveCount(6);
     for (const talent of talents) {
       await activate(editor.getByRole('button', { name: new RegExp(`Inspect ${talent}`) }));
+      if (await editor.locator('#research-talent').isVisible()) await activate(editor.locator('#research-talent'));
       await activate(editor.getByRole('button', { name: 'Allocate point' }));
     }
     await expect(editor.locator('#talent-points')).toContainText('6 / 8');

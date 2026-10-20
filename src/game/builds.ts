@@ -23,9 +23,9 @@ export function validateBuild(build: unknown, budget: number = TALENT_TUNING.poi
   return { valid: errors.length === 0, pointsSpent: selected.size, errors };
 }
 
-export function allocateTalent(build: readonly TalentId[], id: string): { build: TalentId[]; validation: BuildValidation } {
+export function allocateTalent(build: readonly TalentId[], id: string, budget: number = TALENT_TUNING.points): { build: TalentId[]; validation: BuildValidation } {
   const next = [...build, id];
-  const validation = validateBuild(next);
+  const validation = validateBuild(next, budget);
   return { build: validation.valid ? next as TalentId[] : [...build], validation };
 }
 

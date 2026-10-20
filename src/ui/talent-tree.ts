@@ -4,7 +4,7 @@ import { TALENT_ICONS } from '../content/talent-icons';
 
 const centerX = (talent: TalentDefinition) => talent.tier === 0 || talent.tier === 3 ? 100 : 50 + talent.slot * 100;
 
-export function renderTalentTree(root: HTMLElement, branch: BranchId, build: readonly TalentId[], inspect: (id: TalentId, reveal?: boolean) => void): void {
+export function renderTalentTree(root: HTMLElement, branch: BranchId, build: readonly TalentId[], inspect: (id: TalentId, reveal?: boolean) => void, unlocked: (id: TalentId) => boolean = () => true): void {
   root.replaceChildren();
   const nodes = TALENTS.filter((talent) => talent.branch === branch);
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -27,10 +27,10 @@ export function renderTalentTree(root: HTMLElement, branch: BranchId, build: rea
   for (const talent of nodes) {
     const selected = build.includes(talent.id);
     const ready = talent.requires.every((id) => build.includes(id as TalentId));
-    const state = selected ? 'Selected' : !talent.implemented ? 'Coming soon' : ready ? 'Available' : 'Requires talents';
+    const state = selected ? 'Selected' : !talent.implemented ? 'Coming soon' : !unlocked(talent.id) ? 'Research required' : ready ? 'Available' : 'Requires talents';
     const button = document.createElement('button');
     button.type = 'button';
-    button.className = `talent-node ${selected ? 'selected' : ''} ${!talent.implemented ? 'planned' : ''}`;
+    button.className = `talent-node ${selected ? 'selected' : ''} ${!talent.implemented || !unlocked(talent.id) ? 'planned' : ''}`;
     button.id = `talent-${talent.id}`;
     button.style.gridRow = String(talent.tier + 1);
     button.style.gridColumn = talent.tier === 0 || talent.tier === 3 ? '1 / 3' : String(talent.slot + 1);

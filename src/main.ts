@@ -10,6 +10,8 @@ import { element, formatTime } from './ui/dom';
 import { createHud } from './ui/hud';
 import { createUpgradePicker } from './ui/upgrade-picker';
 import { createTalentEditor } from './ui/talent-editor';
+import { openBrowserProfile } from './persistence/browser-profile';
+import { beginProfileRun, finishProfileRun, talentBudget } from './profile/profile';
 
 const canvas = element<HTMLCanvasElement>('#arena');
 const renderer = createArenaRenderer(canvas);
@@ -32,7 +34,9 @@ let frameId = 0;
 let previousTime: number | null = null;
 
 const controls = createControls(canvas, element('#joystick'), () => mode === 'running');
-const talentEditor = createTalentEditor(talentButton, () => mode === 'ready' || mode === 'defeated');
+const profileStore = openBrowserProfile();
+const talentEditor = createTalentEditor(talentButton, () => mode === 'ready' || mode === 'defeated', profileStore);
+let profileRunId: number | null = null;
 const picker = createUpgradePicker(element('#upgrade-picker'), (id) => {
   if (!run || mode !== 'choosing' || !chooseUpgrade(run, id)) return;
   updateHud();
@@ -76,6 +80,15 @@ function defeated(): void {
   description.textContent = 'The dark has taken this clearing. Rise and try again.';
   results.hidden = false;
   if (run) results.textContent = `${formatTime(run.elapsed)} survived · ${run.kills} slain · ${run.xp} XP gathered`;
+  if (run && profileRunId !== null) {
+    profileStore.change((profile) => finishProfileRun(profile, profileRunId!, { outcome: 'defeat', seconds: run!.elapsed, kills: run!.kills, xp: run!.xp }));
+    const result = profileStore.get().lastResult;
+    const reward = element('#run-reward');
+    reward.hidden = false;
+    reward.textContent = result?.id === profileRunId ? `${result.insight} insight earned${result.points ? ' · +1 permanent talent point' : ''}. ${profileStore.status().notice}` : profileStore.status().notice;
+    profileRunId = null;
+    talentEditor.refresh();
+  }
   startButton.textContent = 'Try again';
   pauseButton.hidden = true;
   announcement.textContent = 'Run ended. You can try again.';
@@ -111,6 +124,7 @@ function beginRun(): void {
   mode = 'running';
   overlay.hidden = true;
   results.hidden = true;
+  element('#run-reward').hidden = true;
   hud.hidden = false;
   pauseButton.hidden = false;
   talentButton.hidden = true;
@@ -127,7 +141,12 @@ function beginRun(): void {
 
 function start(): void {
   if (!renderer || mode === 'running' || mode === 'choosing') return;
-  if (mode !== 'paused') run = createRun(crypto.getRandomValues(new Uint32Array(1))[0]!, talentEditor.getBuild());
+  if (mode !== 'paused') {
+    if (!profileStore.change(beginProfileRun)) { description.textContent = profileStore.status().notice || 'The run could not be started. Reload to recover your profile.'; return; }
+    const profile = profileStore.get();
+    profileRunId = profile.activeRun;
+    run = createRun(crypto.getRandomValues(new Uint32Array(1))[0]!, talentEditor.getBuild(), talentBudget(profile));
+  }
   beginRun();
 }
 

@@ -4,21 +4,24 @@ A single-player dark fantasy survival roguelite built with TypeScript and Canvas
 Mix talents freely across six fantasy archetypes. No accounts or backend required.
 
 **Current milestone:** all **36 talents across six freely mixed branches** are
-implemented and selectable. Builds support melee/spell combos, critical effects,
+implemented. Persistent progress unlocks capstones and a bounded talent budget.
+Builds support melee/spell combos, critical effects,
 Poison/curses, companions, healing offense, shields, and retaliation. Runs include
-movement, automatic combat, XP, temporary upgrades, defeat, and replay. Persistent
-saves, enemy/boss variety, victory, and offline installation remain upcoming.
+movement, automatic combat, XP, temporary upgrades, defeat, and replay. Local
+saves, research, named builds, and backups now work. Enemy/boss variety, victory,
+and offline installation remain upcoming.
 See [the task list](DEVELOPMENT_PLAN.md) and [progress log](PROGRESS.md).
 
 ## Play this milestone
 
-Open **Talents** before a run. You have eight talent points, can mix any branches,
+Open **Talents** before a run. You start with eight talent points, can mix any branches,
 and may leave points unspent. Select a branch tab, then a node to inspect its
 description, prerequisites, and suggested synergies. Hover/focus help and a
 persistent detail panel support mouse, keyboard, and touch. Allocate a point,
 refund individual talents, or use **Free respec** to clear the whole build.
 Refunding a prerequisite also refunds dependent talents. All six complete branches
-are available; prerequisites and the eight-point budget still apply.
+are available. Thirty talents are immediately unlocked; the six capstones need
+research. Prerequisites and your earned point budget still apply.
 
 | Playable talent | Branch | Behavior |
 | --- | --- | --- |
@@ -75,7 +78,8 @@ Blade** for shield retaliation and holy marks consumed by physical attacks.
 **All Priest talents + Hunting Momentum + Falcon** lets physical companion attacks
 consume marks. These attacks add their holy strike only if the primary hit leaves
 the foe alive, making them more useful against tougher targets.
-Talent points are temporarily all available; bounded permanent unlocks arrive in task 8.
+Begin with two insight to research any two capstones. More insight and two
+additional talent points are earned through finished runs, as described below.
 
 Spellsteel counts non-periodic physical hits from melee and retaliation, plus
 companions with Pack Link. Its volley skips the original victim on direct hits,
@@ -117,8 +121,9 @@ horned imp silhouette distinguish the new effects with simple original shapes.
 
 Your chosen talents are copied into the new run. Editing is available before the
 first run and after defeat; paused runs cannot be respecced. **Try again** uses
-your current talent allocation but resets temporary upgrades. Builds currently
-last only while this page remains open; local saves and slots arrive in task 8.
+your current talent allocation but resets temporary upgrades. Your allocation,
+research, earned points, and saved build slots survive browser reloads and closure.
+Combat runs themselves are not resumed after closing or reloading the page.
 
 Choose **Enter the clearing** to begin. Move with **WASD** or **arrow keys**, or
 press and drag anywhere in the arena to create a floating virtual stick (touch,
@@ -161,12 +166,55 @@ Piercing bolts have a pale trail; explosive bolts produce expanding impact rings
 Open **Run upgrades** beneath the arena to inspect your ranks and ember stats.
 Enemy numbers build over time, and you lose when health reaches zero. **Try again**
 starts a fresh run with level 1, your chosen talents, and no run upgrades. There is no victory
-condition or persistent progress in this milestone. Full enemy variety and balancing
+condition in this milestone; defeats award persistent progress. Full enemy variety and balancing
 remain later milestones; some weapon combinations can outpace the starter enemy.
 
 Use **Pause** or **Escape** to pause and **Resume run** or **Escape** to resume.
 Leaving the browser tab/window pauses the game automatically. After an input
 interruption, release and press movement keys again to resume movement.
+
+## Permanent progress and saved builds
+
+Every finished run, including an early defeat, earns one insight while you still
+need research credits. Surviving two and four minutes adds one each. Research
+costs one insight per capstone and remains unlocked through every free respec.
+Once your unlocked capstones plus unspent insight cover all six, insight rewards
+stop. No permanent damage, health, or speed purchases exist.
+
+Complete two runs to earn a ninth talent point, then five total runs for the tenth
+and final point. Early losses count, so progression never requires winning with
+an underdeveloped build. All six branches and their non-capstone talents are
+available from the start. Current runs end in defeat; the reward boundary already
+accepts victory for the boss milestone.
+
+Open **Talents → Progress, saved builds & backups** to see progression and the last
+result. Choose one of three build slots, enter a name, and select **Save build**.
+**Load build** replaces your current allocation with that slot's snapshot. Editing
+the loaded build does not change the saved slot until you save it again. Draft
+allocations and research save automatically. Editing and imports are available
+between runs, never during combat or an upgrade choice.
+
+For a portable backup, expand **Backup and restore** and choose **Export backup**.
+It downloads a JSON file and puts the same text in the backup box for copying.
+To restore, choose a file or paste its text, select **Review backup**, check the
+progress summary, then **Replace local progress**. This deliberately replaces
+progress rather than merging rewards. Invalid backups leave your current profile
+intact. Older supported saves are migrated; a save from a newer game is preserved
+and cannot be silently overwritten by playing this version.
+
+Saves are local to this browser and site address. Changing device, browser,
+protocol, host, or port uses separate storage. Clearing site data deletes the
+local copies; keep an exported backup. A previous valid save supports automatic
+recovery after damaged data. Invalid builds can be cleared independently while
+keeping progression. The status in Talents reports recovery or failed saving.
+If local storage is disabled or full, gameplay still works in memory; export
+before leaving. Stale-tab writes are rejected when a changed save is detected;
+reload that tab to use the latest profile.
+
+A run identity is saved before combat. Its reward consumes that identity in the
+same profile write. Repeated defeat handling and reloads cannot claim the reward
+again. Reloading discards an unfinished run without a reward and keeps completed
+progress and builds. Combat snapshots and offline installation are later work.
 
 ## Develop
 
@@ -237,6 +285,14 @@ pickup throttling, holy/physical marks, final and lethal periodic ticks, explosi
 caps and nonrecursion, companion bonus snapshots, and dense mixed builds.
 Shared-system tests cover arc targeting, attribution, Frost consumption on lethal hits,
 shield absorption/expiration, stuns, cooldown limits, and dense deterministic hybrids.
+Profile tests cover bounded rewards, early-loss progression, research, earned
+larger builds, slot snapshots, duplicate rewards, reloads, migrations, malformed
+saves, backup recovery, import validation, storage failures, and stale-tab writes.
+Browser journeys save mixed builds, respec/load/reload them, research capstones,
+download and restore backups, reject bad imports, and play a restored nine-point
+build. Additional cases exercise damaged saves, newer formats, and disabled
+storage. The defeat/restart journey checks persisted rewards and discards an
+unfinished restarted run without duplicating rewards.
 Screenshots and failure traces are
 written to ignored `test-results/`. Emulation does not replace physical device
 testing, and Chromium checks do not establish support in other browser engines.
@@ -257,7 +313,9 @@ offline installation guidance will be completed with the PWA milestone.
 
 - `src/main.ts`: browser initialization and canvas lifecycle.
 - `src/game/`: deterministic simulation and fixed-timestep clock, without DOM APIs.
-- `src/content/`: upgrade definitions, rank caps, rarity, and progression tuning.
+- `src/content/`: talent/upgrade definitions and combat/permanent-progression tuning.
+- `src/profile/profile.ts`: pure permanent progression, research, builds, and run rewards.
+- `src/persistence/`: validated versioned codec, injected storage/recovery, and browser adapter.
 - `src/ui/`: DOM helpers, HUD presentation, and accessible upgrade selection.
 - `src/input/`: keyboard and captured-pointer movement controls.
 - `src/rendering/`: canvas sizing and original procedural scene art.
@@ -302,6 +360,17 @@ The simulation module map:
 | Run-owned seeded randomness | `random.ts` |
 | Shared nearest-foe queries for talent effects | `targeting.ts` |
 | Rendering-frame to fixed-tick scheduling | `clock.ts` |
+
+Permanent rules and tuning are separate from combat. `profile/profile.ts` uses
+pure transitions over a cloneable profile. `content/legacy.ts` owns the permanent
+reward/point/slot limits. The simulation receives only a validated talent snapshot
+and its earned budget. It never reads browser storage. `persistence/profile-codec.ts`
+reconstructs known fields, validates finite bounds/prerequisites/research, repairs
+individual damaged builds, and migrates the early `{version: 1, build,
+completedRuns}` format to version 2. `profile-store.ts` owns storage failures,
+previous-save recovery, and stale-write checks through an injected storage port.
+Only `browser-profile.ts` acquires localStorage. `ui/profile-panel.ts` coordinates
+named slots, backup previews, and restoration independently of the talent graph.
 
 `run.ts` coordinates the systems in a deliberate order: advance time/cooldowns,
 expire feedback, tick periodic damage and reactions, move the player, spawn enemies,

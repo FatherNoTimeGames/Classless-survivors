@@ -52,7 +52,7 @@
             <span class="small-label">The first ember</span>
             <h3 id="overlay-title">Hold back the dark</h3>
             <p id="overlay-description">Move to evade the restless. Your ember attacks automatically. Gather green XP shards to level up and shape your run.</p>
-            <p id="run-results" hidden></p>
+            <p id="run-results" hidden></p><p id="run-reward" hidden></p>
             <button class="primary-button" id="start-run" type="button">Enter the clearing</button>
           </section>
           <section class="upgrade-overlay" id="upgrade-picker" role="dialog" aria-modal="true" aria-labelledby="upgrade-title" aria-describedby="upgrade-note" hidden>
@@ -85,6 +85,28 @@
         <button class="quiet-button" id="close-talents" type="button" aria-label="Close talent editor">Close</button>
       </div>
       <p class="talent-intro">Mix any branches. Allocate before a run and respec freely between runs.</p>
+      <p id="save-status" role="status"></p>
+      <details id="profile-panel">
+        <summary>Progress, saved builds &amp; backups</summary>
+        <p id="profile-summary"></p><p id="profile-next"></p><p id="profile-last-run"></p>
+        <p>Start with 2 insight. Each finished run earns 1, plus 1 at 2 and 4 minutes, while research remains. Each capstone costs 1 insight. Points unlock after 2 and 5 runs, up to 10. Respecs are free.</p>
+        <div class="saved-build-controls">
+          <label>Build slot<select id="build-slot"></select></label>
+          <label>Build name<input id="build-name" maxlength="32" /></label>
+          <button class="quiet-button" id="save-build" type="button">Save build</button>
+          <button class="quiet-button" id="load-build" type="button">Load build</button>
+        </div>
+        <details><summary>Backup and restore</summary>
+          <p>Back up before clearing browser data or changing devices. Restoring replaces local progress. Runs in progress are not resumed.</p>
+          <button class="quiet-button" id="export-backup" type="button">Export backup</button>
+          <label class="backup-label">Choose backup file<input id="backup-file" type="file" accept="application/json,.json" /></label>
+          <label class="backup-label">Backup text<textarea id="backup-text" rows="5" maxlength="32768" spellcheck="false"></textarea></label>
+          <button class="quiet-button" id="review-backup" type="button">Review backup</button>
+          <p id="import-preview"></p>
+          <button class="quiet-button" id="confirm-import" type="button" hidden>Replace local progress</button>
+        </details>
+        <p id="profile-message" role="status"></p>
+      </details>
       <div class="talent-budget"><p id="talent-points" aria-live="polite"></p><button class="quiet-button" id="respec-talents" type="button">Free respec</button></div>
       <div id="branch-tabs" role="tablist" aria-label="Talent branches"></div>
       <p id="talent-branch-title"></p>
@@ -94,6 +116,7 @@
           <h3 id="talent-name"></h3>
           <p id="talent-description" role="tooltip"></p>
           <p id="talent-requires"></p><p id="talent-synergies"></p><p id="talent-availability"></p>
+          <button class="quiet-button" id="research-talent" type="button" hidden>Research · 1 insight</button>
           <div class="talent-actions"><button class="primary-button" id="allocate-talent" type="button">Allocate point</button><button class="quiet-button" id="refund-talent" type="button">Refund</button></div>
           <p id="talent-message" role="status" aria-live="polite"></p>
         </section>

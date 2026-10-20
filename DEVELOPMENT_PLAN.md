@@ -132,12 +132,19 @@ these requirements. No subscription-usage or completion-time estimates are impli
   ranks, focused cross-branch behavior, and dense hybrid routes. Record the review
   in SYNERGY_AUDIT.md. This does not replace task 11's expanded upgrade content.
 
-- [ ] **8. Add persistent progression and saved character builds.**
+- [x] **8. Add persistent progression and saved character builds.**
   Implement run rewards, bounded talent-point progression, option unlocks, multiple
   named build slots, and free between-run respecs. Add versioned local saves,
   validation/migrations, recovery from invalid data, and export/import backups.
   Done when rewards cannot be claimed twice, early losses cannot trap progression,
   reloads retain unlocks/builds, and incompatible or damaged saves fail gracefully.
+  Delivered eight starting points, two earned points (runs 2/5), insight research
+  for six capstones, three named build slots, and free respecs. Added a versioned
+  local profile with migration, independent build repair, previous-save recovery,
+  storage-failure handling, reviewed backup import/export, and durable run identities
+  consumed with rewards. Reloads discard unfinished combat without rewarding it.
+  Unit/browser checks cover reloads, invalid data, migrations, earned larger builds,
+  real defeat rewards, repeat-reward prevention, and disabled storage.
 
 - [ ] **9. Expand enemy variety, elites, and wave pacing.**
   Add distinct pursuers, ranged attackers, chargers, and area-denial enemies,

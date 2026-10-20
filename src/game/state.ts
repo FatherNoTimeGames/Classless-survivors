@@ -66,8 +66,8 @@ export interface Run {
   nextId: number;
 }
 
-export function createRun(seed: number, talents: readonly TalentId[] = []): Run {
-  const validation = validateBuild(talents);
+export function createRun(seed: number, talents: readonly TalentId[] = [], budget?: number): Run {
+  const validation = validateBuild(talents, budget);
   if (!validation.valid) throw new Error(`Invalid talent build: ${validation.errors.join(' ')}`);
   return {
     status: 'running', elapsed: 0, kills: 0, xp: 0,

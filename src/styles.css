@@ -182,3 +182,18 @@ button:disabled { opacity: 0.45; cursor: default; }
   .playing .milestone-note { padding: 8px 14px; }
   .playing .milestone-note p { font-size: 0.7rem; margin: 0; }
 }
+
+#save-status, #profile-panel { color: #b9c7b4; font-size: 0.75rem; line-height: 1.6; }
+#profile-panel { border: 1px solid #52614e; padding: 12px; margin-block: 12px; }
+#profile-panel summary { cursor: pointer; min-height: 32px; padding-block: 6px; }
+.saved-build-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-block: 12px; }
+.saved-build-controls label, .backup-label { display: block; min-width: 0; }
+#profile-panel input, #profile-panel select, #profile-panel textarea {
+  display: block; width: 100%; min-height: 44px; padding: 8px; border: 1px solid #65785f;
+  background: #101a1b; color: #e5dfce; font: inherit; border-radius: 3px;
+}
+#profile-panel textarea { resize: vertical; overflow-wrap: anywhere; }
+.backup-label { margin-block: 12px; }
+#profile-message, #import-preview { overflow-wrap: anywhere; }
+#research-talent { margin-bottom: 12px; }
+#run-reward { font-size: 0.7rem; line-height: 1.4; }

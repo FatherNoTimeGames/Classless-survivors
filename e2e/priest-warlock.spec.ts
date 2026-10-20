@@ -58,6 +58,7 @@ for (const branch of ['Priest', 'Warlock'] as const) {
     await expect(editor.locator('.talent-icon')).toHaveCount(6);
     for (const talent of branches[branch]) {
       await activate(editor.getByRole('button', { name: new RegExp(`Inspect ${talent}`) }));
+      if (await editor.locator('#research-talent').isVisible()) await activate(editor.locator('#research-talent'));
       await activate(editor.getByRole('button', { name: 'Allocate point' }));
     }
     await expect(editor.locator('.selected-link')).toHaveCount(6);
@@ -68,6 +69,7 @@ for (const branch of ['Priest', 'Warlock'] as const) {
     await activate(editor.getByRole('tab', { name: new RegExp(support[0]!) }));
     for (const talent of support.slice(1)) {
       await activate(editor.getByRole('button', { name: new RegExp(`Inspect ${talent}`) }));
+      if (await editor.locator('#research-talent').isVisible()) await activate(editor.locator('#research-talent'));
       await activate(editor.getByRole('button', { name: 'Allocate point' }));
     }
     await expect(editor.locator('#talent-points')).toContainText('8 / 8');

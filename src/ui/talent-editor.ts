@@ -1,11 +1,13 @@
 import { BRANCHES, TALENTS, talentById } from '../content/talents';
 import type { BranchId, TalentId } from '../content/talents';
-import { TALENT_TUNING } from '../content/talent-tuning';
+import type { ProfileStore } from '../persistence/profile-store';
+import { isUnlocked, talentBudget, setDraft, research } from '../profile/profile';
+import { createProfilePanel } from './profile-panel';
 import { allocateTalent, availableTalentCount, refundTalent, validateBuild } from '../game/builds';
 import { element } from './dom';
 import { renderTalentTree } from './talent-tree';
 
-export function createTalentEditor(openButton: HTMLButtonElement, canEdit: () => boolean) {
+export function createTalentEditor(openButton: HTMLButtonElement, canEdit: () => boolean, store: ProfileStore) {
   const dialog = element<HTMLDialogElement>('#talent-editor');
   const tabs = element('#branch-tabs', dialog);
   const tree = element('#talent-tree', dialog);
@@ -14,24 +16,32 @@ export function createTalentEditor(openButton: HTMLButtonElement, canEdit: () =>
   const reset = element<HTMLButtonElement>('#respec-talents', dialog);
   const message = element('#talent-message', dialog);
   const events = new AbortController();
-  let build: TalentId[] = [];
+  let build: TalentId[] = store.get().draft;
   let branch: BranchId = 'warrior';
   let inspected: TalentId = 'reprisal';
+
+  const panel = createProfilePanel(store, render);
+  const unlock = element<HTMLButtonElement>('#research-talent', dialog);
 
   function inspect(id: TalentId, reveal = false): void {
     inspected = id;
     const talent = talentById(id)!;
     const selected = build.includes(id);
-    const validation = allocateTalent(build, id).validation;
+    const profile = store.get();
+    const unlocked = isUnlocked(profile, id);
+    const validation = allocateTalent(build, id, talentBudget(profile)).validation;
     element('#talent-name', dialog).textContent = talent.name;
     element('#talent-description', dialog).textContent = talent.description;
     element('#talent-requires', dialog).textContent = talent.requires.length
       ? `Requires: ${talent.requires.map((parent) => talentById(parent)!.name).join(' + ')}` : 'No prerequisites.';
     element('#talent-synergies', dialog).textContent = `Combines with: ${talent.synergies.map((id) => BRANCHES.find((entry) => entry.id === id)!.name).join(', ')}.`;
     element('#talent-availability', dialog).textContent = selected ? 'Selected · 1 point · free refund'
+      : !unlocked ? 'Research this capstone for 1 insight, then allocate its prerequisite talents.'
       : !talent.implemented ? 'Coming soon · inspectable design, unavailable in this build'
         : validation.valid ? 'Available · costs 1 point' : validation.errors.join(' ');
-    allocate.disabled = selected || !validation.valid;
+    allocate.disabled = selected || !validation.valid || !unlocked;
+    unlock.hidden = unlocked;
+    unlock.disabled = profile.insight < 1;
     refund.disabled = !selected;
     if (reveal && window.matchMedia('(max-width: 650px)').matches) {
       element('.talent-inspector', dialog).scrollIntoView({ block: 'nearest' });
@@ -39,10 +49,14 @@ export function createTalentEditor(openButton: HTMLButtonElement, canEdit: () =>
   }
 
   function render(): void {
-    const spent = validateBuild(build).pointsSpent;
-    element('#talent-points', dialog).textContent = `${spent} / ${TALENT_TUNING.points} points allocated · ${TALENT_TUNING.points - spent} available`;
+    const profile = store.get();
+    build = profile.draft;
+    const budget = talentBudget(profile);
+    const spent = validateBuild(build, budget).pointsSpent;
+    panel.render();
+    element('#talent-points', dialog).textContent = `${spent} / ${budget} points allocated · ${budget - spent} available · ${profile.insight} insight`;
     element('#talent-catalog-status', dialog).textContent = `${availableTalentCount} / ${TALENTS.length} talents playable.${availableTalentCount === TALENTS.length ? ' All branches are ready to mix.' : ' Coming-soon nodes can be inspected but cannot be allocated.'}`;
-    openButton.textContent = `Talents (${spent}/${TALENT_TUNING.points})`;
+    openButton.textContent = `Talents (${spent}/${budget})`;
     for (const button of tabs.querySelectorAll<HTMLButtonElement>('button')) {
       const id = button.dataset.branch!;
       const definition = BRANCHES.find((entry) => entry.id === id)!;
@@ -55,7 +69,7 @@ export function createTalentEditor(openButton: HTMLButtonElement, canEdit: () =>
     element('#talent-branch-title', dialog).textContent = `${definition.name} — ${definition.theme}`;
     tree.setAttribute('aria-labelledby', `branch-${branch}`);
     reset.disabled = build.length === 0;
-    renderTalentTree(tree, branch, build, inspect);
+    renderTalentTree(tree, branch, build, inspect, (id) => isUnlocked(profile, id));
     inspect(inspected);
   }
 
@@ -89,25 +103,35 @@ export function createTalentEditor(openButton: HTMLButtonElement, canEdit: () =>
     tabs.append(button);
   }
   allocate.addEventListener('click', () => {
-    const result = allocateTalent(build, inspected);
+    if (!canEdit() || !isUnlocked(store.get(), inspected)) return;
+    const result = allocateTalent(build, inspected, talentBudget(store.get()));
     if (!result.validation.valid) { message.textContent = result.validation.errors.join(' '); return; }
-    build = result.build;
+    if (!store.change((profile) => setDraft(profile, result.build))) { message.textContent = store.status().notice; return; }
     message.textContent = `${talentById(inspected)!.name} allocated.`;
     render();
     refund.focus();
   }, { signal: events.signal });
   refund.addEventListener('click', () => {
     const previous = build.length;
-    build = refundTalent(build, inspected);
+    if (!canEdit()) return;
+    if (!store.change((profile) => setDraft(profile, refundTalent(build, inspected)))) { message.textContent = store.status().notice; render(); return; }
+    build = store.get().draft;
     message.textContent = `${previous - build.length} point${previous - build.length === 1 ? '' : 's'} refunded, including any dependent talents.`;
     render();
     allocate.focus();
   }, { signal: events.signal });
   reset.addEventListener('click', () => {
-    build = [];
+    if (!canEdit()) return;
+    if (!store.change((profile) => setDraft(profile, []))) { message.textContent = store.status().notice; render(); return; }
     message.textContent = 'All talent points refunded. Respecs are free.';
     render();
     element<HTMLButtonElement>(`#talent-${inspected}`, dialog).focus();
+  }, { signal: events.signal });
+  unlock.addEventListener('click', () => {
+    if (!canEdit()) return;
+    const ok = store.change((profile) => research(profile, inspected));
+    message.textContent = ok ? `${talentById(inspected)!.name} researched permanently. Respecs keep this unlock.` : store.status().notice || 'Not enough insight.';
+    render();
   }, { signal: events.signal });
   element('#close-talents', dialog).addEventListener('click', () => dialog.close(), { signal: events.signal });
   openButton.addEventListener('click', () => {
@@ -118,7 +142,8 @@ export function createTalentEditor(openButton: HTMLButtonElement, canEdit: () =>
   }, { signal: events.signal });
   render();
   return {
-    getBuild(): TalentId[] { return [...build]; },
-    destroy(): void { events.abort(); dialog.close(); tabs.replaceChildren(); tree.replaceChildren(); },
+    getBuild(): TalentId[] { return store.get().draft; },
+    refresh: render,
+    destroy(): void { events.abort(); panel.destroy(); dialog.close(); tabs.replaceChildren(); tree.replaceChildren(); },
   };
 }

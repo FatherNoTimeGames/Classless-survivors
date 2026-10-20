@@ -48,6 +48,7 @@ for (const branch of ['Rogue', 'Hunter'] as const) {
     await expect(editor.locator('.talent-icon')).toHaveCount(6);
     for (const talent of branches[branch]) {
       await activate(editor.getByRole('button', { name: new RegExp(`Inspect ${talent}`) }));
+      if (await editor.locator('#research-talent').isVisible()) await activate(editor.locator('#research-talent'));
       await activate(editor.getByRole('button', { name: 'Allocate point' }));
     }
     await expect(editor.locator('.selected-link')).toHaveCount(6);
@@ -57,6 +58,7 @@ for (const branch of ['Rogue', 'Hunter'] as const) {
     await activate(editor.getByRole('tab', { name: new RegExp(support) }));
     for (const talent of branches[support].slice(0, 2)) {
       await activate(editor.getByRole('button', { name: new RegExp(`Inspect ${talent}`) }));
+      if (await editor.locator('#research-talent').isVisible()) await activate(editor.locator('#research-talent'));
       await activate(editor.getByRole('button', { name: 'Allocate point' }));
     }
     await expect(editor.locator('#talent-points')).toContainText('8 / 8');
