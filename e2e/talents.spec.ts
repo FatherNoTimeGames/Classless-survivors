@@ -13,22 +13,22 @@ test('inspect six branches, allocate and refund prerequisites, respec, and run a
     if (testInfo.project.use.hasTouch) await locator.tap();
     else await locator.click();
   };
-  await activate(page.getByRole('button', { name: 'Talents (0/6)', exact: true }));
+  await activate(page.getByRole('button', { name: 'Talents (0/8)', exact: true }));
   const editor = page.getByRole('dialog', { name: 'Classless talents' });
   await expect(editor).toBeVisible();
   await expect(editor.getByRole('tab')).toHaveCount(6);
   await expect(editor.locator('.talent-node')).toHaveCount(6);
-  await expect(editor.locator('#talent-catalog-status')).toContainText('17 / 36 talents playable');
+  await expect(editor.locator('#talent-catalog-status')).toContainText('27 / 36 talents playable');
 
   await editor.getByRole('tab', { name: /Warrior/ }).focus();
   await page.keyboard.press('ArrowRight');
   await expect(editor.getByRole('tab', { name: /Mage/ })).toBeFocused();
   await expect(editor.getByRole('tab', { name: /Mage/ })).toHaveAttribute('aria-selected', 'true');
-  await activate(editor.getByRole('tab', { name: /Rogue/ }));
-  await activate(editor.getByRole('button', { name: /Inspect Venom Edge/ }));
+  await activate(editor.getByRole('tab', { name: /Priest/ }));
+  await activate(editor.getByRole('button', { name: /Inspect Sanctuary/ }));
   await expect(editor.locator('#talent-availability')).toContainText('Coming soon');
   await expect(editor.getByRole('button', { name: 'Allocate point' })).toBeDisabled();
-  await expect(editor.getByRole('tooltip')).toContainText('Poison');
+  await expect(editor.getByRole('tooltip')).toContainText('XP shard');
 
   await activate(editor.getByRole('tab', { name: /Priest/ }));
   await activate(editor.getByRole('button', { name: /Inspect Searing Grace/ }));
@@ -38,11 +38,11 @@ test('inspect six branches, allocate and refund prerequisites, respec, and run a
   await activate(editor.getByRole('button', { name: 'Allocate point' }));
   await activate(editor.getByRole('button', { name: /Inspect Searing Grace/ }));
   await activate(editor.getByRole('button', { name: 'Allocate point' }));
-  await expect(editor.locator('#talent-points')).toContainText('2 / 6');
+  await expect(editor.locator('#talent-points')).toContainText('2 / 8');
   await expect(editor.locator('.selected-link')).toHaveCount(1);
   await activate(editor.getByRole('button', { name: /Inspect Ember Communion/ }));
   await activate(editor.getByRole('button', { name: 'Refund', exact: true }));
-  await expect(editor.locator('#talent-points')).toContainText('0 / 6');
+  await expect(editor.locator('#talent-points')).toContainText('0 / 8');
   await expect(editor.locator('#talent-message')).toContainText('2 points refunded');
 
   for (const [branch, talent] of [['Warrior', 'Iron Reprisal'], ['Mage', 'Arcane Echo'], ['Rogue', 'Expose Weakness']]) {
@@ -55,12 +55,17 @@ test('inspect six branches, allocate and refund prerequisites, respec, and run a
     await activate(editor.getByRole('button', { name: new RegExp(`Inspect ${talent}`) }));
     await activate(editor.getByRole('button', { name: 'Allocate point' }));
   }
-  await expect(editor.locator('#talent-points')).toContainText('6 / 6');
+  await expect(editor.locator('#talent-points')).toContainText('6 / 8');
   await activate(editor.getByRole('tab', { name: /Warrior/ }));
-  await activate(editor.getByRole('button', { name: /Inspect Sweeping Blade/ }));
+  for (const talent of ['Sweeping Blade', 'Spellsteel']) {
+    await activate(editor.getByRole('button', { name: new RegExp(`Inspect ${talent}`) }));
+    await activate(editor.getByRole('button', { name: 'Allocate point' }));
+  }
+  await expect(editor.locator('#talent-points')).toContainText('8 / 8');
+  await activate(editor.getByRole('button', { name: /Inspect Frostbreak/ }));
   await expect(editor.getByRole('button', { name: 'Allocate point' })).toBeDisabled();
   await activate(editor.getByRole('button', { name: 'Free respec', exact: true }));
-  await expect(editor.locator('#talent-points')).toContainText('0 / 6');
+  await expect(editor.locator('#talent-points')).toContainText('0 / 8');
   await expect(editor.getByRole('button', { name: 'Free respec' })).toBeDisabled();
 
   for (const [branch, talent] of [['Warrior', 'Iron Reprisal'], ['Mage', 'Arcane Echo'], ['Rogue', 'Expose Weakness']]) {
@@ -73,7 +78,7 @@ test('inspect six branches, allocate and refund prerequisites, respec, and run a
   await page.screenshot({ path: testInfo.outputPath('talent-tree.png'), fullPage: true });
   await activate(editor.getByRole('button', { name: 'Close talent editor' }));
   await expect(editor).toBeHidden();
-  await expect(page.getByRole('button', { name: 'Talents (3/6)', exact: true })).toBeFocused();
+  await expect(page.getByRole('button', { name: 'Talents (3/8)', exact: true })).toBeFocused();
   await page.getByRole('button', { name: 'Enter the clearing' }).click();
   await page.clock.runFor(12_000);
   await expect(page.locator('#edit-talents')).toBeHidden();

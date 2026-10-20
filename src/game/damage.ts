@@ -4,7 +4,8 @@ import { dropShard } from './pickups';
 import { RULES } from './rules';
 import { emitEffect } from './events';
 import type { DamageSchool, DamageSource } from './events';
-import { modifyDirectDamage } from './talent-effects/rogue';
+import { prepareHit } from './hit-modifiers';
+import { snapshotDots } from './dot-state';
 import { consumeFrost } from './statuses';
 import { absorbDamage } from './shields';
 
@@ -13,10 +14,13 @@ export function damageEnemy(run: Run, enemy: Enemy, amount: number, options: { s
   if (enemy.health <= 0 || !Number.isFinite(amount) || amount <= 0) return;
   const source = options.source ?? 'ember';
   const school = options.school ?? 'fire';
-  const actual = Math.min(enemy.health, modifyDirectDamage(run, enemy, amount, source) + consumeFrost(run, enemy, source, school));
+  // Physical effects may consume Frost before post-hit handlers inspect the victim.
+  const slowed = enemy.frost > 0 || enemy.snared;
+  const hit = prepareHit(run, enemy, amount, source);
+  const actual = Math.min(enemy.health, (hit.amount + consumeFrost(run, enemy, source, school)) * hit.multiplier);
   enemy.health -= actual;
-  addSpark(run, enemy, 'hit');
-  const payload = { targetId: enemy.id, amount: actual, source, school, position: { x: enemy.x, y: enemy.y } };
+  addSpark(run, enemy, hit.critical ? 'critical' : 'hit');
+  const payload = { targetId: enemy.id, amount: actual, source, school, critical: hit.critical, slowed, dots: snapshotDots(enemy), position: { x: enemy.x, y: enemy.y } };
   emitEffect(run.effects, { type: 'hit', ...payload });
   if (enemy.health <= 0) {
     run.kills++;

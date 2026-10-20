@@ -1,6 +1,12 @@
-/** Tuning for the functioning foundation talents. Descriptions reuse these values. */
+/** Tuning for the playable talents. Descriptions reuse these values. */
 export const TALENT_TUNING = {
-  points: 6,
+  points: 8,
+  criticalEvery: 4, criticalMultiplier: 1.75,
+  poisonDamage: 3, poisonDuration: 2, dotInterval: 1, maxDots: 2,
+  siphonHeal: 2, contagionTargets: 2, contagionRange: 60, nightfallRange: 60,
+  falconDamage: 8, falconInterval: 1, falconRange: 180,
+  snareHits: 4, snareDuration: 2, snareRange: 36, snareSlow: 0.35, maxSnares: 8,
+  rootDuration: 0.75, rootCooldown: 3, wildHuntCooldown: 2,
   meleeDamage: 16, meleeInterval: 1.1, meleeRange: 50, meleeHalfAngle: Math.PI / 3,
   spellsteelHits: 3, spellsteelDamage: 12, spellsteelRange: 120,
   frostDuration: 2, frostSlow: 0.3, frostbreakDamage: 8, frostbreakStun: 0.6,

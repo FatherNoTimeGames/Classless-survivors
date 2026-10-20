@@ -16,10 +16,10 @@ export function movePlayer(player: Player, input: Point, moveSpeed: number): voi
 export function moveEnemies(enemies: Enemy[], player: Point): void {
   for (const enemy of enemies) {
     enemy.grace = Math.max(0, enemy.grace - STEP);
-    if (enemy.grace > 0 || enemy.stun > 0) continue;
+    if (enemy.grace > 0 || enemy.stun > 0 || enemy.root > 0) continue;
     const gap = distance(enemy, player);
     if (gap > 0) {
-      const travel = Math.min(gap, RULES.enemySpeed * (enemy.frost > 0 ? 1 - T.frostSlow : 1) * STEP);
+      const travel = Math.min(gap, RULES.enemySpeed * (1 - Math.max(enemy.frost > 0 ? T.frostSlow : 0, enemy.snared ? T.snareSlow : 0)) * STEP);
       enemy.x += (player.x - enemy.x) / gap * travel;
       enemy.y += (player.y - enemy.y) / gap * travel;
     }

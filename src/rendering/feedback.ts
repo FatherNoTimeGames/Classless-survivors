@@ -6,6 +6,7 @@ const COLORS: Record<Spark['kind'], string> = {
   hit: '#f4c77c', pickup: '#91e2ba', hurt: '#ec8b75', burst: '#ffb878',
   heal: '#91e2ba', physical: '#d6c8ae', arcane: '#90d4e2', holy: '#ffe4a1', shadow: '#bf9bd8',
   cleave: '#ece0bf', frost: '#a5dce8', lightning: '#d4c3ff', shield: '#8fbddc',
+  critical: '#ffe9ad', poison: '#a8c978', root: '#a5dce8', falcon: '#c5d6bd',
 };
 
 /** Color plus shape distinguishes feedback without making more asset files. */
@@ -18,7 +19,22 @@ export function drawFeedback(context: CanvasRenderingContext2D, effects: readonl
     context.lineWidth = 2;
     context.setLineDash(effect.kind === 'shadow' ? [3, 3] : []);
     context.beginPath();
-    if (effect.kind === 'holy' || effect.kind === 'heal') {
+    if (effect.kind === 'critical') {
+      for (let i = 0; i < 8; i++) {
+        const angle = i * Math.PI / 4;
+        context.moveTo(effect.x + Math.cos(angle) * radius / 2, effect.y + Math.sin(angle) * radius / 2);
+        context.lineTo(effect.x + Math.cos(angle) * radius, effect.y + Math.sin(angle) * radius);
+      }
+    } else if (effect.kind === 'poison') {
+      for (const x of [-5, 0, 5]) {
+        context.moveTo(effect.x + x + 2, effect.y - radius / 2 - Math.abs(x));
+        context.arc(effect.x + x, effect.y - radius / 2 - Math.abs(x), 2, 0, Math.PI * 2);
+      }
+    } else if (effect.kind === 'falcon' || effect.kind === 'root') {
+      context.moveTo(effect.x - radius, effect.y - radius / 2);
+      context.lineTo(effect.x, effect.y + radius / 2);
+      context.lineTo(effect.x + radius, effect.y - radius / 2);
+    } else if (effect.kind === 'holy' || effect.kind === 'heal') {
       context.moveTo(effect.x - radius, effect.y); context.lineTo(effect.x + radius, effect.y);
       context.moveTo(effect.x, effect.y - radius); context.lineTo(effect.x, effect.y + radius);
     } else if (effect.kind === 'cleave') {

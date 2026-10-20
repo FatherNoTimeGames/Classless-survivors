@@ -25,7 +25,7 @@ function spawnEnemy(run: Run): void {
       };
     }
   }
-  run.enemies.push({ ...position, id: run.nextId++, health: RULES.enemyHealth, maxHealth: RULES.enemyHealth, grace: RULES.spawnGrace, frost: 0, stun: 0 });
+  run.enemies.push({ ...position, id: run.nextId++, health: RULES.enemyHealth, maxHealth: RULES.enemyHealth, grace: RULES.spawnGrace, frost: 0, stun: 0, root: 0, rootImmune: 0, snared: false, dots: [] });
 }
 
 export function updateSpawns(run: Run): void {

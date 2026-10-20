@@ -41,8 +41,10 @@ remaining plan. Never silently drop a requirement.
   composition over extra frameworks. See AGENTS.md for implementation guidance.
 
 The user's later specifications make maintainable modular code and minimal-effort,
-readable art explicit priorities. Reuse readable existing artwork; detailed asset
-production is not a completion requirement.
+readable art explicit priorities. Talent design should be as open and synergistic
+as practical across branches, damage schools, weapons, and companion builds;
+use explicit attribution and proc bounds rather than unnecessary source restrictions.
+Reuse readable existing artwork; detailed asset production is not a completion requirement.
 
 Detailed mechanics and tuning may change based on playtesting while preserving
 these requirements. No subscription-usage or completion-time estimates are implied.
@@ -102,11 +104,16 @@ these requirements. No subscription-usage or completion-time estimates are impli
   systems, six-point builds, readable icons/effects, and tests for each talent,
   hybrid Frost consumption, shield lifecycles, attribution, and bounded dense combat.
 
-- [ ] **6. Implement Rogue and Hunter talents.**
+- [x] **6. Implement Rogue and Hunter talents.**
   Deliver six working talents per branch, critical-hit and damage-over-time
   interactions, ranged attacks, and a summon with defined inheritance rules.
   Done when all twelve talents function and tests cover critical propagation,
   summon ownership/inheritance, targeting, and interactions with existing branches.
+  Delivered all twelve talents, open non-periodic hit rules, shared critical cadence,
+  generic DoT state/ticks/spreading, falcon ownership/inheritance, snare/Frost roots,
+  and Wild Hunt commands. Eight temporary points allow a full branch plus a support
+  pair. Tests include lethal spreading, natural expiration, Priest/Mage/Warrior
+  hybrids, snapshots, cooldowns, and deterministic dense builds.
 
 - [ ] **7. Implement Priest and Warlock talents.**
   Deliver six working talents per branch, healing-to-offense effects, curses,

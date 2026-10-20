@@ -1,6 +1,23 @@
 import { expect } from '@playwright/test';
 import type { Locator, Page } from '@playwright/test';
 
+/** Control the normal run-seed input, without exposing or changing game state. */
+export async function seedRuns(page: Page, seed = 42): Promise<void> {
+  await page.addInitScript((value) => {
+    const original = crypto.getRandomValues;
+    Object.defineProperty(crypto, 'getRandomValues', {
+      value<T extends ArrayBufferView>(array: T): T {
+        if (array instanceof Uint32Array && array.length === 1) {
+          array[0] = value;
+          return array;
+        }
+        Reflect.apply(original, crypto, [array]);
+        return array;
+      },
+    });
+  }, seed);
+}
+
 export async function startGame(page: Page) {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));

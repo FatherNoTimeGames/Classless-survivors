@@ -1,3 +1,6 @@
+import { updateDamageOverTime } from './damage-over-time';
+import { updateSnares } from './snares';
+import { updateCompanions } from './companions';
 import { updateStatuses } from './statuses';
 import { updateMelee } from './melee';
 import { STEP } from './rules';
@@ -20,13 +23,18 @@ export function tickRun(run: Run, input: Point): void {
   updateCombatTimers(run.player);
   updateStatuses(run);
   updateSparks(run);
+  updateDamageOverTime(run);
+  resolveTalentEffects(run);
   movePlayer(run.player, input, stats.moveSpeed);
   updateSpawns(run);
+  updateSnares(run);
   moveEnemies(run.enemies, run.player);
   updateAttacks(run, stats);
   updateProjectiles(run);
   resolveTalentEffects(run);
   updateMelee(run);
+  resolveTalentEffects(run);
+  updateCompanions(run);
   resolveTalentEffects(run);
   updatePickups(run, stats.magnetRadius);
   // A level reward pauses the world before another enemy contact can occur.

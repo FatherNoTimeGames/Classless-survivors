@@ -34,7 +34,7 @@ describe('talent catalog and build rules', () => {
     };
     for (const talent of TALENTS) visit(talent.id, []);
     expect(Object.keys(TALENT_IMPLEMENTATIONS).sort()).toEqual(TALENTS.filter((talent) => talent.implemented).map((talent) => talent.id).sort());
-    expect(TALENTS.filter((talent) => talent.implemented)).toHaveLength(17);
+    expect(TALENTS.filter((talent) => talent.implemented)).toHaveLength(27);
   });
 
   it('permits mixed branches, an empty starter build, and unordered valid prerequisites', () => {
@@ -44,7 +44,7 @@ describe('talent catalog and build rules', () => {
   });
 
   it('rejects unknown, duplicate, unavailable, over-budget, and prerequisite-breaking builds', () => {
-    for (const build of [null, 'reprisal', [42], ['unknown'], ['reprisal', 'reprisal'], ['venom-edge'], ['sweeping-blade'], ['searing-grace'], ['reprisal', 'arcane-echo', 'expose-weakness', 'communion', 'soul-cinder', 'hunting-momentum', 'searing-grace']]) {
+    for (const build of [null, 'reprisal', [42], ['unknown'], ['reprisal', 'reprisal'], ['venom-edge'], ['sweeping-blade'], ['searing-grace'], ['reprisal', 'sweeping-blade', 'spellsteel', 'arcane-echo', 'expose-weakness', 'communion', 'soul-cinder', 'hunting-momentum', 'searing-grace']]) {
       expect(validateBuild(build).valid, JSON.stringify(build)).toBe(false);
     }
     expect(validateBuild(['searing-grace']).errors.join(' ')).toContain('Ember Communion');
@@ -76,7 +76,7 @@ describe('talent catalog and build rules', () => {
     run.talentMemory.huntingCharge = true;
     expect(createRun(123, build).talentMemory.huntingCharge).toBe(false);
     expect(() => createRun(1, ['searing-grace'])).toThrow('Invalid talent build');
-    expect(() => createRun(1, ['venom-edge'])).toThrow('coming soon');
+    expect(() => createRun(1, ['sanctuary'])).toThrow('coming soon');
   });
 });
 
@@ -117,7 +117,7 @@ describe('functioning foundation talents', () => {
     expect(run.talentMemory.arcaneHits).toBe(1);
   });
 
-  it('Expose Weakness modifies wounded direct hits but not full-health or blast damage', () => {
+  it('Expose Weakness improves wounded non-periodic hits, including blasts, but excludes periodic ticks', () => {
     const run = runWith(['expose-weakness']);
     run.player.attackIn = 0.7;
     const target = { ...enemy(101, 200, 240), health: 36, maxHealth: 36 };
@@ -125,11 +125,14 @@ describe('functioning foundation talents', () => {
     expect(target.health).toBe(26);
     expect(run.player.attackIn).toBe(0.7);
     damageEnemy(run, target, 10, { source: 'blast' });
-    expect(target.health).toBe(16);
-    expect(run.player.attackIn).toBe(0.7);
-    damageEnemy(run, target, 5);
-    expect(target.health).toBe(5);
+    expect(target.health).toBe(10);
     expect(run.player.attackIn).toBeCloseTo(0.55);
+    damageEnemy(run, target, 1, { source: 'dot' });
+    expect(target.health).toBe(9);
+    expect(run.player.attackIn).toBeCloseTo(0.55);
+    damageEnemy(run, target, 1);
+    expect(target.health).toBe(2);
+    expect(run.player.attackIn).toBeCloseTo(0.4);
   });
 
   it('Ember Communion heals after four direct kills; Searing Grace turns actual healing into offense', () => {

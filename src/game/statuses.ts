@@ -9,6 +9,8 @@ export function updateStatuses(run: Run): void {
   for (const enemy of run.enemies) {
     enemy.frost = Math.max(0, enemy.frost - STEP);
     enemy.stun = Math.max(0, enemy.stun - STEP);
+    enemy.root = Math.max(0, enemy.root - STEP);
+    enemy.rootImmune = Math.max(0, enemy.rootImmune - STEP);
   }
   const shield = run.player.shield;
   shield.remaining = Math.max(0, shield.remaining - STEP);
@@ -16,11 +18,12 @@ export function updateStatuses(run: Run): void {
   run.player.meleeIn = Math.max(0, run.player.meleeIn - STEP);
   run.talentMemory.ironWardIn = Math.max(0, run.talentMemory.ironWardIn - STEP);
   run.talentMemory.riftIn = Math.max(0, run.talentMemory.riftIn - STEP);
+  run.talentMemory.wildHuntIn = Math.max(0, run.talentMemory.wildHuntIn - STEP);
 }
 
 /** Snapshot consumption before damage so lethal hits and both Frost talents agree. */
 export function consumeFrost(run: Run, enemy: Enemy, source: DamageSource, school: DamageSchool): number {
-  if (school !== 'physical' || enemy.frost <= 0) return 0;
+  if (source === 'dot' || school !== 'physical' || enemy.frost <= 0) return 0;
   const frostbreak = source === 'melee' && run.talents.includes('frostbreak');
   if (!frostbreak && !run.talents.includes('shatterglass')) return 0;
   enemy.frost = 0;

@@ -1,9 +1,11 @@
 import { expect, test } from '@playwright/test';
 import type { Locator } from '@playwright/test';
+import { seedRuns } from './game-helpers';
 
 test('allocate both complete branches, then play a Warrior build with real cleave and ward feedback', async ({ page }, testInfo) => {
   test.setTimeout(90_000);
   const errors: string[] = [];
+  await seedRuns(page);
   page.on('pageerror', (error) => errors.push(error.message));
   await page.addInitScript(() => {
     // Observe actual drawing calls; no game state injection or production debug API.
@@ -35,7 +37,7 @@ test('allocate both complete branches, then play a Warrior build with real cleav
       await activate(editor.getByRole('button', { name: new RegExp(`Inspect ${talent}`) }));
       await activate(editor.getByRole('button', { name: 'Allocate point' }));
     }
-    await expect(editor.locator('#talent-points')).toContainText('6 / 6');
+    await expect(editor.locator('#talent-points')).toContainText('6 / 8');
     await expect(editor.locator('.selected-link')).toHaveCount(6);
     expect(await editor.evaluate((node) => node.scrollWidth <= node.clientWidth)).toBe(true);
     await page.screenshot({ path: testInfo.outputPath(`${branch.toLowerCase()}-tree.png`), fullPage: true });

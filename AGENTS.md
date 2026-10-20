@@ -30,6 +30,14 @@ progression independent of browser APIs so they can be tested directly.
 - Test observable system behavior and important interactions. Preserve existing
   behavior with regression checks when extracting modules.
 
+## Talent design
+
+Prefer open triggers shared across branches, damage schools, weapons, and companion
+builds. Use explicit traits/attribution and bounded proc rules instead of unnecessary
+ability-name restrictions. Explain inheritance and exclusions in descriptions.
+Damage-over-time ticks should not refresh themselves or create recursive critical
+chains. Test representative cross-branch interactions, not only isolated talents.
+
 ## Art should be inexpensive to produce
 
 The user prioritizes readability and low implementation effort over visual

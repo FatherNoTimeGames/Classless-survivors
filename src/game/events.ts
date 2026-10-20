@@ -1,10 +1,12 @@
+import type { DamageOverTime } from './dot-state';
+
 export type DamageSource = 'ember' | 'blast' | 'talent' | 'melee' | 'dot' | 'summon';
-export type DamageSchool = 'physical' | 'fire' | 'arcane' | 'holy' | 'shadow' | 'frost' | 'lightning';
+export type DamageSchool = 'physical' | 'fire' | 'arcane' | 'holy' | 'shadow' | 'frost' | 'lightning' | 'poison';
 type Position = { x: number; y: number };
 export type CombatEvent =
-  | { type: 'hit' | 'kill'; targetId: number; amount: number; source: DamageSource; school: DamageSchool; position: Position }
+  | { type: 'hit' | 'kill'; targetId: number; amount: number; source: DamageSource; school: DamageSchool; position: Position; critical?: boolean; slowed?: boolean; dots?: readonly DamageOverTime[] }
   | { type: 'frost-consumed'; targetId: number; amount: number; position: Position }
-  | { type: 'hurt' | 'healed' | 'shield-broken' | 'absorbed'; amount: number; position: Position };
+  | { type: 'hurt' | 'healed' | 'shield-broken' | 'absorbed' | 'dot-expired' | 'momentum-spent'; amount: number; position: Position };
 interface Context { depth: number; ancestry: string[] }
 interface QueuedEffect extends Context { event: CombatEvent }
 export interface EffectQueue {

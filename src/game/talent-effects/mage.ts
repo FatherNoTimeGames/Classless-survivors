@@ -26,7 +26,7 @@ export const arcaneEcho: EffectHandler<Run> = {
 export const rimeSigil: EffectHandler<Run> = {
   id: 'rime-sigil', on: 'hit',
   apply(run, event) {
-    if (event.type !== 'hit' || !(event.source === 'ember' || (event.source === 'talent' && event.school === 'fire'))) return;
+    if (event.type !== 'hit' || !(event.source === 'ember' || (event.source === 'talent' && event.school === 'fire') || (event.source === 'summon' && run.talents.includes('pack-link')))) return;
     const target = run.enemies.find((enemy) => enemy.id === event.targetId && enemy.health > 0);
     if (target) target.frost = T.frostDuration;
   },

@@ -1,6 +1,7 @@
 import type { Run } from '../game/state';
 import { drawFeedback } from './feedback';
 import { drawSanctuary } from './sanctuary';
+import { drawAfflictions, drawCompanions, drawSnares } from './hunter-effects';
 import { ARENA_HEIGHT, ARENA_WIDTH, fitViewport } from './viewport';
 
 export function createArenaRenderer(canvas: HTMLCanvasElement) {
@@ -36,6 +37,7 @@ export function createArenaRenderer(canvas: HTMLCanvasElement) {
       context.strokeStyle = '#67714a60';
       context.lineWidth = 1;
       context.strokeRect(8, 8, ARENA_WIDTH - 16, ARENA_HEIGHT - 16);
+      drawSnares(context, run);
       for (const shard of run.shards) {
         const bob = Math.round(Math.sin(run.elapsed * 4 + shard.id) * 1.5);
         block(shard.x - 3, shard.y - 3 + bob, 6, 6, '#2b6a52');
@@ -76,6 +78,7 @@ export function createArenaRenderer(canvas: HTMLCanvasElement) {
           context.stroke();
         }
         context.globalAlpha = 1;
+        drawAfflictions(context, enemy);
       }
 
       const player = run.player;
@@ -107,6 +110,7 @@ export function createArenaRenderer(canvas: HTMLCanvasElement) {
       block(x + player.facing * 9, y - 8, 2, 19, '#9f8051');
       block(x + player.facing * 9 - 2, y - 11, 6, 6, '#e2ae63');
 
+      drawCompanions(context, run);
       for (const bolt of run.bolts) {
         context.strokeStyle = bolt.pierce > 0 ? '#91cfcc' : '#c17d3b';
         context.lineWidth = 2;

@@ -5,6 +5,7 @@ import { distance, hitTime } from './geometry';
 import { addSpark } from './effects';
 import { damageEnemy, damagePlayer } from './damage';
 import { fireBolt } from './projectiles';
+import { emitEffect } from './events';
 
 export function updateCombatTimers(player: Player): void {
   player.invulnerable = Math.max(0, player.invulnerable - STEP);
@@ -23,7 +24,10 @@ export function updateAttacks(run: Run, stats: RunStats): void {
         pierce: stats.pierce, blastRadius: stats.blastRadius,
       });
     }
-    if (targets.length > stats.projectileCount) run.talentMemory.huntingCharge = false;
+    if (targets.length > stats.projectileCount) {
+      run.talentMemory.huntingCharge = false;
+      emitEffect(run.effects, { type: 'momentum-spent', amount: 1, position: { x: player.x, y: player.y } });
+    }
     if (targets.length) player.attackIn = stats.attackInterval;
   }
 }
