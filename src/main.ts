@@ -1,4 +1,6 @@
 import './styles.css';
+import './ui/usability.css';
+import { createPlayLayout } from './ui/play-layout';
 import { createSynth } from './audio/synth';
 import { createSoundDirector } from './audio/director';
 import { openPresentationStore } from './persistence/presentation-store';
@@ -23,7 +25,7 @@ const preferences = openPresentationStore();
 const sound = createSynth();
 const director = createSoundDirector((cue) => sound.play(cue));
 const presentation = createPresentationSettings(preferences, {
-  onOpen: pause,
+  onOpen: () => pauseRun(false),
   onChange: () => { sound.configure(preferences.get()); renderer?.draw(run); },
   onSoundGesture: () => { void sound.unlock(); },
 });
@@ -64,6 +66,14 @@ const picker = createUpgradePicker(element('#upgrade-picker'), (id) => {
     if (document.hidden) pause();
   }
 });
+const layout = createPlayLayout(element('.shell'), element('#sanctuary'), hud, element('.scene-heading'), {
+  onResize: () => { controls.clear(); renderer?.draw(run); },
+  onRotate: pause,
+});
+for (const id of ['enemy-guide', 'run-build']) {
+  const details = element<HTMLDetailsElement>(`#${id}`);
+  details.addEventListener('toggle', () => { if (details.open) pauseRun(false); }, { signal: events.signal });
+}
 
 function updateHud(): void {
   if (run) hudView.update(run);
@@ -77,17 +87,23 @@ function stopFrames(): void {
 }
 
 function pause(): void {
+  pauseRun(true);
+}
+
+function pauseRun(focus: boolean): void {
   if (mode !== 'running') return;
   mode = 'paused';
   stopFrames();
   sound.stop();
+  canvas.inert = true;
+  arenaFrame.classList.remove('is-active');
   overlay.hidden = false;
   title.textContent = 'A moment of quiet';
   description.textContent = 'The clearing waits. Return when you are ready.';
   startButton.textContent = 'Resume run';
   pauseButton.hidden = true;
   announcement.textContent = 'Run paused.';
-  startButton.focus({ preventScroll: true });
+  if (focus) startButton.focus({ preventScroll: true });
 }
 
 function finished(): void {
@@ -158,6 +174,7 @@ function beginRun(): void {
   announcement.textContent = 'Run started. Move with WASD, arrow keys, or drag in the clearing. Attacks are automatic.';
   canvas.focus({ preventScroll: true });
   updateHud();
+  layout.enter();
   renderer?.draw(run);
   if (run) director.synchronize(run);
   frameId = requestAnimationFrame(frame);
@@ -181,16 +198,15 @@ startButton.addEventListener('click', start, { signal: events.signal });
 element('#return-to-build').addEventListener('click', () => { if (mode === 'finished') talentButton.click(); }, { signal: events.signal });
 pauseButton.addEventListener('click', pause, { signal: events.signal });
 window.addEventListener('keydown', (event) => {
+  if (event.defaultPrevented) return;
   if (event.code === 'KeyM' && !event.repeat && document.activeElement === canvas) { event.preventDefault(); presentation.toggleMute(); return; }
   if (event.code !== 'Escape' || event.repeat) return;
   if (mode === 'choosing') { event.preventDefault(); return; }
   if (mode === 'running') { event.preventDefault(); pause(); }
-  else if (mode === 'paused') { event.preventDefault(); start(); }
+  else if (mode === 'paused' && document.activeElement === startButton) { event.preventDefault(); start(); }
 }, { signal: events.signal });
 window.addEventListener('blur', () => { pause(); sound.stop(); }, { signal: events.signal });
 document.addEventListener('visibilitychange', () => { if (document.hidden) { pause(); sound.stop(); } }, { signal: events.signal });
-// Resizing during a captured drag must not leave a stale movement direction.
-window.addEventListener('resize', () => { controls.clear(); renderer?.draw(run); }, { signal: events.signal });
 const observer = new ResizeObserver(() => renderer?.draw(run));
 observer.observe(canvas);
 renderer?.draw(null);
@@ -202,5 +218,5 @@ if (!renderer) {
 }
 
 if (import.meta.hot) {
-  import.meta.hot.dispose(() => { stopFrames(); controls.destroy(); presentation.destroy(); sound.destroy(); picker.destroy(); talentEditor.destroy(); events.abort(); observer.disconnect(); });
+  import.meta.hot.dispose(() => { stopFrames(); controls.destroy(); layout.destroy(); presentation.destroy(); sound.destroy(); picker.destroy(); talentEditor.destroy(); events.abort(); observer.disconnect(); });
 }

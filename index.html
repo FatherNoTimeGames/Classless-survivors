@@ -60,12 +60,12 @@
             <button class="primary-button" id="start-run" type="button">Enter the clearing</button>
             <button class="quiet-button" id="return-to-build" type="button" hidden>Return to build planning</button>
           </section>
-          <section class="upgrade-overlay" id="upgrade-picker" role="dialog" aria-modal="true" aria-labelledby="upgrade-title" aria-describedby="upgrade-note" hidden>
+          <dialog class="upgrade-overlay" id="upgrade-picker" aria-labelledby="upgrade-title" aria-describedby="upgrade-note" hidden>
             <h3 id="upgrade-title">Choose your ember</h3>
             <p id="upgrade-note">Combat is paused. Choose one upgrade for this run.</p>
             <details class="choice-build"><summary>Your current abilities</summary><p id="upgrade-build"></p></details>
             <div id="upgrade-choices"></div>
-          </section>
+          </dialog>
           <p class="canvas-error" id="canvas-error" role="alert" hidden>
             The sanctuary could not be drawn. Please try a browser with Canvas support.
           </p>

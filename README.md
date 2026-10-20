@@ -217,9 +217,36 @@ immediately; guardians remaining at 15:00 also lose the run. Both outcomes award
 persistent progress. The results show survival time, kills, XP, level, guardians,
 and the final talent/upgrade build. **Return to build planning** opens free respecs.
 
-Use **Pause** or **Escape** to pause and **Resume run** or **Escape** to resume.
+Use **Pause** or **Escape** to pause. Use **Resume run**, or **Escape** while that
+button has keyboard focus, to resume. Escape in a settings control keeps the run paused.
 Leaving the browser tab/window pauses the game automatically. After an input
 interruption, release and press movement keys again to resume movement.
+
+## Phone, tablet, and desktop controls
+
+During a run the HUD stays above the arena and Pause sits in a toolbar below it,
+within thumb reach. The arena keeps its 3:4 aspect ratio and scales to the actual
+viewport space after the HUD, controls and safe-area padding. On short landscape
+screens the HUD/toolbar sit beside the arena. Starting or resuming returns to the
+top of the play area. Combat rules and movement distances are independent of size.
+
+Rotation pauses once and requires an explicit resume. Resizing clears held keys
+and touch capture; release and press again, or start a fresh drag. The first
+finger owns the stick: another finger cannot steer it, lifting that other finger
+does not interrupt it, and lifting/cancelling the controlling finger stops it.
+Active arena gestures suppress scrolling and long-press menus. Paused play releases
+that gesture lock; page controls and scrollable menus retain normal touch behavior.
+Opening Sound & display, Enemy field guide or Run upgrades & abilities pauses
+combat while preserving the selected control's focus. Close the panel and resume
+when ready. Returning from a hidden page never resumes combat automatically.
+
+Upgrade choices use a native modal with scrollable cards, keyboard traversal and
+background focus isolation. Rotate or scroll to read every card; Escape/backdrop
+cannot discard a reward. Talent inspection, allocation, branch-key navigation and
+saved-build fields remain usable in small portrait and landscape layouts. Buttons
+and disclosure rows have at least 44px targets; saved-build text fields use 16px
+text. Browser zoom remains enabled. Notch insets, browser chrome, soft keyboards
+and OS interruptions still need physical-device verification.
 
 ## Sound, motion, and combat readability
 
@@ -506,6 +533,13 @@ actual browser-context retry and play without audio/storage. This validates the
 sound graph, not physical speaker quality. Existing dense-wave and full guardian
 journeys retain real warnings, input and progression checks.
 
+Usability checks exercise 280–1280px widths, short landscape screens, complete
+HUD/arena/Pause visibility, canvas sizing, focus and held-key recovery, actual
+pointer-capture loss, first/second-finger release, rotation/resume and native-modal
+touch scrolling. Small-screen talent and saved-build journeys also run. Headless
+tabs do not become hidden when another tab opens here, so visibility recovery uses
+an explicit document-property/event fixture; it does not simulate an Android OS.
+
 Screenshots and failure traces are
 written to ignored `test-results/`. Emulation does not replace physical device
 testing, and Chromium checks do not establish support in other browser engines.
@@ -535,6 +569,7 @@ offline installation guidance will be completed with the PWA milestone.
 - `src/presentation/`: validated preferences and pure visual grouping/priority rules.
 - `src/audio/`: original tone definitions, lazy bounded Web Audio synthesis, and read-only cue direction.
 - `src/ui/presentation-settings.ts`: accessible settings and device-motion observation.
+- `src/ui/play-layout.ts` and `src/ui/usability.css`: viewport fitting, rotation boundaries, safe areas and responsive play/menu layout.
 - `src/persistence/presentation-store.ts`: separate settings storage and current-tab fallback.
 - `src/styles.css` and `index.html`: responsive, semantic page shell.
 - `tests/`: unit tests for logic independent of the browser.

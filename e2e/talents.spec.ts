@@ -94,7 +94,7 @@ test('inspect six branches, allocate and refund prerequisites, respec, and run a
   await expect(page.locator('#active-talents')).toContainText('Arcane Echo');
   await expect(page.locator('#active-talents')).toContainText('Expose Weakness');
   expect(Number(await page.locator('#run-kills').textContent())).toBeGreaterThan(0);
-  await page.getByRole('button', { name: 'Pause', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Resume run' })).toBeVisible();
   await expect(page.locator('#edit-talents')).toBeHidden();
   await expect(editor).toBeHidden();
   expect(errors).toEqual([]);

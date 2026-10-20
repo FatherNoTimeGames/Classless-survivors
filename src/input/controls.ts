@@ -30,6 +30,7 @@ export function createControls(canvas: HTMLCanvasElement, stick: HTMLElement, en
   window.addEventListener('keyup', (event) => { keys.delete(event.code); }, options);
   window.addEventListener('blur', clear, options);
   canvas.addEventListener('blur', clear, options);
+  canvas.addEventListener('contextmenu', (event) => { if (enabled()) event.preventDefault(); }, options);
 
   canvas.addEventListener('pointerdown', (event) => {
     if (!enabled() || pointerId !== null || event.button !== 0) return;
@@ -47,6 +48,7 @@ export function createControls(canvas: HTMLCanvasElement, stick: HTMLElement, en
   }, options);
   canvas.addEventListener('pointermove', (event) => {
     if (pointerId !== event.pointerId) return;
+    if (!enabled()) { clear(); return; }
     const dx = event.clientX - origin.x;
     const dy = event.clientY - origin.y;
     const length = Math.hypot(dx, dy);

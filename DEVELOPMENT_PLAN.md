@@ -202,13 +202,20 @@ these requirements. No subscription-usage or completion-time estimates are impli
   audio checks cover activation, waveform, silence, suspension and retry;
   physical-device listening and hardware performance remain unverified.
 
-- [ ] **13. Harden mobile, tablet, and desktop usability.**
+- [x] **13. Harden mobile, tablet, and desktop usability.**
   Tune portrait HUD, thumb reach, safe areas, touch targets, tooltips, and upgrade
   menus. Handle resizing, orientation, focus loss, and page visibility correctly;
   prevent touch controls from triggering browser gestures during play.
   Done when keyboard and simulated touch journeys pass across phone/tablet/desktop
   viewports and controls recover correctly after interruptions. Record any physical
   Android-device validation that cannot be performed here as an explicit limitation.
+  Delivered measured arena fitting with full-size HUD/controls, a bottom toolbar,
+  short-landscape layout, safe-area-aware menus and native modal upgrade choices.
+  Rotation pauses once; resize/capture/focus interruption clears movement. Reading
+  pauses preserve focus, settings Escape stays paused, and paused play releases
+  its gesture lock. All 76 browser cases pass, including 20 new usability cases;
+  1,088 unit tests and the production build pass. Physical-device ergonomics,
+  browser chrome, soft keyboards and OS interruptions remain unverified.
 
 - [ ] **14. Add and verify offline installation.**
   Add the app manifest, original install icons, production service worker, cache

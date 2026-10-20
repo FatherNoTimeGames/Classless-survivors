@@ -44,6 +44,8 @@ test('collect XP, freeze for a keyboard/touch choice, improve an ability, level 
   await expect(page.locator('#active-upgrades')).toContainText('Quickened Ember 1/4');
   await expect(page.locator('#ember-stats')).toContainText('0.62s cooldown');
   await page.locator('#run-build summary').click();
+  await expect(page.getByRole('button', { name: 'Resume run' })).toBeVisible();
+  await page.getByRole('button', { name: 'Resume run' }).click();
   await collectUntilChoice(page, canvas);
   await expect(dialog).toHaveAccessibleName('Level 3 — choose your ember');
   await expect(dialog.locator('.rare')).toHaveCount(0);

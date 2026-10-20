@@ -58,6 +58,9 @@ test('complete fifteen minutes, fight three guardians, claim victory, respec, re
     if (await page.locator('#return-to-build').isVisible()) break;
     if (await page.locator('#boss-hud').isVisible()) {
       if (!pausedBoss) {
+        await expect(page.locator('#boss-hud')).toBeInViewport({ ratio: 1 });
+        await expect(page.locator('#arena')).toBeInViewport({ ratio: 1 });
+        await expect(page.locator('#pause-run')).toBeInViewport({ ratio: 1 });
         await activate(page.locator('#pause-run'));
         const time = await page.locator('#run-time').textContent(), health = await page.locator('#boss-health').getAttribute('value');
         await page.clock.runFor(1000);

@@ -83,6 +83,11 @@ for (const branch of ['Rogue', 'Hunter'] as const) {
     if (branch === 'Rogue') expect(cues.critical).toBe(true);
     else { expect(cues.snare).toBe(true); expect(cues.frost).toBe(true); }
     expect(Number(await page.locator('#run-kills').textContent())).toBeGreaterThan(0);
+    // The final observed effect can coincide with a level. Complete its real
+    // reward before inspecting the underlying build; the modal isolates focus.
+    while (await page.locator('#upgrade-picker').isVisible()) {
+      await choosePreferredUpgrade(page, ['fleet', 'magnet', 'vitality', 'haste', 'fork', 'pierce', 'burst'], Boolean(testInfo.project.use.hasTouch));
+    }
     await page.screenshot({ path: testInfo.outputPath(`${branch.toLowerCase()}-hybrid.png`), fullPage: true });
     await page.locator('#run-build summary').click();
     await expect(page.locator('#active-talents li')).toHaveCount(8);

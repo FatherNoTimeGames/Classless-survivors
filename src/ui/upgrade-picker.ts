@@ -9,11 +9,12 @@ import { choiceLevel } from '../game/progression';
 import { element } from './dom';
 
 /** Accessible choice UI; validation and effects belong to progression/combat. */
-export function createUpgradePicker(root: HTMLElement, onChoose: (id: UpgradeId) => void) {
+export function createUpgradePicker(root: HTMLDialogElement, onChoose: (id: UpgradeId) => void) {
   const title = element('#upgrade-title', root);
   const note = element('#upgrade-note', root);
   const choices = element('#upgrade-choices', root);
   const events = new AbortController();
+  root.addEventListener('cancel', (event) => event.preventDefault(), { signal: events.signal });
   root.addEventListener('keydown', (event) => {
     const buttons = [...root.querySelectorAll<HTMLElement>('summary, button')];
     if (event.key === 'Tab') {
@@ -57,10 +58,11 @@ export function createUpgradePicker(root: HTMLElement, onChoose: (id: UpgradeId)
         choices.append(button);
       }
       root.hidden = false;
+      if (!root.open) root.showModal();
       root.scrollTop = 0;
       choices.querySelector<HTMLButtonElement>('button')?.focus({ preventScroll: true });
     },
-    hide(): void { root.hidden = true; },
-    destroy(): void { events.abort(); choices.replaceChildren(); },
+    hide(): void { root.close(); root.hidden = true; },
+    destroy(): void { root.close(); events.abort(); choices.replaceChildren(); },
   };
 }
