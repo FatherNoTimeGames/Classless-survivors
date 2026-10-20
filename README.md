@@ -104,3 +104,9 @@ counts are bounded. These are basic safeguards; full-run optimization remains a
 later milestone. All current assets are original SVG or programmatic Canvas artwork;
 fonts are local system fonts. All dependencies are development tools and use
 open-source licenses. There are no runtime package dependencies.
+
+Modularity and inexpensive, readable art are standing requirements. Gameplay
+systems should have focused, testable modules and clear ownership; content and
+tuning should be easy to find and change. New art may use simple Canvas shapes,
+SVG/vectors, or monochrome/limited-palette pixels, whichever is easiest to produce.
+Readable existing art can stay. See [AGENTS.md](AGENTS.md) for development guidance.

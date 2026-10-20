@@ -16,6 +16,19 @@
   and rendering. Background drawing is cached and entity/effect counts bounded.
 - Plan: [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md).
 
+## Standing specifications
+
+- Keep everything modular for easier debugging and changes: focused gameplay
+  systems, explicit typed boundaries, and separate simulation, input, rendering,
+  UI, content/tuning, and persistence. Existing run.ts still groups the small
+  foundation systems; extract responsibilities as part of task 3 before growing it.
+- Use whichever original programmatic art is easiest to produce and maintain.
+  Readable monochrome/limited-palette pixel art, simple Canvas shapes, and SVG/
+  vectors are all acceptable. Preserve clear silhouettes and visual cues; avoid
+  spending effort on detail or replacing readable existing assets.
+- These requirements are recorded in AGENTS.md and the plan. This specification
+  update did not start task 3 or change application behavior.
+
 ## Next task
 
 **Task 3: Add leveling and randomized run upgrades.**
@@ -25,6 +38,7 @@ paused randomized upgrade selection, a useful initial upgrade pool, eligibility/
 rarity rules, and visible ability improvements. Handle several levels earned at
 once and reset temporary upgrades between runs. Preserve the existing pause,
 input-clearing, and restart behavior. Keep rules testable without the browser;
+extract focused simulation/progression modules rather than enlarging run.ts;
 extend real browser journeys to choose and observe upgrades. Talents and permanent
 progression remain later milestones. Update this log, test, commit, report, and pause.
 

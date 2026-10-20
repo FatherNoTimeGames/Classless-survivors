@@ -22,7 +22,9 @@ remaining plan. Never silently drop a requirement.
 - TypeScript, HTML5 Canvas for the arena, accessible HTML/CSS for menus, and Vite
   for local development and production builds. Keep runtime dependencies small.
 - Keyboard and touch movement; automatic combat. Portrait-first layout that also
-  supports tablets and desktop. Original programmatic pixel art and effects.
+  supports tablets and desktop. Use the easiest original programmatic art to
+  produce: simple Canvas shapes, SVG/vector art, or limited-palette/monochrome
+  pixel art. Readability takes priority over detail; pixel art is not mandatory.
 - Six talent branches, six meaningful talents each: Warrior, Mage, Rogue, Priest,
   Warlock, and Hunter. Branches are freely mixable categories, never classes.
 - Permanent unlocks broaden options within a bounded talent budget. Free respecs
@@ -32,6 +34,15 @@ remaining plan. Never silently drop a requirement.
 - Separate testable simulation/progression logic from rendering and input. Use
   seeded randomness for repeatable checks. Add meaningful automated tests as each
   system appears and browser tests for the user journey.
+- Modularity is a standing requirement: focused modules, explicit typed boundaries,
+  clear state ownership, and easy-to-find content/tuning. Separate gameplay systems
+  as they grow; do not expand the current run.ts into a monolithic combat engine.
+  Keep UI, rendering, input, simulation, and persistence independent. Prefer simple
+  composition over extra frameworks. See AGENTS.md for implementation guidance.
+
+The user's later specifications make maintainable modular code and minimal-effort,
+readable art explicit priorities. Reuse readable existing artwork; detailed asset
+production is not a completion requirement.
 
 Detailed mechanics and tuning may change based on playtesting while preserving
 these requirements. No subscription-usage or completion-time estimates are implied.
@@ -55,6 +66,8 @@ these requirements. No subscription-usage or completion-time estimates are impli
   automated checks cover movement, hits, and run-state resets.
 
 - [ ] **3. Add leveling and randomized run upgrades.**
+  First extract focused simulation responsibilities from the current run module
+  as needed to add progression cleanly, preserving existing behavior and tests.
   Implement XP thresholds, paused upgrade selection, a useful initial upgrade
   pool, rarity/eligibility rules, and visible ability improvements.
   Done when successive levels offer valid choices, selections change combat,
@@ -115,12 +128,14 @@ these requirements. No subscription-usage or completion-time estimates are impli
   and summon builds each have tested, noticeably different play patterns.
 
 - [ ] **12. Finish the visual and audio presentation.**
-  Replace temporary visuals with cohesive original pixel art: player/enemy
-  silhouettes, arena, all talent/ability icons, boss warnings, and distinct effects.
+  Audit readability and fill missing visuals using the simplest original procedural
+  shapes, vectors, or pixel art. Reuse visuals that already work. Ensure distinct
+  player/enemy silhouettes, talent/ability icons, boss warnings, and effects.
   Add restrained hit feedback, procedural audio, volume/mute, and reduced-motion
-  support. Prioritize readability during dense combat.
-  Done when gameplay has a consistent style, implemented content has finished
-  presentation, and audio activation/settings work under browser restrictions.
+  support. Prioritize readability during dense combat and on small screens.
+  Done when gameplay has a consistent, readable style, all content has the visual
+  cues it needs, and audio activation/settings work under browser restrictions.
+  Elaborate artwork or replacing readable simple art is not required.
 
 - [ ] **13. Harden mobile, tablet, and desktop usability.**
   Tune portrait HUD, thumb reach, safe areas, touch targets, tooltips, and upgrade
