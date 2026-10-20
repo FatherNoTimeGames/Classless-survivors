@@ -2,7 +2,7 @@
 
 ## Current state
 
-- Completed: tasks 0–2, planning, tooling, and the smallest playable survival loop.
+- Completed: tasks 0–2 and the separately requested modular refactor (2a).
 - Repository began empty, with no project code or existing agent instructions.
 - Implemented: responsive TypeScript/Vite shell, original Canvas sanctuary and
   actor artwork, keyboard/floating-stick movement, a pursuing enemy type,
@@ -14,20 +14,23 @@
 - Toolchain validated with Node 24.19.0, npm 11.9.0, and system Chromium 154.
 - Simulation uses fixed 60 Hz ticks and seeded randomness, separate from input
   and rendering. Background drawing is cached and entity/effect counts bounded.
+- Simulation now has focused state, tuning, movement, spawning, combat, pickup,
+  feedback, geometry, and random-generator modules. run.ts is a 22-line coordinator.
+  README.md maps each responsibility to its file. Gameplay and artwork are preserved.
 - Plan: [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md).
 
 ## Standing specifications
 
 - Keep everything modular for easier debugging and changes: focused gameplay
   systems, explicit typed boundaries, and separate simulation, input, rendering,
-  UI, content/tuning, and persistence. Existing run.ts still groups the small
-  foundation systems; extract responsibilities as part of task 3 before growing it.
+  UI, content/tuning, and persistence. The foundation extraction is complete;
+  extend focused modules and keep run.ts responsible only for tick coordination.
 - Use whichever original programmatic art is easiest to produce and maintain.
   Readable monochrome/limited-palette pixel art, simple Canvas shapes, and SVG/
   vectors are all acceptable. Preserve clear silhouettes and visual cues; avoid
   spending effort on detail or replacing readable existing assets.
-- These requirements are recorded in AGENTS.md and the plan. This specification
-  update did not start task 3 or change application behavior.
+- These requirements are recorded in AGENTS.md and the plan. Task 3 remains
+  unstarted; the user authorized the modular refactor as its own work cycle.
 
 ## Next task
 
@@ -38,7 +41,7 @@ paused randomized upgrade selection, a useful initial upgrade pool, eligibility/
 rarity rules, and visible ability improvements. Handle several levels earned at
 once and reset temporary upgrades between runs. Preserve the existing pause,
 input-clearing, and restart behavior. Keep rules testable without the browser;
-extract focused simulation/progression modules rather than enlarging run.ts;
+add progression as its own module rather than enlarging run.ts;
 extend real browser journeys to choose and observe upgrades. Talents and permanent
 progression remain later milestones. Update this log, test, commit, report, and pause.
 
@@ -72,6 +75,14 @@ presentation; device usability; offline/PWA; balancing; regression fixes; releas
   instance; set the executable-path variable above for browser checks. Other
   machines can use the documented Playwright browser installation instead.
 - Task 2 milestone commit: `feat: add playable survival foundation`.
+- Modular refactor: `npm run check` passed with all 30 existing unit tests,
+  TypeScript checks, production build, and all 11 browser tests. Existing test
+  assertions were preserved; only simulation import paths changed.
+- A one-time before/after comparison matched all 244 full-state checkpoints over
+  four seeded 120-second routes (stationary, rectangular, circular, and diagonal).
+  The temporary verifier was removed after passing; the permanent suite remains
+  self-contained. Inspected source imports and found no circular runtime imports.
+- Refactor milestone commit: `refactor: separate survival simulation systems`.
 - XP currently accumulates without leveling. Talents, saves, authored waves,
   enemy variety, bosses, victory, and offline installation are not implemented.
   The clearing has solid arena edges; scenery is decorative, not an obstacle map.
@@ -79,7 +90,7 @@ presentation; device usability; offline/PWA; balancing; regression fixes; releas
   release time; do not let that block local development.
 - Physical Android/tablet testing may require hardware unavailable in this cloud
   environment. Browser emulation and device testing must be reported separately.
-- No current implementation blockers. Task 2 has no known failing checks.
+- No current implementation blockers or known failing checks after the refactor.
 
 ## Completion report convention
 

@@ -1,7 +1,9 @@
 import './styles.css';
 import { FixedClock } from './game/clock';
-import { createRun, RULES, tickRun } from './game/run';
-import type { Run } from './game/run';
+import { tickRun } from './game/run';
+import { RULES } from './game/rules';
+import { createRun } from './game/state';
+import type { Run } from './game/state';
 import { createControls } from './input/controls';
 import { createArenaRenderer } from './rendering/arena';
 

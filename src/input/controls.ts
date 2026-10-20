@@ -1,4 +1,4 @@
-import type { Point } from '../game/run';
+import type { Point } from '../game/state';
 
 const MOVEMENT_KEYS = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight']);
 

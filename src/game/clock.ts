@@ -1,4 +1,4 @@
-import { STEP } from './run';
+import { STEP } from './rules';
 
 /** Bounded catch-up keeps low frame rates fair without simulating tab absences. */
 export class FixedClock {

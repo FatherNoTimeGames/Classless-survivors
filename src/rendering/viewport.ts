@@ -1,4 +1,4 @@
-import { WORLD } from '../game/run';
+import { WORLD } from '../game/rules';
 
 /** Logical arena coordinates stay stable across CSS size and device density. */
 export const ARENA_WIDTH = WORLD.width;

@@ -98,6 +98,30 @@ offline installation guidance will be completed with the PWA milestone.
 - `tests/`: unit tests for logic independent of the browser.
 - `e2e/`: browser checks against the production build.
 
+The simulation module map:
+
+| Responsibility | Module under `src/game/` |
+| --- | --- |
+| Tick order and defeated-run guard | `run.ts` |
+| Entity types and fresh-run state | `state.ts` |
+| Dimensions, timing, and gameplay tuning | `rules.ts` |
+| Player movement, boundaries, and enemy pursuit | `movement.ts` |
+| Spawn pacing and safe placement | `spawning.ts` |
+| Targeting, attack cooldowns, projectiles, and damage | `combat.ts` |
+| XP drops, attraction, collection, and overflow merging | `pickups.ts` |
+| Feedback events and their lifetimes | `effects.ts` |
+| Distances, bounds, and swept collision geometry | `geometry.ts` |
+| Run-owned seeded randomness | `random.ts` |
+| Rendering-frame to fixed-tick scheduling | `clock.ts` |
+
+`run.ts` coordinates the systems in a deliberate order: advance time/cooldowns,
+expire feedback, move the player, spawn and move enemies, attack, resolve bolts,
+collect XP, then apply contact damage. This keeps killed enemies from damaging the
+player and credits nearby drops before a fatal contact. Systems mutate their own
+parts of the explicit `Run` state; there is no hidden singleton state. Rendering
+and input import only the state types and shared tuning they need. Keep new rules
+in focused systems and add progression as its own module when task 3 begins.
+
 Simulation/progression stays separate from rendering and input. The background
 is cached, screen-density buffers are capped, and enemy/projectile/pickup/effect
 counts are bounded. These are basic safeguards; full-run optimization remains a

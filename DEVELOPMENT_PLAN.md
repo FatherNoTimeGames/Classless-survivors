@@ -65,9 +65,15 @@ these requirements. No subscription-usage or completion-time estimates are impli
   Done when a player can move, kill enemies, collect XP, die, and restart;
   automated checks cover movement, hits, and run-state resets.
 
+- [x] **2a. Refactor the foundation into focused simulation modules.**
+  Completed as a separately requested task before leveling. Separate state,
+  tuning, movement, spawning, combat, pickups, feedback, geometry, and randomness;
+  keep run.ts as the coordinator. Existing regression checks pass, and a one-time
+  comparison matched 244 original full-state checkpoints across four seeded routes.
+
 - [ ] **3. Add leveling and randomized run upgrades.**
-  First extract focused simulation responsibilities from the current run module
-  as needed to add progression cleanly, preserving existing behavior and tests.
+  Extend the focused simulation modules with separate progression logic while
+  preserving existing behavior and tests. The preparatory extraction is complete.
   Implement XP thresholds, paused upgrade selection, a useful initial upgrade
   pool, rarity/eligibility rules, and visible ability improvements.
   Done when successive levels offer valid choices, selections change combat,

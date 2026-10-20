@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { createRun, RULES, STEP, tickRun, WORLD } from '../src/game/run';
-import type { Enemy, Point, Run } from '../src/game/run';
+import { tickRun } from '../src/game/run';
+import { RULES, STEP, WORLD } from '../src/game/rules';
+import { createRun } from '../src/game/state';
+import type { Enemy, Point, Run } from '../src/game/state';
 import { FixedClock } from '../src/game/clock';
 
 const STILL = { x: 0, y: 0 };

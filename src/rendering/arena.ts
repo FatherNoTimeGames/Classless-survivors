@@ -1,4 +1,5 @@
-import type { Run } from '../game/run';
+import type { Run } from '../game/state';
+import { RULES } from '../game/rules';
 import { drawSanctuary } from './sanctuary';
 import { ARENA_HEIGHT, ARENA_WIDTH, fitViewport } from './viewport';
 
@@ -96,8 +97,8 @@ export function createArenaRenderer(canvas: HTMLCanvasElement) {
         block(bolt.x - 2, bolt.y - 2, 4, 4, '#ffe2a2');
       }
       for (const effect of run.sparks) {
-        const radius = 3 + (0.3 - effect.life) * 35;
-        context.globalAlpha = effect.life / 0.3;
+        const radius = 3 + (RULES.sparkLifetime - effect.life) * 35;
+        context.globalAlpha = effect.life / RULES.sparkLifetime;
         context.strokeStyle = effect.kind === 'pickup' ? '#91e2ba' : effect.kind === 'hurt' ? '#ec8b75' : '#f4c77c';
         context.lineWidth = 2;
         context.beginPath();

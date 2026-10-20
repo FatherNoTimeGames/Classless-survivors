@@ -16,8 +16,9 @@ progression independent of browser APIs so they can be tested directly.
 
 - Input translates devices into commands; it does not apply combat rules.
 - Simulation owns gameplay state. Separate movement, spawning, targeting,
-  damage/effects, pickups, and progression as those systems grow. Extract the
-  existing run.ts responsibilities before extending them into a large monolith.
+  damage/effects, pickups, and progression as those systems grow. Keep run.ts as
+  the tick coordinator; extend the focused modules rather than moving their rules
+  back into the coordinator. See the module map in README.md.
 - Rendering reads state and draws it; it does not advance gameplay or award XP.
 - UI coordinates screens and player choices; gameplay calculations belong in
   simulation modules. Persistence is a separate boundary with validated data.
