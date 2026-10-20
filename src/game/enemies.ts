@@ -11,7 +11,7 @@ export function interruptAttack(enemy: Enemy): void {
 }
 export function updateEnemies(run: Run): void {
   for (const enemy of run.enemies) {
-    if (enemy.health <= 0 || enemy.grace > 0) continue;
+    if (enemy.boss || enemy.health <= 0 || enemy.grace > 0) continue;
     if (enemy.stun > 0 || (enemy.kind === 'charger' && enemy.root > 0)) { interruptAttack(enemy); continue; }
     const attack = enemy.attack, definition = ENEMIES[enemy.kind];
     if (definition.attackRange === 0 || attack.phase === 'dash') continue;

@@ -6,7 +6,8 @@ import type { Run } from './game/state';
 import { createControls } from './input/controls';
 import { createArenaRenderer } from './rendering/arena';
 import { chooseUpgrade } from './game/progression';
-import { element, formatTime } from './ui/dom';
+import { element } from './ui/dom';
+import { showRunResults } from './ui/run-results';
 import { createHud } from './ui/hud';
 import { createUpgradePicker } from './ui/upgrade-picker';
 import { createTalentEditor } from './ui/talent-editor';
@@ -28,14 +29,14 @@ const announcement = element('#announcement');
 const results = element('#run-results');
 const clock = new FixedClock();
 const events = new AbortController();
-let mode: 'ready' | 'running' | 'paused' | 'choosing' | 'defeated' = 'ready';
+let mode: 'ready' | 'running' | 'paused' | 'choosing' | 'finished' = 'ready';
 let run: Run | null = null;
 let frameId = 0;
 let previousTime: number | null = null;
 
 const controls = createControls(canvas, element('#joystick'), () => mode === 'running');
 const profileStore = openBrowserProfile();
-const talentEditor = createTalentEditor(talentButton, () => mode === 'ready' || mode === 'defeated', profileStore);
+const talentEditor = createTalentEditor(talentButton, () => mode === 'ready' || mode === 'finished', profileStore);
 let profileRunId: number | null = null;
 const picker = createUpgradePicker(element('#upgrade-picker'), (id) => {
   if (!run || mode !== 'choosing' || !chooseUpgrade(run, id)) return;
@@ -72,16 +73,17 @@ function pause(): void {
   startButton.focus({ preventScroll: true });
 }
 
-function defeated(): void {
-  mode = 'defeated';
+function finished(): void {
+  if (!run) return;
+  mode = 'finished';
   stopFrames();
+  canvas.inert = true;
+  arenaFrame.classList.remove('is-active');
   overlay.hidden = false;
-  title.textContent = 'The ember fades';
-  description.textContent = 'The dark has taken this clearing. Rise and try again.';
-  results.hidden = false;
-  if (run) results.textContent = `${formatTime(run.elapsed)} survived · ${run.kills} slain · ${run.xp} XP gathered`;
+  showRunResults(run);
+  element('#return-to-build').hidden = false;
   if (run && profileRunId !== null) {
-    profileStore.change((profile) => finishProfileRun(profile, profileRunId!, { outcome: 'defeat', seconds: run!.elapsed, kills: run!.kills, xp: run!.xp }));
+    profileStore.change((profile) => finishProfileRun(profile, profileRunId!, { outcome: run!.status === 'victory' ? 'victory' : 'defeat', seconds: run!.elapsed, kills: run!.kills, xp: run!.xp }));
     const result = profileStore.get().lastResult;
     const reward = element('#run-reward');
     reward.hidden = false;
@@ -89,9 +91,8 @@ function defeated(): void {
     profileRunId = null;
     talentEditor.refresh();
   }
-  startButton.textContent = 'Try again';
   pauseButton.hidden = true;
-  announcement.textContent = 'Run ended. You can try again.';
+  announcement.textContent = run.status === 'victory' ? 'Victory. Dawn breaks. Plan another build or play again.' : 'Run ended. Plan another build or try again.';
   talentButton.hidden = false;
   startButton.focus({ preventScroll: true });
 }
@@ -114,7 +115,7 @@ function frame(timestamp: number): void {
   previousTime = timestamp;
   renderer?.draw(run);
   updateHud();
-  if (run.status === 'defeated') defeated();
+  if (run.status === 'defeated' || run.status === 'victory') finished();
   else if (run.status === 'choosing') openUpgradeChoice();
   else frameId = requestAnimationFrame(frame);
 }
@@ -124,6 +125,8 @@ function beginRun(): void {
   mode = 'running';
   overlay.hidden = true;
   results.hidden = true;
+  element('#result-build').hidden = true;
+  element('#return-to-build').hidden = true;
   element('#run-reward').hidden = true;
   hud.hidden = false;
   pauseButton.hidden = false;
@@ -151,6 +154,7 @@ function start(): void {
 }
 
 startButton.addEventListener('click', start, { signal: events.signal });
+element('#return-to-build').addEventListener('click', () => { if (mode === 'finished') talentButton.click(); }, { signal: events.signal });
 pauseButton.addEventListener('click', pause, { signal: events.signal });
 window.addEventListener('keydown', (event) => {
   if (event.code !== 'Escape' || event.repeat) return;

@@ -4,7 +4,7 @@ import { addSpark } from './effects';
 
 /** Shields replace weaker protection, never add. Refreshing cannot weaken a ward. */
 export function grantShield(run: Run, amount: number, duration: number): void {
-  if (run.status === 'defeated' || !Number.isFinite(amount) || amount <= 0 || !Number.isFinite(duration) || duration <= 0) return;
+  if ((run.status === 'defeated' || run.status === 'victory') || !Number.isFinite(amount) || amount <= 0 || !Number.isFinite(duration) || duration <= 0) return;
   run.player.shield.amount = Math.max(run.player.shield.amount, amount);
   run.player.shield.remaining = Math.max(run.player.shield.remaining, duration);
   addSpark(run, run.player, 'shield');

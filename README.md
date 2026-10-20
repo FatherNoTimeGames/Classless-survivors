@@ -9,8 +9,9 @@ Builds support melee/spell combos, critical effects,
 Poison/curses, companions, healing offense, shields, and retaliation. Runs include
 movement, automatic combat, XP, temporary upgrades, defeat, and replay. Local
 saves, research, named builds, and backups now work. Five enemy types, two elite
-modifiers, and escalating waves are playable. Bosses, victory, and offline
-installation remain upcoming.
+modifiers, escalating waves, and three telegraphed guardians form a timed
+15-minute run with victory, defeat, rewards, and return to build planning. Offline
+installation remains upcoming.
 See [the task list](DEVELOPMENT_PLAN.md) and [progress log](PROGRESS.md).
 
 ## Play this milestone
@@ -121,7 +122,7 @@ retain its stored bonus. Curse marks, holy crosses, detonation crescents, and th
 horned imp silhouette distinguish the new effects with simple original shapes.
 
 Your chosen talents are copied into the new run. Editing is available before the
-first run and after defeat; paused runs cannot be respecced. **Try again** uses
+first run and after either ending; paused runs cannot be respecced. **Try again** / **Play again** uses
 your current talent allocation but resets temporary upgrades. Your allocation,
 research, earned points, and saved build slots survive browser reloads and closure.
 Combat runs themselves are not resumed after closing or reloading the page.
@@ -166,8 +167,11 @@ for the talent/upgrade review, tested combinations, and intentional exclusions.
 Piercing bolts have a pale trail; explosive bolts produce expanding impact rings.
 Open **Run upgrades** beneath the arena to inspect your ranks and ember stats.
 Enemy numbers build over time, and you lose when health reaches zero. **Try again**
-starts a fresh run with level 1, your chosen talents, and no run upgrades. There is no victory
-condition in this milestone; defeats award persistent progress. Boss encounters and full-run balancing remain later milestones.
+starts a fresh run with level 1, your chosen talents, and no run upgrades. Defeat
+all three guardians and survive until **15:00** to win. Health reaching zero loses
+immediately; guardians remaining at 15:00 also lose the run. Both outcomes award
+persistent progress. The results show survival time, kills, XP, level, guardians,
+and the final talent/upgrade build. **Return to build planning** opens free respecs.
 
 Use **Pause** or **Escape** to pause and **Resume run** or **Escape** to resume.
 Leaving the browser tab/window pauses the game automatically. After an input
@@ -218,13 +222,48 @@ rewrites existing foes. Higher-value XP is retained even at the pickup limit.
 At most four enemies wind up special attacks together. Blight casts avoid nearby
 active/pending pools, and both hostile projectile and pool counts are bounded.
 The arena remains capped at 80 enemies. These limits protect warning readability
-and responsive play. Bosses, the 15-minute ending, broader upgrade content, and
-full-run balancing remain later tasks; these waves do not yet form a complete run.
+and responsive play. Guardian encounters temporarily replace normal waves.
+Broader upgrade content and balance across the full range of builds remain later tasks.
+
+## Guardians and dawn
+
+| Arrival | Guardian | Positioning |
+| --- | --- | --- |
+| 4:00 | Ossuary Knight | Escape its forward sweep; sidestep its long cleave |
+| 9:00 | Veil Matron | Weave between fan bolts; stand inside or outside the warned ring |
+| 14:00 | Night Sovereign | Leave crossed lanes diagonally; avoid marked pools and radial bolts |
+
+Dashed gold outlines warn before an attack, then solid bright outlines mark active
+areas. Aim is locked when a warning appears. Rings mark their safe center with a
+check; pools carry a cross. Boss bodies have larger silhouettes and hitboxes. The
+HUD shows guardian health, positioning advice, progress, and time remaining until
+dawn. Below half health, guardian recovery is 20% shorter; warning times stay unchanged.
+
+Arrival banishes normal enemies and released hostile attacks without free kill
+credit, and gives the guardian 1.5 seconds of grace at a safe distance. Dropped XP,
+your build, statuses on the player, and earned upgrades remain. Up to six husk/
+skitter reinforcements keep on-kill, DoT, healing, and multi-target builds active.
+A guardian kill drops its XP, clears remaining encounter threats, heals **25% maximum
+health** through the shared healing rules, and grants five seconds before waves resume.
+
+Bosses use ordinary marks, Frost, Poison/curses, crits, companion ownership, wards,
+and retaliation rules. **Resolve** prevents permanent hard-control loops: a successful
+stun or root starts three seconds of protection against more stuns/roots. Slows,
+Frost application/consumption, and bonus damage still work. Stuns interrupt unreleased
+warnings; roots stop movement but allow stationary casts. Released bolts remain
+active until the encounter ends. Danger and projectile counts remain capped.
+
+The run clock stops during pauses and level choices. Victory requires all three
+guardians defeated and the player alive at 15:00. A friendly killing hit on the
+final tick resolves before hostile damage; a previously slain run cannot win.
+Combat and pending choices freeze at either ending. Finished combat is not restored
+after reload, but its saved reward/result is retained and cannot be claimed again.
 
 ## Permanent progress and saved builds
 
 Every finished run, including an early defeat, earns one insight while you still
-need research credits. Surviving two and four minutes adds one each. Research
+need research credits. Surviving two and four minutes adds one each; victory adds
+two more, capped by remaining research needs. Research
 costs one insight per capstone and remains unlocked through every free respec.
 Once your unlocked capstones plus unspent insight cover all six, insight rewards
 stop. No permanent damage, health, or speed purchases exist.
@@ -232,8 +271,7 @@ stop. No permanent damage, health, or speed purchases exist.
 Complete two runs to earn a ninth talent point, then five total runs for the tenth
 and final point. Early losses count, so progression never requires winning with
 an underdeveloped build. All six branches and their non-capstone talents are
-available from the start. Current runs end in defeat; the reward boundary already
-accepts victory for the boss milestone.
+available from the start. Both victories and defeats count as completed runs.
 
 Open **Talents → Progress, saved builds & backups** to see progression and the last
 result. Choose one of three build slots, enter a name, and select **Save build**.
@@ -349,6 +387,18 @@ download and restore backups, reject bad imports, and play a restored nine-point
 build. Additional cases exercise damaged saves, newer formats, and disabled
 storage. The defeat/restart journey checks persisted rewards and discards an
 unfinished restarted run without duplicating rewards.
+Boss tests cover all three schedules and pattern families, corner escapes, locked
+warnings, arrival/grace, shared status/DoT/companion/retaliation behavior, Resolve,
+reinforcement/hazard caps, healing breaks, final-tick ordering, frozen outcomes, and
+one-time profile rewards. Two legal eight-point Mage/Priest hybrids complete real
+900-second simulations using earned XP/choices and a repeatable movement route;
+this establishes winnability for those builds, not comprehensive balance.
+The guardian browser journey accelerates only RAF timestamp input by 12× and sends
+movement key events based on the visible clock. It allocates a real mixed build,
+chooses earned upgrades, observes actual guardian art/warnings, pauses an encounter,
+then checks victory, saved rewards, respec, reload, and replay. It injects no combat
+state and is not a real-time performance or physical-device benchmark.
+
 Screenshots and failure traces are
 written to ignored `test-results/`. Emulation does not replace physical device
 testing, and Chromium checks do not establish support in other browser engines.
@@ -383,8 +433,15 @@ The simulation module map:
 
 | Responsibility | Module under `src/game/` |
 | --- | --- |
-| Tick order and defeated-run guard | `run.ts` |
+| Tick order and completed-run guard | `run.ts` |
 | Entity types and fresh-run state | `state.ts` |
+| Plain encounter, danger, and campaign state | `campaign-state.ts` |
+| Guardian schedule, construction, movement, adds, and defeat transitions | `bosses.ts` |
+| Locked warning patterns | `boss-patterns.ts` |
+| Warning release, danger geometry, and shared impacts | `boss-dangers.ts` |
+| Timed ending and frozen results | `run-ending.ts` |
+| Shared hard control and boss Resolve | `control.ts` |
+| Guardian definitions and campaign tuning | `../content/bosses.ts` |
 | Talent allocation, validation, and cascading refunds | `builds.ts` |
 | Dimensions, timing, and gameplay tuning | `rules.ts` |
 | Player movement and boundaries | `movement.ts` |
@@ -464,6 +521,8 @@ a death snapshot, so Detonation counts only damage that has not already happened
 Holy marks and Atonement use one handler identity to prevent the bonus strike from
 reapplying itself. Actual and excess healing have separate events. Pickups emit
 collection events; the Priest handler owns Sanctuary's cooldown.
+Guardian rendering, guardian HUD, and run-result presentation also have separate
+read-only modules (`rendering/bosses.ts`, `ui/boss-hud.ts`, `ui/run-results.ts`).
 The editor and graph renderer are separate UI modules. Feedback drawing is isolated
 in `src/rendering/feedback.ts`; companions, snares, and afflictions each have a
 focused renderer under `src/rendering/`.

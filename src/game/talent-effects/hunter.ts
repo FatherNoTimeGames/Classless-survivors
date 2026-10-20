@@ -5,6 +5,7 @@ import { inheritsOnHit } from '../hit-policy';
 import { placeSnare } from '../snares';
 import { distance } from '../geometry';
 import { addSpark } from '../effects';
+import { applyControl } from '../control';
 import { commandCompanions } from '../companions';
 
 export const huntingMomentum: EffectHandler<Run> = {
@@ -30,10 +31,10 @@ export const frostTrap: EffectHandler<Run> = {
     if (!target || target.rootImmune > 0) return;
     const slowed = event.slowed || target.frost > 0 || target.snared || run.snares.some((snare) => distance(target, snare) <= snare.radius);
     if (!slowed) return;
-    target.root = T.rootDuration;
+    const rooted = applyControl(target, 'root', T.rootDuration);
     target.rootImmune = T.rootCooldown;
     target.frost = Math.max(target.frost, T.frostDuration);
-    addSpark(run, target, 'root');
+    if (rooted) addSpark(run, target, 'root');
   },
 };
 

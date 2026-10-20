@@ -16,7 +16,9 @@ test('touch drag moves, ignores a second finger, and releases on end or cancella
   await page.clock.runFor(400);
   expect((await playerPosition(canvas)).x - before.x).toBeGreaterThan(35);
   await expect(page.locator('#joystick')).toBeVisible();
-  await page.screenshot({ path: testInfo.outputPath('touch-control.png'), fullPage: true });
+  // Full-page capture resizes a tall tablet page, deliberately clearing pointer
+  // capture through the app's resize handler. Keep this active gesture in its viewport.
+  await page.screenshot({ path: testInfo.outputPath('touch-control.png') });
 
   await session.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [point, second] });
   // Releasing the controlling finger while another is down must stop movement.

@@ -1,6 +1,7 @@
 import type { Run } from '../game/state';
 import { drawFeedback } from './feedback';
 import { drawSanctuary } from './sanctuary';
+import { drawBosses, drawBossDangers } from './bosses';
 import { drawEnemies } from './enemies';
 import { drawEnemyWarnings, drawEnemyProjectiles } from './enemy-attacks';
 import { drawCompanions } from './companions';
@@ -41,6 +42,7 @@ export function createArenaRenderer(canvas: HTMLCanvasElement) {
       context.lineWidth = 1;
       context.strokeRect(8, 8, ARENA_WIDTH - 16, ARENA_HEIGHT - 16);
       drawEnemyWarnings(context, run);
+      drawBossDangers(context, run);
       drawSnares(context, run);
       for (const shard of run.shards) {
         const bob = Math.round(Math.sin(run.elapsed * 4 + shard.id) * 1.5);
@@ -50,6 +52,7 @@ export function createArenaRenderer(canvas: HTMLCanvasElement) {
       }
 
       drawEnemies(context, run);
+      drawBosses(context, run);
 
       const player = run.player;
       const bob = player.moving ? Math.round(Math.sin(run.elapsed * 16)) : 0;

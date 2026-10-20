@@ -1,7 +1,7 @@
 import type { EnemyKind } from './enemies';
 export const WAVE_RULES = { introAcceleration: 0.012, introMinimumInterval: 1 } as const;
 export interface Wave { at: number; name: string; interval: number; health: number; eliteEvery: number; pool: readonly (readonly [EnemyKind, number])[] }
-/** Gradual introductions, then bounded escalation. Boss scheduling belongs to task 10. */
+/** Gradual introductions, then bounded escalation. Boss scheduling temporarily replaces normal wave spawns. */
 export const WAVES: readonly Wave[] = [
   { at: 0, name: 'Restless clearing', interval: 1.2, health: 1, eliteEvery: 0, pool: [['husk', 1]] },
   { at: 18, name: 'Skittering host', interval: 1.0, health: 1, eliteEvery: 0, pool: [['husk', 4], ['skitter', 2]] },

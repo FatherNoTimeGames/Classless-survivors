@@ -1,3 +1,4 @@
+import { CAMPAIGN } from '../content/bosses';
 import { RULES, STEP } from './rules';
 import type { Player, Run } from './state';
 import type { RunStats } from './stats';
@@ -32,8 +33,8 @@ export function updateProjectiles(run: Run): void {
   const index = spatialIndex(run.enemies);
   for (const bolt of run.bolts) {
     const end = { x: bolt.x + bolt.vx * STEP, y: bolt.y + bolt.vy * STEP };
-    const hits = index.segment(bolt, end, RULES.enemyRadius + RULES.boltRadius).filter((enemy) => enemy.health > 0 && !bolt.hitIds.includes(enemy.id))
-      .map((enemy) => ({ enemy, time: hitTime(bolt, end, enemy, RULES.enemyRadius + RULES.boltRadius) }))
+    const hits = index.segment(bolt, end, Math.max(RULES.enemyRadius, CAMPAIGN.radius) + RULES.boltRadius).filter((enemy) => enemy.health > 0 && !bolt.hitIds.includes(enemy.id))
+      .map((enemy) => ({ enemy, time: hitTime(bolt, end, enemy, enemy.radius + RULES.boltRadius) }))
       .filter((hit): hit is { enemy: typeof hit.enemy; time: number } => hit.time !== null)
       .sort((a, b) => a.time - b.time || a.enemy.id - b.enemy.id);
     for (const { enemy } of hits) {
@@ -70,8 +71,8 @@ export function applyContactDamage(run: Run): void {
     if (enemy.health <= 0 || enemy.grace > 0 || enemy.stun > 0) continue;
     const charging = enemy.chargedThisTick && enemy.root <= 0;
     const hit = charging
-      ? hitTime(enemy.previous, enemy, player, RULES.playerRadius + RULES.enemyRadius) !== null
-      : distance(enemy, player) < RULES.playerRadius + RULES.enemyRadius;
+      ? hitTime(enemy.previous, enemy, player, RULES.playerRadius + enemy.radius) !== null
+      : distance(enemy, player) < RULES.playerRadius + enemy.radius;
     if (hit) damage = Math.max(damage, enemy.contactDamage + (charging ? A.dashBonus * ELITES[enemy.elite].damage : 0));
   }
   if (damage > 0) damagePlayer(run, damage);

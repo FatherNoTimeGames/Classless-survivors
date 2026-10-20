@@ -7,6 +7,7 @@ export function drawEnemies(context: CanvasRenderingContext2D, run: Run): void {
     context.fillStyle = color; context.fillRect(Math.round(x), Math.round(y), width, height);
   };
   for (const enemy of run.enemies) {
+    if (enemy.boss || enemy.health <= 0) continue;
     context.save();
     if (enemy.grace > 0) {
       context.strokeStyle = '#c9685770'; context.lineWidth = 1;

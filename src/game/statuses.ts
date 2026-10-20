@@ -3,10 +3,12 @@ import { TALENT_TUNING as T } from '../content/talent-tuning';
 import { STEP } from './rules';
 import { emitEffect } from './events';
 import type { DamageSource, DamageSchool } from './events';
+import { applyControl } from './control';
 import { addSpark } from './effects';
 
 export function updateStatuses(run: Run): void {
   for (const enemy of run.enemies) {
+    enemy.controlGuard = Math.max(0, enemy.controlGuard - STEP);
     enemy.holyMark = Math.max(0, enemy.holyMark - STEP);
     enemy.frost = Math.max(0, enemy.frost - STEP);
     enemy.stun = Math.max(0, enemy.stun - STEP);
@@ -31,7 +33,7 @@ export function consumeFrost(run: Run, enemy: Enemy, source: DamageSource, schoo
   const frostbreak = run.talents.includes('frostbreak');
   if (!frostbreak && !run.talents.includes('shatterglass')) return 0;
   enemy.frost = 0;
-  if (frostbreak) enemy.stun = Math.max(enemy.stun, T.frostbreakStun);
+  if (frostbreak) applyControl(enemy, 'stun', T.frostbreakStun);
   addSpark(run, enemy, 'frost', T.shatterRange);
   emitEffect(run.effects, { type: 'frost-consumed', targetId: enemy.id, amount: 0, position: { x: enemy.x, y: enemy.y } });
   return frostbreak ? T.frostbreakDamage : 0;

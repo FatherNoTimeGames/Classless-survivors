@@ -8,7 +8,7 @@ import { interruptAttack } from './enemies';
 /** Release only after player offense: killed/stunned casters cannot finish a warning. */
 export function releaseEnemyAttacks(run: Run): void {
   for (const enemy of run.enemies) {
-    if (enemy.health <= 0 || enemy.grace > 0) continue;
+    if (enemy.boss || enemy.health <= 0 || enemy.grace > 0) continue;
     if (enemy.stun > 0 || (enemy.kind === 'charger' && enemy.root > 0)) { interruptAttack(enemy); continue; }
     const attack = enemy.attack;
     if (attack.phase !== 'windup' || attack.remaining > 0) continue;

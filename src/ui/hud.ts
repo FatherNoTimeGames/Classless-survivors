@@ -1,3 +1,4 @@
+import { createBossHud } from './boss-hud';
 import { waveAt, WAVES } from '../content/waves';
 import { PROGRESSION_RULES, UPGRADES } from '../content/upgrades';
 import type { Run } from '../game/state';
@@ -8,6 +9,7 @@ import { talentById } from '../content/talents';
 
 /** HUD presentation reads state; it never awards XP or applies upgrades. */
 export function createHud() {
+  const bosses = createBossHud();
   const health = element<HTMLProgressElement>('#health');
   const healthText = element('#health-text');
   const xp = element('#run-xp');
@@ -23,6 +25,7 @@ export function createHud() {
 
   return {
     update(run: Run): void {
+      bosses.update(run);
       const wave = waveAt(run.elapsed);
       setText(element('#wave-label'), `Wave ${WAVES.indexOf(wave) + 1} · ${wave.name}`);
       setText(element('#enemy-count'), `${run.enemies.length} foes · ${run.enemies.filter((enemy) => enemy.elite !== 'none').length} elites`);

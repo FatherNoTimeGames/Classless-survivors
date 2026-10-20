@@ -14,7 +14,7 @@ export function moveEnemies(enemies: Enemy[], player: Point): void {
     enemy.previous = { x: enemy.x, y: enemy.y };
     enemy.chargedThisTick = false;
     enemy.grace = Math.max(0, enemy.grace - STEP);
-    if (enemy.health <= 0 || enemy.grace > 0 || enemy.stun > 0 || enemy.root > 0) continue;
+    if (enemy.boss || enemy.health <= 0 || enemy.grace > 0 || enemy.stun > 0 || enemy.root > 0) continue;
     if (enemy.attack.phase === 'windup' || enemy.attack.phase === 'recover') continue;
     if (enemy.attack.phase === 'dash') {
       enemy.chargedThisTick = true;

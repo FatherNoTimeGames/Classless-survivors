@@ -1,3 +1,6 @@
+import { updateEncounterSchedule, resolveBossDefeat, updateBossIntent } from './bosses';
+import { updateBossDangers } from './boss-dangers';
+import { checkDawn } from './run-ending';
 import { updateDamageOverTime } from './damage-over-time';
 import { updateSnares } from './snares';
 import { updateCompanions } from './companions';
@@ -27,10 +30,13 @@ export function tickRun(run: Run, input: Point): void {
   updateSparks(run);
   updateDamageOverTime(run);
   resolveTalentEffects(run);
+  resolveBossDefeat(run);
+  updateEncounterSchedule(run);
   movePlayer(run.player, input, stats.moveSpeed);
   updateSpawns(run);
   updateSnares(run);
   updateEnemies(run);
+  updateBossIntent(run);
   updateAttacks(run, stats);
   updateProjectiles(run);
   resolveTalentEffects(run);
@@ -38,9 +44,13 @@ export function tickRun(run: Run, input: Point): void {
   resolveTalentEffects(run);
   updateCompanions(run);
   resolveTalentEffects(run);
+  resolveBossDefeat(run);
+  resolveTalentEffects(run);
+  if (checkDawn(run)) return;
   updatePickups(run, stats.magnetRadius);
   // A level reward pauses the world before another enemy contact can occur.
   if (run.status === 'running') {
+    updateBossDangers(run);
     releaseEnemyAttacks(run);
     updateEnemyAttacks(run);
     applyContactDamage(run);

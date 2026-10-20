@@ -1,3 +1,6 @@
+import type { BossId } from '../content/bosses';
+import { createCampaign } from './campaign-state';
+import type { CampaignState } from './campaign-state';
 import type { EnemyKind, EliteKind } from '../content/enemies';
 import { createCompanions } from './companion-state';
 import type { CompanionKind } from '../content/companions';
@@ -21,6 +24,7 @@ export interface Player extends Point {
 }
 export interface Enemy extends Point {
   id: number; health: number; maxHealth: number; grace: number;
+  boss: BossId | null; radius: number; controlGuard: number;
   kind: EnemyKind; elite: EliteKind; speed: number; contactDamage: number; rewardXp: number;
   previous: Point; chargedThisTick: boolean;
   attack: { phase: 'idle' | 'windup' | 'dash' | 'recover'; remaining: number; aim: Point; direction: Point };
@@ -48,7 +52,9 @@ export interface Progression {
   randomState: number;
 }
 export interface Run {
-  status: 'running' | 'choosing' | 'defeated';
+  status: 'running' | 'choosing' | 'defeated' | 'victory';
+  finishReason: 'slain' | 'timeout' | 'dawn' | null;
+  campaign: CampaignState;
   elapsed: number;
   kills: number;
   xp: number;
@@ -77,7 +83,7 @@ export function createRun(seed: number, talents: readonly TalentId[] = [], budge
   const validation = validateBuild(talents, budget);
   if (!validation.valid) throw new Error(`Invalid talent build: ${validation.errors.join(' ')}`);
   return {
-    status: 'running', elapsed: 0, kills: 0, xp: 0,
+    status: 'running', finishReason: null, campaign: createCampaign(), elapsed: 0, kills: 0, xp: 0,
     talents: [...talents], effects: createEffectQueue(),
     talentMemory: { arcaneHits: 0, communionKills: 0, cinderKills: 0, huntingCharge: false, physicalHits: 0, spellsteelIn: 0, chainHits: 0, spellHits: 0, ironWardIn: 0, riftIn: 0, criticalHits: 0, snareHits: 0, wildHuntIn: 0, sanctuaryIn: 0, dawnIn: 0 },
     progression: {

@@ -2,44 +2,50 @@
 
 ## Current state
 
-- Completed: tasks 0–9, the modular refactor (2a), and the synergy pass (7a).
+- Completed: tasks 0–10, modular refactor 2a, and synergy pass 7a.
 - Playable: keyboard/touch movement, automatic combat, health, XP, seven run
-  upgrades, five enemy types, elites, escalating waves, pause/resume, defeat,
-  persistent rewards, free respec, saved builds, and replay.
-- Task 9: Grave Husks pursue; Gloom Skitters rush; Bone Archers hold range and
-  shoot; Horned Brutes warn before straight charges; Mire Hexers warn before
-  blight pools. Swift/stout elites have crown/frame/chevron cues, scaled stats,
-  and 3× XP. Nine authored threat stages introduce and mix these enemies.
-- Minimum spawn distance and grace remain. Locked warnings, four simultaneous
-  windups, 24 hostile arrows, six spaced blight pools, and 80 enemies bound threat
-  density. Stuns interrupt attacks; roots stop movement and interrupt charges,
-  while rooted spellcasters can cast. Released attacks persist after caster death.
-- Enemy construction, movement, intent, release/impact, tuning, and rendering have
-  focused modules. A transient grid narrows friendly projectile/blast queries.
-  All damage still uses shared shields, health-loss talents, and invulnerability.
-- All 36 talents function across six freely mixed branches. Thirty start unlocked;
-  research unlocks the six capstones. Original icons, prerequisites, tooltips,
-  cascading refunds, and inexpensive readable procedural effects remain.
-- Permanent progression starts with 8 points and 2 insight. Finish 2 and 5 runs
-  for points 9 and 10. Capstones cost 1 insight. Even instant defeats earn insight
-  while research credits remain; survival adds bonuses. There are no permanent
-  combat-stat purchases. Respecs retain research and cost nothing.
-- Three named build slots preserve snapshots; draft edits/research autosave.
-  Version-2 local saves validate bounds, prerequisites, research, and budgets.
-  Early version-1 saves migrate; damaged builds can be repaired independently.
-  Damaged core data falls back to the previous save; newer formats are preserved.
-- Backups support JSON download/copy and reviewed file/text restoration. Invalid
-  imports retain current state. Storage failures leave in-memory play/export
-  available with a notice. Progress is local to the browser and site origin.
-- A saved run identity is consumed with its reward in one profile write. Repeated
-  claims and stale identities are rejected. Reloads discard unfinished combat
-  without a reward and retain completed progress/builds.
-- Permanent rules, codec, injected storage, browser adapter, and profile UI remain
-  separate from simulation. Runs receive a talent snapshot and earned budget.
-- Haste, projectile upgrades, and refunds share inheritance rules. Delayed bolts
-  retain proc ancestry; companion blasts retain ownership. Spellsteel has a 0.25s
-  volley limit and retains charged hits when targets/space are unavailable.
-  See [SYNERGY_AUDIT.md](SYNERGY_AUDIT.md) for the earlier review and exclusions.
+  upgrades, five enemy types, elites, escalating waves, three guardians, pause,
+  victory/defeat, persistent rewards, free respec, saved builds, and replay.
+- Task 10 adds a complete **15-minute campaign**. Guardians arrive at 4:00,
+  9:00, and 14:00. Victory requires defeating all three and surviving until
+  15:00. Health loss ends a run immediately; remaining guardians at dawn cause
+  a deadline defeat. Pauses and level choices stop the run clock.
+- Ossuary Knight warns before forward sweeps/long cleaves; Veil Matron alternates
+  fan bolts and rings with safe centers; Night Sovereign marks crossed lanes,
+  pools, and radial volleys. Locked geometry, dashed/solid outlines, silhouettes,
+  a guardian health/advice panel, and a dawn countdown communicate each mechanic.
+  Recovery shortens below half health; warnings keep their duration.
+- Arrivals banish old threats without free kill credit and use safe positioning
+  with 1.5s grace. Encounters suppress ordinary waves and introduce up to six
+  husk/skitter reinforcements, preserving kill/healing/DoT/multi-target triggers.
+  Guardian defeat drops XP, clears encounter threats, restores 25% max health
+  through shared healing, and grants a five-second respite before waves resume.
+- Bosses retain shared damage, crits, marks, DoTs, companion ownership, Frost,
+  slows, shields, and retaliation. Resolve resists additional stuns/roots for
+  three seconds after a successful hard control. Frost-consumption damage and
+  Frost Trap's Frost still work during Resolve; descriptions explain this.
+- Both endings freeze combat and pending choices, show results/final builds,
+  save their one-time profile reward, and offer replay or build planning. A
+  final-tick friendly guardian kill resolves before hostile impacts. Existing
+  defeated runs cannot become victories. Result panels scroll on small screens.
+- Guardian tuning/state, scheduling/AI, warning patterns, danger geometry/impact,
+  completion rules, hard control, artwork, HUD, and results have focused modules.
+  run.ts remains the coordinator; simulation has no browser dependencies.
+- All 36 talents function across six freely mixed branches. Thirty start
+  unlocked; research unlocks six capstones. Visual prerequisites, tooltips,
+  cascading refunds, original icons, and free between-run respecs remain.
+- Permanent progression starts at 8 points/2 insight; runs 2/5 grant points 9/10.
+  Research costs 1 insight per capstone. Even instant losses earn research credit
+  while needed; survival/victory add bounded bonuses. No permanent stat purchases.
+- Three named build slots, autosaved drafts/research, validated version-2 saves,
+  version-1 migration, previous-save recovery, storage-failure notices, and
+  reviewed JSON backup import/export remain. Durable run identities prevent
+  repeat/stale reward claims. Reloads discard unfinished combat without reward.
+- Five normal behaviors and swift/stout elites remain. Safe edge spawns, fixed
+  warnings, four ordinary windups, 24 hostile bolts, six blight pools, eight
+  guardian dangers, 80 enemies, spatial queries, and bounded talent effects limit
+  pressure and entity counts. Shared haste/projectile/proc-ancestry rules remain;
+  see SYNERGY_AUDIT.md for inheritance and exclusions.
 
 ## Standing requirements
 
@@ -47,81 +53,84 @@
   pause until **continue**. Make ordinary design decisions independently.
 - Keep focused modules, typed boundaries, and explicit state ownership. Simulation
   stays browser-independent; run.ts coordinates systems. See AGENTS.md and README.md.
-  Avoid unnecessary frameworks and runtime dependencies.
 - Prefer open talent triggers, explicit companion inheritance, and bounded effects.
-  Descriptions must match behavior. See AGENTS.md.
+  Descriptions must match behavior. No unnecessary frameworks or runtime dependencies.
 - Use inexpensive original art: Canvas shapes, vectors, or limited-palette pixels.
   Reuse readable assets. Follow DEVELOPMENT_PLAN.md for the complete checklist.
 
 ## Next task
 
-**Task 10: Complete the timed run and boss encounters.**
+**Task 11: Deepen temporary upgrades and hybrid builds.**
 
-Wait for **continue**. Add three bosses with distinct telegraphed positioning
-mechanics across the 15-minute run, including the final encounter. Integrate
-boss pacing with existing waves, safe spawns, statuses, and capped hazards.
-Add victory, result summaries, rewards, and return to build planning for either
-outcome. The profile reward boundary already accepts victory; combat snapshots
-remain session-only. Keep boss/content/phase logic modular, test transitions and
-rewards, exercise bosses in the browser, document, commit, and pause. Expanded
-upgrades and full-run balancing remain tasks 11 and 15.
+Wait for **continue**. Expand useful run upgrades across all ability families and
+add temporary cross-branch synergies. Include readable ability/build summaries
+and sensible fallback offers. Preserve narrow/mixed builds, shared inheritance,
+and bounded proc rules. Test retaliation, frost/melee, critical/DoT, healing/offense,
+and summons against ordinary waves and bosses. Address the initial seven-upgrade,
+level-20 pool exhausting early in full runs. Broader full-run balancing remains
+task 15. Validate, document, commit, and pause; do not begin task 12 automatically.
 
 ## Latest validation
 
-- `npm test`: **538 unit tests passed**, including 33 enemy/spatial cases. New
-  checks cover range behavior, fixed aim, warnings, charge collision/scaling/root
-  interruption, blight lifetimes, spawn grace, corner escapes, wave introductions,
-  elite status/XP, pause/reset, and entity/effect bounds.
-- Three legal seeded hybrids (Priest/Warrior, Warlock/Priest, Mage/Priest) survive
-  three minutes, gather XP, encounter every enemy and both elites, and trigger
-  every warning family with no dropped secondary effects. Dense 80-enemy combat
-  remains deterministic with reversed talent allocation order.
+- `npm test`: **564 unit tests passed** across 15 files, including 26 campaign/
+  guardian cases. Checks cover schedules, safe arrivals/corners, warning geometry
+  and dodges (including released bolts), Resolve, retained Frost, roots/casts,
+  interrupts, enlarged collision, shields/retaliation, DoT/companion kills, adds,
+  caps, healing breaks, pause/reset, deadline ordering, frozen outcomes, and
+  exactly-once profile rewards. Existing talent/progression/save checks pass.
+- Two legal seeded eight-point Mage/Priest hybrids complete all **900 seconds**,
+  encounter/defeat all three guardians, gather XP, and earn their upgrades from
+  real ticks. No injected health, damage, ranks, kills, or clock jumps; no dropped
+  effects. This demonstrates those builds' winnability, not comprehensive balance.
 - `npm run build`: TypeScript and production build passed. Output: approximately
-  88.01 kB JavaScript (29.15 kB gzip), 10.24 kB CSS, and 9.03 kB HTML.
-- Full `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:browser`:
-  **41 cases passed** across desktop, tablet, and Android portrait emulation.
-  After the final elite charge/root correction, all **3 enemy-browser cases
-  passed again** against the rebuilt app. No final failed or skipped cases.
-- The enemy browser journey uses a legal mixed build and real upgrade choices;
-  it observes all five silhouettes, every warning family, active arrows/blight,
-  elite crowns, and paused combat. Existing talent, save/recovery, leveling,
-  keyboard/touch, defeat, and reward journeys remain passing.
-- The old idle defeat test assumed XP would approach a stationary player. Ranged
-  foes keep their distance; the test now collects visible shards before checking
-  defeat/rewards/restart. It retains its XP and persistence assertions.
-- Reviewed desktop and phone mixed-wave screenshots: warnings, silhouettes, elite
-  cues, player position, health, and wave text remain readable without horizontal
-  overflow. Physical hardware and other browser engines remain unverified.
-- One Node 24 sample held 80 mixed elites at high HP with maximum projectile
-  upgrades for 600 ticks/sample (2 warmups, 5 measured samples). Median sample-
-  average cost: **0.040 ms/tick**, range **0.035–0.046 ms/tick**. All 80 remained;
-  peak hostile arrows/pools were 7/2; no effects dropped. This excludes rendering
-  and does not establish mobile or full-run performance.
-- Inspected 72 TypeScript source modules: no runtime import cycles. No new
-  dependencies, external assets, accounts, paid services, or backend needs.
-  Runtime: Node 24.19.0, npm 11.9.0, Chromium 154. Tests manage their preview server.
+  **98.68 kB JS (32.85 kB gzip), 10.92 kB CSS, 10.40 kB HTML**. Final test edits
+  also pass `npm run typecheck` and `git diff --check`.
+- Full Chromium regression run: **43 passed, 1 tablet touch fixture failed**.
+  Pointer tracing identified a full-page screenshot resizing the taller page
+  mid-drag, intentionally clearing capture through the existing resize handler.
+  The fixture now captures the viewport during that gesture. Both affected touch
+  cases then passed (**2/2**, tablet and Android portrait). Across these checks,
+  all **44 distinct browser cases** have passing results; none remain unresolved.
+- Full guardian journeys passed on desktop, tablet, and portrait-phone emulation:
+  allocate/research a mixed build, choose real upgrades, see all guardian art and
+  warning/active danger drawing, pause a boss, win, save rewards, inspect results,
+  respec, reload, and start fresh without duplicated rewards. Only RAF timestamps
+  are accelerated (12×); the pilot sends keys using visible HUD time. This is
+  functional validation, not a real-time or device-performance benchmark.
+- Reviewed desktop/tablet/phone guardian/result screenshots. Health/advice,
+  silhouettes, lane warnings, and result actions are readable without horizontal
+  overflow. Active touch tests retain second-finger, release/cancel, and no-scroll
+  assertions. Physical hardware and other browser engines remain unverified.
+- Inspected **82 TypeScript source modules: no runtime import cycles**. No new
+  dependencies, external assets, accounts, paid services, or backend requirements.
+  Existing Node 24.19.0/npm 11.9.0/Chromium 154 setup works; no setup changes needed.
 
 ## Remaining work and limits
 
-- Tasks 10–17: bosses/victory; expanded temporary hybrid upgrades; presentation/
-  audio; device polish; offline/PWA; full-run balance/performance; release checks.
-- No timed ending or bosses yet. Enemy variety and initial wave pacing are
-  complete; full-length balance, performance, and boss integration remain.
-- Combat runs are not restored after closure/reload. Clearing site data or changing
+- Tasks 11–17: expanded temporary hybrid upgrades; presentation/audio; device
+  polish; offline/PWA; full-run balance/performance; regressions and delivery.
+- Initial upgrades can reach level 20 before the first guardian. Task 11 must
+  improve temporary variety/pacing. Full-run balance across other archetypes is
+  not established; simple scripted Priest/Warrior and Warlock/Priest routes lost
+  in mid-run waves. Broader build viability remains tasks 11 and 15.
+- Task 9's bounded 80-enemy Node microbenchmark excludes rendering; no new hardware
+  or full-run performance claim is made. Visible XP/effect density needs the
+  planned presentation and performance passes.
+- Combat runs are not restored after closure/reload. Clearing data or changing
   browser/device/origin needs an exported backup. Failed writes require exporting
   in-memory progress. Scenery remains decorative; boundaries are solid.
 - No offline installation or configured deployment yet. Android/tablet hardware
-  and other browser engines are unverified; emulation does not prove hardware speed.
-- No current setup blockers or known failing checks.
+  and other browser engines remain unverified. No unresolved failing checks or
+  setup blockers remain after the touch-fixture correction.
 
 ## Milestone history
 
 - Task 0: `90daca7`; task 1: `8332fcb`; task 2: `50cee85`.
 - Modularity/art requirements: `93558f1`; refactor 2a: `851082a`.
-- Task 3: leveling/run upgrades, `c10a1b7`.
-- Task 4: classless framework/tree, `4462fd4`.
+- Task 3: leveling/run upgrades, `c10a1b7`; task 4: tree/framework, `4462fd4`.
 - Task 5: Warrior/Mage, `d9eb89a`; task 6: Rogue/Hunter, `c2c7237`.
 - Task 7: Priest/Warlock and 36 functioning talents, `b20621d`.
-- Task 7a: synergy audit, `69b8928`; task 8: persistent progression/builds, `5af9114`.
-- Task 9: enemy variety, elites, waves, warnings, spatial queries, and regressions
+- Task 7a: synergy audit, `69b8928`; task 8: persistent progression, `5af9114`.
+- Task 9: enemy variety, elites, waves, and spatial queries, `19e3dce`.
+- Task 10: timed campaign, guardians, victory/results, and progression loop
   (this milestone).

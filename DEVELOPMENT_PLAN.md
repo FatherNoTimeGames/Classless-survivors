@@ -159,12 +159,18 @@ these requirements. No subscription-usage or completion-time estimates are impli
   projectile sweeps/blasts. Checks cover spawn/corner safety, dense mixed waves,
   three-minute hybrids, browser warnings, and existing progression/save journeys.
 
-- [ ] **10. Complete the timed run and boss encounters.**
+- [x] **10. Complete the timed run and boss encounters.**
   Add three bosses with distinct, telegraphed positioning mechanics across the
   15-minute run, including a final encounter. Implement victory, defeat, pause,
   result summaries, rewards, and return to build planning.
   Done when winning and losing both complete the progression loop, boss transitions
   and rewards are tested, and boss mechanics are exercised in the browser.
+  Delivered a 15-minute campaign with guardians at 4/9/14 minutes, fixed warnings,
+  positioning mechanics, controlled reinforcements, shared talent/status rules,
+  bounded hard control, healing breaks, deadline defeat/victory, final builds,
+  rewards, free respec, and replay. Two earned-upgrade hybrid simulations win;
+  full win/save/respec/reload/replay journeys pass on all three browser viewports.
+  Full build balance and the early-exhausting upgrade pool remain tasks 11/15.
 
 - [ ] **11. Deepen temporary upgrades and hybrid builds.**
   Expand run upgrades to support all ability families and add temporary cross-branch

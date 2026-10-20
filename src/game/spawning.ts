@@ -6,7 +6,7 @@ import { createEnemy } from './enemy-state';
 import { waveAt, WAVE_RULES } from '../content/waves';
 import type { EnemyKind, EliteKind } from '../content/enemies';
 
-function spawnEnemy(run: Run): void {
+export function safeSpawnPoint(run: Run): Point {
   let position: Point = { x: RULES.spawnInset, y: RULES.spawnInset };
   for (let attempt = 0; attempt < RULES.spawnAttempts; attempt++) {
     const edge = Math.floor(random(run) * 4);
@@ -28,6 +28,11 @@ function spawnEnemy(run: Run): void {
       };
     }
   }
+  return position;
+}
+
+function spawnEnemy(run: Run): void {
+  const position = safeSpawnPoint(run);
   const wave = waveAt(run.elapsed);
   let kind: EnemyKind = wave.pool[0]![0];
   if (wave.pool.length > 1) {
@@ -41,6 +46,7 @@ function spawnEnemy(run: Run): void {
 }
 
 export function updateSpawns(run: Run): void {
+  if (run.campaign.active || run.elapsed < run.campaign.breakUntil) return;
   run.spawnIn -= STEP;
   if (run.spawnIn <= 0) {
     if (run.enemies.length < RULES.maxEnemies) spawnEnemy(run);

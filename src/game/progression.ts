@@ -53,7 +53,7 @@ function prepareChoice(run: Run): void {
 }
 
 export function awardXp(run: Run, amount: number): void {
-  if (run.status === 'defeated' || !Number.isFinite(amount) || amount < 1) return;
+  if ((run.status === 'defeated' || run.status === 'victory') || !Number.isFinite(amount) || amount < 1) return;
   const xp = Math.floor(amount);
   run.xp += xp;
   const progress = run.progression;

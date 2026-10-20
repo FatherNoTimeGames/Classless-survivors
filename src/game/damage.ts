@@ -1,4 +1,5 @@
 import type { Enemy, Run } from './state';
+import { completeRun } from './run-ending';
 import { addSpark } from './effects';
 import { dropShard } from './pickups';
 import { RULES } from './rules';
@@ -12,7 +13,7 @@ import { consumeHolyMark } from './marks';
 
 /** Shared damage boundary: deaths and XP drops are credited exactly once. */
 export function damageEnemy(run: Run, enemy: Enemy, amount: number, options: { source?: DamageSource; school?: DamageSchool } = {}): void {
-  if (enemy.health <= 0 || !Number.isFinite(amount) || amount <= 0) return;
+  if (run.status === 'victory' || run.status === 'defeated' || enemy.health <= 0 || !Number.isFinite(amount) || amount <= 0) return;
   const source = options.source ?? 'ember';
   const school = options.school ?? 'fire';
   // Physical effects may consume Frost before post-hit handlers inspect the victim.
@@ -38,5 +39,5 @@ export function damagePlayer(run: Run, amount: number): void {
   run.player.invulnerable = RULES.invulnerability;
   addSpark(run, run.player, 'hurt');
   if (actual > 0) emitEffect(run.effects, { type: 'hurt', amount: actual, position: { x: run.player.x, y: run.player.y } });
-  if (run.player.health === 0) run.status = 'defeated';
+  if (run.player.health === 0) completeRun(run, 'defeated', 'slain');
 }

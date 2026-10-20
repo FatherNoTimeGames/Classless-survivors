@@ -208,7 +208,9 @@ describe('waves, spawning, and lifetime limits', () => {
 
   it('never attacks during spawn grace or rewrites existing foes on wave changes', () => {
     const { run, foe } = caster('archer'); foe.grace = 0.6;
-    const oldHealth = foe.health; run.elapsed = 600; advance(run, 0.3);
+    const oldHealth = foe.health; run.elapsed = 600;
+    // Isolate wave snapshots: this fixture has already cleared the guardians.
+    run.campaign.nextBoss = 3; advance(run, 0.3);
     expect(foe.x).toBe(100); expect(foe.attack.phase).toBe('idle'); expect(run.enemyBolts).toHaveLength(0);
     expect(foe.health).toBe(oldHealth);
     run.spawnIn = 0; updateSpawns(run); expect(run.enemies[1]!.maxHealth).toBeGreaterThan(ENEMIES[run.enemies[1]!.kind].health);
