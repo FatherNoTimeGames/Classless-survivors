@@ -82,8 +82,10 @@ export const PROGRESSION_RULES = {
   rarityWeights: { common: 6, uncommon: 3, rare: 1 } satisfies Record<Rarity, number>,
 } as const;
 
+const MAX_RANKS = Object.freeze(Object.fromEntries(UPGRADES.map((upgrade) => [upgrade.id, upgrade.maxRank])) as Record<UpgradeId, number>);
+
 /** Clamp run-only rank reads at one boundary, including imported test fixtures. */
 export function upgradeRank(ranks: UpgradeRanks, id: UpgradeId): number {
   const value = ranks[id] ?? 0;
-  return Number.isFinite(value) ? Math.max(0, Math.min(UPGRADES.find((entry) => entry.id === id)!.maxRank, Math.floor(value))) : 0;
+  return Number.isFinite(value) ? Math.max(0, Math.min(MAX_RANKS[id], Math.floor(value))) : 0;
 }

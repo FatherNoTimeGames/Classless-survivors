@@ -34,9 +34,12 @@ export const TALENT_IMPLEMENTATIONS: Partial<Record<TalentId, readonly EffectHan
 
 export function resolveTalentEffects(run: Run): void {
   if ((run.status === 'defeated' || run.status === 'victory')) { run.effects.pending = []; return; }
-  // Catalog order makes interactions independent of the order points were allocated.
-  const handlers = TALENTS.filter((talent) => run.talents.includes(talent.id))
-    .flatMap((talent) => TALENT_IMPLEMENTATIONS[talent.id] ?? []);
-  drainEffects(run.effects, run, [...handlers, ...activeUpgradeEffects(run)]);
-  run.enemies = run.enemies.filter((enemy) => enemy.health > 0);
+  if (run.effects.pending.length) {
+    // Catalog order makes interactions independent of the order points were allocated.
+    // Build only when there is work; ranks/builds remain live, without stale caches.
+    const handlers = TALENTS.filter((talent) => run.talents.includes(talent.id))
+      .flatMap((talent) => TALENT_IMPLEMENTATIONS[talent.id] ?? []);
+    drainEffects(run.effects, run, [...handlers, ...activeUpgradeEffects(run)]);
+  }
+  if (run.enemies.some((enemy) => enemy.health <= 0)) run.enemies = run.enemies.filter((enemy) => enemy.health > 0);
 }

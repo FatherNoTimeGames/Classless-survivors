@@ -30,9 +30,14 @@ function rollOffers(run: Run): UpgradeId[] {
   let pool = eligibleUpgrades(choiceLevel(run), run.progression.ranks, run.talents);
   const offers: UpgradeId[] = [];
   while (pool.length && offers.length < PROGRESSION_RULES.offerCount) {
-    // Always include one weapon option when one is eligible, then draw freely.
+    // Offer a damage path and a survival path when possible, then draw freely.
+    // This keeps healing/shields available to builds from any talent branch.
     const weapons = pool.filter((upgrade) => upgrade.category === 'weapon');
-    const candidates = offers.length === 0 && weapons.length ? weapons : pool;
+    const survival = pool.filter((upgrade) => upgrade.category === 'survival');
+    const needsSurvival = offers.length === PROGRESSION_RULES.offerCount - 1
+      && !offers.some((id) => UPGRADES.find((upgrade) => upgrade.id === id)!.category === 'survival');
+    const candidates = offers.length === 0 && weapons.length ? weapons
+      : needsSurvival && survival.length ? survival : pool;
     let roll = random(run.progression) * candidates.reduce((sum, upgrade) => sum + PROGRESSION_RULES.rarityWeights[upgrade.rarity], 0);
     let selected = candidates[candidates.length - 1]!;
     for (const candidate of candidates) {

@@ -232,13 +232,22 @@ these requirements. No subscription-usage or completion-time estimates are impli
   installation/update/hosting instructions and physical-device/OS limits are
   documented. Publication remains task 17; balance/performance remains task 15.
 
-- [ ] **15. Balance builds and optimize full runs.**
+- [x] **15. Balance builds and optimize full runs.**
   Playtest full-length runs and use repeatable simulation checks to tune difficulty,
   rewards, upgrade offers, and representative hybrids. Profile dense waves and
   optimize measured bottlenecks; bound particles, projectiles, and chained effects.
   Done when early progression is fair, several hybrids can complete a run, and
   measured performance is documented with workload and test-environment limits.
   Do not claim Android hardware performance from desktop emulation alone.
+  Delivered nine-build/three-seed fixed and health-aware routes, including three
+  unresearched builds without Priest talents. Survival offers, opening density,
+  guardian health and the final fight window are tuned. Profiled idle dispatch,
+  rank/stat metadata, pickup and empty-projectile work is reduced: matched full
+  campaigns take about 47% less simulation wall time with identical recorded
+  non-timing outcomes. Independent saturated Node/production-mode Canvas tools,
+  loss results, proc-cap behavior and environment limits are in BALANCE_REPORT.md.
+  All 1,114 unit tests, the production build and all 88 browser cases pass,
+  including offline full campaigns. Final guardian arrival is now 13:30.
 
 - [ ] **16. Complete regression testing and fix release blockers.**
   Exercise all completion criteria: mixed build, combat, leveling, different enemies

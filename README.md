@@ -11,8 +11,8 @@ movement, automatic combat, XP, 20 run-upgrade choices, defeat, and replay. Loca
 saves, research, named builds, and backups now work. Five enemy types, two elite
 modifiers, escalating waves, and three telegraphed guardians form a timed
 15-minute run with victory, defeat, rewards, and return to build planning. Production
-builds now support offline play and optional home-screen installation. Difficulty,
-performance tuning and final release validation remain upcoming.
+builds support offline play and optional home-screen installation. The first balance
+and measured performance pass is complete; final release validation and delivery remain.
 See [the task list](DEVELOPMENT_PLAN.md) and [progress log](PROGRESS.md).
 
 ## Play this milestone
@@ -140,8 +140,8 @@ run upgrade. Tap/click a card, or use Tab and Enter/Space. Escape cannot dismiss
 level reward. If several levels are earned at once, choose once for each reward;
 excess XP carries over. Held movement input is cleared before play resumes.
 
-Each offer contains up to three distinct upgrades, with at least one weapon
-option when available. Common upgrades appear from level 2, uncommon from level 3,
+Each offer contains up to three distinct upgrades, including a weapon and a survival
+option whenever eligible options from both categories remain. Common upgrades appear from level 2, uncommon from level 3,
 and rare from level 4. Common offers have greater selection weight. Maxed upgrades
 stop appearing. **Level 40** bounds the run budget. Thresholds remain familiar
 through level 20, then add `2 × (level − 20)²` XP to the base cost. This keeps choices
@@ -335,7 +335,8 @@ At most four enemies wind up special attacks together. Blight casts avoid nearby
 active/pending pools, and both hostile projectile and pool counts are bounded.
 The arena remains capped at 80 enemies. These limits protect warning readability
 and responsive play. Guardian encounters temporarily replace normal waves.
-Broader upgrade content and balance across the full range of builds remain later tasks.
+Temporary upgrades support every attack family; measured balance routes are documented
+in [the balance and performance report](BALANCE_REPORT.md).
 
 ## Guardians and dawn
 
@@ -343,13 +344,15 @@ Broader upgrade content and balance across the full range of builds remain later
 | --- | --- | --- |
 | 4:00 | Ossuary Knight | Escape its forward sweep; sidestep its long cleave |
 | 9:00 | Veil Matron | Weave between fan bolts; stand inside or outside the warned ring |
-| 14:00 | Night Sovereign | Leave crossed lanes diagonally; avoid marked pools and radial bolts |
+| 13:30 | Night Sovereign | Leave crossed lanes diagonally; avoid marked pools and radial bolts |
 
 Dashed gold outlines warn before an attack, then solid bright outlines mark active
 areas. Aim is locked when a warning appears. Rings mark their safe center with a
 check; pools carry a cross. Boss bodies have larger silhouettes and hitboxes. The
 HUD shows guardian health, positioning advice, progress, and time remaining until
 dawn. Below half health, guardian recovery is 20% shorter; warning times stay unchanged.
+The final guardian leaves a 90-second window before dawn. Close distance when using
+melee; constantly running away reduces its damage opportunities.
 
 Arrival banishes normal enemies and released hostile attacks without free kill
 credit, and gives the guardian 1.5 seconds of grace at a safe distance. Dropped XP,
@@ -485,6 +488,9 @@ PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:browser
 After browser setup, `npm run check` runs unit tests, type checking, production
 build, and production browser tests. Set the same executable-path variable for
 that command when using a system browser. `npm run test:watch` watches unit tests.
+Repeatable full-run, CPU-profile and production-mode Canvas benchmarks are described
+in [BALANCE_REPORT.md](BALANCE_REPORT.md). Their separate development harness never
+ships in the game or offline cache.
 
 Browser checks launch their own production preview server on port 4173 and fail
 if that port is already occupied. They verify real canvas pixels, local asset
@@ -767,8 +773,10 @@ depth limit, 512-event queue/tick limits, and handler-ancestry suppression, reta
 apply to secondary triggers; primary damage and death drops are applied directly.
 `run.effects.dropped` and `suppressed` provide diagnostics for debugging chains.
 The queue stores data only, so run state stays cloneable and contains no callbacks.
-The finite event budget accommodates simultaneous ticks on 80 foes with both DoTs
-and secondary reactions. Projectile collision and blast queries rebuild an ephemeral
+Ordinary seeded campaigns and the existing dense hybrid tests stay within this budget.
+A deliberately saturated fixture combining all upgrade ranks, 32 exploding bolts
+and simultaneous DoTs on 80 foes reaches it and drops secondary events; primary damage
+still resolves. See BALANCE_REPORT.md for the measured limits. Projectile collision and blast queries rebuild an ephemeral
 spatial grid after movement, then use swept narrow-phase collisions. The index
 never survives a tick or owns entities. Enemy attack state, projectiles, hazards,
 and elite stats are plain run-owned data; rendering only reads them. Enemy body
@@ -777,8 +785,9 @@ this is not a claim of physical Android performance.
 
 Simulation/progression stays separate from rendering and input. The background
 is cached, screen-density buffers are capped, and enemy/projectile/pickup/effect
-counts are bounded. These are basic safeguards; full-run optimization remains a
-later milestone. All current assets are original SVG or programmatic Canvas artwork;
+counts are bounded. Idle effect dispatch and empty projectile passes avoid unnecessary
+allocations; stat/handler metadata is prepared once while live ranks remain authoritative.
+All current assets are original SVG or programmatic Canvas artwork;
 fonts are local system fonts. All dependencies are development tools and use
 open-source licenses. There are no runtime package dependencies.
 

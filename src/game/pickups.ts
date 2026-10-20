@@ -19,12 +19,14 @@ export function updatePickups(run: Run, magnetRadius: number): void {
   const player = run.player;
   run.shards = run.shards.filter((shard) => {
     const gap = distance(shard, player);
-    if (gap <= magnetRadius && gap > RULES.pickupRadius) {
+    const moving = gap <= magnetRadius && gap > RULES.pickupRadius;
+    if (moving) {
       const travel = Math.min(gap, RULES.shardSpeed * STEP);
       shard.x += (player.x - shard.x) / gap * travel;
       shard.y += (player.y - shard.y) / gap * travel;
     }
-    if (distance(shard, player) <= RULES.pickupRadius) {
+    // A stationary shard has the same distance; most capped-world pickups are far away.
+    if ((moving ? distance(shard, player) : gap) <= RULES.pickupRadius) {
       awardXp(run, shard.value);
       emitEffect(run.effects, { type: 'pickup', amount: shard.value, position: { x: player.x, y: player.y } });
       addSpark(run, shard, 'pickup');

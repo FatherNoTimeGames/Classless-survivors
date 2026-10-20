@@ -16,5 +16,5 @@
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": ["src", "build", "tests", "e2e", "*.config.ts"]
+  "include": ["src", "build", "tests", "e2e", "analysis", "*.config.ts"]
 }

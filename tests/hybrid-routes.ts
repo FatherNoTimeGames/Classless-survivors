@@ -1,5 +1,6 @@
 import type { TalentId } from '../src/content/talents';
-export const RUN_ROUTES: {name:string;talents:TalentId[];priority:string[]}[]=[
+import type { UpgradeId } from '../src/content/upgrades';
+export const RUN_ROUTES: {name:string;talents:TalentId[];priority:UpgradeId[]}[]=[
 {name:'retaliation',talents:['reprisal','sweeping-blade','spellsteel','frostbreak','iron-ward','last-stand','communion','searing-grace'],priority:['riposte','longblade','icebrand','aegis','wellspring','benediction']},
 {name:'frost/melee',talents:['reprisal','sweeping-blade','frostbreak','arcane-echo','rime-sigil','shatterglass','communion','searing-grace'],priority:['longblade','icebrand','aegis','riposte','wellspring','benediction']},
 {name:'critical/DoT',talents:['expose-weakness','venom-edge','killer-instinct','siphon-toxin','contagion','nightfall','communion','searing-grace'],priority:['catalyst','precision','potency','venom','wellspring','aegis']},

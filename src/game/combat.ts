@@ -30,6 +30,10 @@ export function updateAttacks(run: Run, stats: RunStats): void {
 }
 
 export function updateProjectiles(run: Run): void {
+  if (!run.bolts.length) {
+    if (run.enemies.some((enemy) => enemy.health <= 0)) run.enemies = run.enemies.filter((enemy) => enemy.health > 0);
+    return;
+  }
   const index = spatialIndex(run.enemies);
   for (const bolt of run.bolts) {
     const end = { x: bolt.x + bolt.vx * STEP, y: bolt.y + bolt.vy * STEP };

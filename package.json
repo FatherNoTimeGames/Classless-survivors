@@ -17,6 +17,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:browser": "playwright test",
+    "analyze": "node analysis/run.mjs",
+    "analyze:browser": "node analysis/browser.mjs",
     "check": "npm run test && npm run build && npm run test:browser"
   },
   "devDependencies": {

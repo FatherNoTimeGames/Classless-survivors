@@ -54,7 +54,11 @@ const IMPLEMENTATIONS: Partial<Record<typeof UPGRADES[number]['id'], EffectHandl
   } },
 };
 
+// Preserve authored ordering while avoiding scans of upgrades with no event behavior.
+const EVENT_UPGRADES = UPGRADES.flatMap((upgrade) => {
+  const handler = IMPLEMENTATIONS[upgrade.id];
+  return handler ? [{ id: upgrade.id, handler }] : [];
+});
 export function activeUpgradeEffects(run: Run): EffectHandler<Run>[] {
-  return UPGRADES.filter((upgrade) => upgradeRank(run.progression.ranks, upgrade.id) > 0)
-    .flatMap((upgrade) => IMPLEMENTATIONS[upgrade.id] ? [IMPLEMENTATIONS[upgrade.id]!] : []);
+  return EVENT_UPGRADES.filter(({ id }) => upgradeRank(run.progression.ranks, id) > 0).map(({ handler }) => handler);
 }
