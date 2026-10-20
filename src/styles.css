@@ -197,3 +197,6 @@ button:disabled { opacity: 0.45; cursor: default; }
 #profile-message, #import-preview { overflow-wrap: anywhere; }
 #research-talent { margin-bottom: 12px; }
 #run-reward { font-size: 0.7rem; line-height: 1.4; }
+
+.wave-row { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; color: #d8c79e; font-size: 0.6rem; line-height: 1.5; margin-bottom: 7px; }
+#enemy-count { color: #a8b4a5; }

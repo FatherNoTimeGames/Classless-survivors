@@ -26,7 +26,7 @@ export function damageEnemy(run: Run, enemy: Enemy, amount: number, options: { s
   emitEffect(run.effects, { type: 'hit', ...payload });
   if (enemy.health <= 0) {
     run.kills++;
-    dropShard(run, enemy);
+    dropShard(run, enemy, enemy.rewardXp);
     emitEffect(run.effects, { type: 'kill', ...payload });
   }
 }

@@ -9,7 +9,7 @@ import { updateMelee } from '../src/game/melee';
 import { updateProjectiles, applyContactDamage } from '../src/game/combat';
 import { updateStatuses } from '../src/game/statuses';
 import { grantShield } from '../src/game/shields';
-import { moveEnemies } from '../src/game/movement';
+import { moveEnemies } from '../src/game/enemy-movement';
 import { tickRun } from '../src/game/run';
 import { RULES, STEP } from '../src/game/rules';
 import { advance, bolt, enemy, STILL } from './fixtures';

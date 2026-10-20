@@ -1,41 +1,5 @@
 import { expect, test } from '@playwright/test';
-import type { Locator, Page } from '@playwright/test';
-import { playerPosition, startGame } from './game-helpers';
-
-async function firstShard(canvas: Locator) {
-  return canvas.evaluate((node) => {
-    const surface = node as HTMLCanvasElement;
-    const data = surface.getContext('2d')!.getImageData(0, 0, surface.width, surface.height).data;
-    for (let index = 0; index < data.length; index += 4) {
-      if (data[index] === 116 && data[index + 1] === 203 && data[index + 2] === 170) {
-        return { x: (index / 4 % surface.width) / surface.width * 360,
-          y: Math.floor(index / 4 / surface.width) / surface.height * 480 };
-      }
-    }
-    return null;
-  });
-}
-
-/** Navigate to real rendered pickups; no injected XP or internal game state. */
-async function collectUntilChoice(page: Page, canvas: Locator): Promise<void> {
-  await canvas.focus();
-  for (let attempt = 0; attempt < 140; attempt++) {
-    if (await page.getByRole('dialog').isVisible()) return;
-    const shard = await firstShard(canvas);
-    const keys: string[] = [];
-    if (shard) {
-      const player = await playerPosition(canvas);
-      const dx = shard.x - player.x;
-      const dy = shard.y - (player.y + 8);
-      if (Math.abs(dx) > 6) keys.push(dx > 0 ? 'KeyD' : 'KeyA');
-      if (Math.abs(dy) > 6) keys.push(dy > 0 ? 'KeyS' : 'KeyW');
-    }
-    for (const key of keys) await page.keyboard.down(key);
-    await page.clock.runFor(250);
-    for (const key of keys) await page.keyboard.up(key);
-  }
-  throw new Error('Collecting actual pickups did not produce a level choice.');
-}
+import { collectUntilChoice, startGame } from './game-helpers';
 
 test('collect XP, freeze for a keyboard/touch choice, improve an ability, level again, and reset', async ({ page }, testInfo) => {
   test.setTimeout(60_000);

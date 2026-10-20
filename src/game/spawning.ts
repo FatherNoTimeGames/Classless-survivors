@@ -2,6 +2,9 @@ import { RULES, STEP, WORLD } from './rules';
 import type { Point, Run } from './state';
 import { distance } from './geometry';
 import { random } from './random';
+import { createEnemy } from './enemy-state';
+import { waveAt, WAVE_RULES } from '../content/waves';
+import type { EnemyKind, EliteKind } from '../content/enemies';
 
 function spawnEnemy(run: Run): void {
   let position: Point = { x: RULES.spawnInset, y: RULES.spawnInset };
@@ -25,14 +28,23 @@ function spawnEnemy(run: Run): void {
       };
     }
   }
-  run.enemies.push({ ...position, id: run.nextId++, health: RULES.enemyHealth, maxHealth: RULES.enemyHealth, grace: RULES.spawnGrace, holyMark: 0, frost: 0, stun: 0, root: 0, rootImmune: 0, snared: false, dots: [] });
+  const wave = waveAt(run.elapsed);
+  let kind: EnemyKind = wave.pool[0]![0];
+  if (wave.pool.length > 1) {
+    let roll = random(run) * wave.pool.reduce((sum, entry) => sum + entry[1], 0);
+    for (const entry of wave.pool) { roll -= entry[1]; if (roll < 0) { kind = entry[0]; break; } }
+  }
+  const elite: EliteKind = wave.eliteEvery && (run.spawned + 1) % wave.eliteEvery === 0
+    ? Math.floor(run.spawned / wave.eliteEvery) % 2 === 0 ? 'swift' : 'stout' : 'none';
+  run.enemies.push(createEnemy(run.nextId++, position, kind, elite, wave.health));
+  run.spawned++;
 }
 
 export function updateSpawns(run: Run): void {
   run.spawnIn -= STEP;
   if (run.spawnIn <= 0) {
     if (run.enemies.length < RULES.maxEnemies) spawnEnemy(run);
-    // A simple mounting threat, replaced by authored waves in the enemy milestone.
-    run.spawnIn += Math.max(RULES.minimumSpawnInterval, RULES.initialSpawnInterval - run.elapsed * RULES.spawnAcceleration);
+    const wave = waveAt(run.elapsed);
+    run.spawnIn += wave.at === 0 ? Math.max(WAVE_RULES.introMinimumInterval, wave.interval - run.elapsed * WAVE_RULES.introAcceleration) : wave.interval;
   }
 }

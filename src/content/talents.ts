@@ -24,7 +24,7 @@ export interface TalentDefinition {
 /** All 36 designs are visible; only implemented talents may be allocated. One point each. */
 export const TALENTS = [
   { id: 'reprisal', branch: 'warrior', name: 'Iron Reprisal', tier: 0, slot: 0, requires: [], implemented: true,
-    description: `After losing health to enemy contact and surviving, retaliate for ${T.reprisalDamage} physical damage to enemies within ${T.reprisalRange} range.`, synergies: ['rogue', 'priest'] },
+    description: `After losing health to an enemy attack and surviving, retaliate for ${T.reprisalDamage} physical damage to enemies within ${T.reprisalRange} range.`, synergies: ['rogue', 'priest'] },
   { id: 'sweeping-blade', branch: 'warrior', name: 'Sweeping Blade', tier: 1, slot: 0, requires: ['reprisal'], implemented: true,
     description: `Automatically face the nearest foe within ${T.meleeRange} range and cleave a 120° arc for ${T.meleeDamage} physical damage every ${T.meleeInterval} seconds before haste.`, synergies: ['mage', 'rogue'] },
   { id: 'spellsteel', branch: 'warrior', name: 'Spellsteel', tier: 1, slot: 1, requires: ['reprisal'], implemented: true,

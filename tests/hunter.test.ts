@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { ENEMIES } from '../src/content/enemies';
 import { createRun } from '../src/game/state';
 import type { TalentId } from '../src/content/talents';
 import type { DamageSource } from '../src/game/events';
@@ -9,7 +10,7 @@ import { updateAttacks, applyContactDamage } from '../src/game/combat';
 import { getRunStats } from '../src/game/stats';
 import { updateStatuses } from '../src/game/statuses';
 import { placeSnare, updateSnares } from '../src/game/snares';
-import { moveEnemies } from '../src/game/movement';
+import { moveEnemies } from '../src/game/enemy-movement';
 import { resolveTalentEffects } from '../src/game/talent-effects';
 import { tickRun } from '../src/game/run';
 import { chooseUpgrade } from '../src/game/progression';
@@ -177,12 +178,12 @@ describe('snares, roots, and Frost hybrids', () => {
     target.frost = 2;
     updateSnares(run);
     moveEnemies([target], run.player);
-    expect(210 - target.x).toBeCloseTo(RULES.enemySpeed * STEP * 0.65);
+    expect(210 - target.x).toBeCloseTo(ENEMIES.husk.speed * STEP * 0.65);
     expect(outside.snared).toBe(false);
     for (let i = 0; i < 121; i++) { updateStatuses(run); updateSnares(run); }
     const before = target.x;
     moveEnemies([target], run.player);
-    expect(before - target.x).toBeCloseTo(RULES.enemySpeed * STEP);
+    expect(before - target.x).toBeCloseTo(ENEMIES.husk.speed * STEP);
     expect(run.snares).toEqual([]);
   });
 

@@ -1,3 +1,4 @@
+import { createEnemy } from '../src/game/enemy-state';
 import { createRun } from '../src/game/state';
 import type { Bolt, Enemy, Point, Run } from '../src/game/state';
 import { RULES, STEP } from '../src/game/rules';
@@ -16,7 +17,7 @@ export function advance(run: Run, seconds: number, input: Point = STILL): void {
 }
 
 export function enemy(id: number, x: number, y: number): Enemy {
-  return { id, x, y, health: RULES.enemyHealth, maxHealth: RULES.enemyHealth, grace: 0, holyMark: 0, frost: 0, stun: 0, root: 0, rootImmune: 0, snared: false, dots: [] };
+  return { ...createEnemy(id, { x, y }), grace: 0 };
 }
 export function bolt(overrides: Partial<Bolt>): Bolt {
   return { id: 201, x: 100, y: 100, vx: 0, vy: 0, life: 1, damage: RULES.attackDamage,

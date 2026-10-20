@@ -8,8 +8,9 @@ implemented. Persistent progress unlocks capstones and a bounded talent budget.
 Builds support melee/spell combos, critical effects,
 Poison/curses, companions, healing offense, shields, and retaliation. Runs include
 movement, automatic combat, XP, temporary upgrades, defeat, and replay. Local
-saves, research, named builds, and backups now work. Enemy/boss variety, victory,
-and offline installation remain upcoming.
+saves, research, named builds, and backups now work. Five enemy types, two elite
+modifiers, and escalating waves are playable. Bosses, victory, and offline
+installation remain upcoming.
 See [the task list](DEVELOPMENT_PLAN.md) and [progress log](PROGRESS.md).
 
 ## Play this milestone
@@ -25,7 +26,7 @@ research. Prerequisites and your earned point budget still apply.
 
 | Playable talent | Branch | Behavior |
 | --- | --- | --- |
-| Iron Reprisal | Warrior | Surviving contact health loss retaliates for 12 physical damage within 44 range |
+| Iron Reprisal | Warrior | Surviving health loss from enemy attacks retaliates for 12 physical damage within 44 range |
 | Sweeping Blade | Warrior | Auto-aim a 120° melee cleave within 50 range: 16 physical damage every 1.1s |
 | Spellsteel | Warrior | Every third non-periodic physical hit fires a 12-damage ember volley within 120 range; inherits projectile upgrades; 0.25s volley limit |
 | Frostbreak | Warrior | Non-periodic physical hits, including companions and retaliation, consume Frost for 8 extra physical damage and a 0.6s stun |
@@ -166,12 +167,59 @@ Piercing bolts have a pale trail; explosive bolts produce expanding impact rings
 Open **Run upgrades** beneath the arena to inspect your ranks and ember stats.
 Enemy numbers build over time, and you lose when health reaches zero. **Try again**
 starts a fresh run with level 1, your chosen talents, and no run upgrades. There is no victory
-condition in this milestone; defeats award persistent progress. Full enemy variety and balancing
-remain later milestones; some weapon combinations can outpace the starter enemy.
+condition in this milestone; defeats award persistent progress. Boss encounters and full-run balancing remain later milestones.
 
 Use **Pause** or **Escape** to pause and **Resume run** or **Escape** to resume.
 Leaving the browser tab/window pauses the game automatically. After an input
 interruption, release and press movement keys again to resume movement.
+
+## Enemies and waves
+
+The wave label shows the current threat stage. Enemies appear at arena edges,
+at least 110 units away, with a visible 0.6s arrival grace before moving or
+attacking. Movement remains player-controlled; the warnings give time to reposition.
+The **Enemy field guide** beneath the arena explains silhouettes and counterplay.
+
+| Enemy | Behavior and counterplay | Base health / XP |
+| --- | --- | --- |
+| Grave Husk | Broad red silhouette; steady pursuit. Kite or cleave groups. | 18 / 5 |
+| Gloom Skitter | Low green body with six legs; faster pursuit but fragile. | 12 / 5 |
+| Bone Archer | Pale skeleton carrying a bow; approaches or retreats to hold range. A dotted line warns for 0.8s before a fixed-direction arrow. Step off the line. | 32 / 8 |
+| Horned Brute | Wide horned silhouette; marks a dashed lane for 0.9s, charges straight for up to 150 units, then recovers. Sidestep the lane; Frost slows the dash. | 60 / 12 |
+| Mire Hexer | Pointed hood and staff; marks a crossed circle for 1.2s before a 2s blight pool. Leave the circle. Targets lock at the start of the warning. | 42 / 10 |
+
+Stuns interrupt windups and charges and prevent contact attacks. Roots stop
+movement and interrupt charges; rooted archers/hexers can still cast. Kills or
+stuns before release cancel the attack. Already-released arrows and blight persist
+after the caster dies. All enemy damage shares shield absorption, retaliation,
+Dawn Chorus, health-loss rules, and the player's 0.8s invulnerability window.
+Overlapping enemies do not each deal a separate hit in the same moment.
+
+Elites wear a crown and have a visible health bar. **Swift** elites have side
+chevrons, 2.5× base health, 25% faster ordinary movement, and 25% more damage.
+**Stout** elites have a square frame, 4× base health, 15% slower ordinary movement,
+and 50% more damage. Both give 3× XP and retain normal Frost, roots, stuns, marks,
+Poison, and curses. Charge speed/warning durations stay readable and unchanged.
+Health scaling is captured when an enemy spawns; a wave change never heals or
+rewrites existing foes. Higher-value XP is retained even at the pickup limit.
+
+| Starts | Wave | Added pressure |
+| --- | --- | --- |
+| 0:00 | Restless clearing | Husks; gentle opening |
+| 0:18 | Skittering host | Skitters join pursuit |
+| 0:35 | Bone volley | Archers introduce aimed shots |
+| 0:55 | Horned advance | Brutes and periodic elites appear |
+| 1:15 | Blighted ground | Hexers introduce area denial |
+| 2:00 | Grave tide | More frequent spawns and tougher foes |
+| 4:00 | Hollow hunt | More specialist enemies and elites |
+| 7:00 | Ashen siege | Denser mixed pressure |
+| 10:00 | Nightfall legion | Final current wave tier; scaling is bounded |
+
+At most four enemies wind up special attacks together. Blight casts avoid nearby
+active/pending pools, and both hostile projectile and pool counts are bounded.
+The arena remains capped at 80 enemies. These limits protect warning readability
+and responsive play. Bosses, the 15-minute ending, broader upgrade content, and
+full-run balancing remain later tasks; these waves do not yet form a complete run.
 
 ## Permanent progress and saved builds
 
@@ -285,6 +333,14 @@ pickup throttling, holy/physical marks, final and lethal periodic ticks, explosi
 caps and nonrecursion, companion bonus snapshots, and dense mixed builds.
 Shared-system tests cover arc targeting, attribution, Frost consumption on lethal hits,
 shield absorption/expiration, stuns, cooldown limits, and dense deterministic hybrids.
+Enemy tests cover approach/retreat, fixed aim, warning times, charge sweeps,
+interruptions, corner escapes, projectile/hazard lifetimes, elite status/XP rules,
+spawn safety, all wave introductions, pause/reset, and dense 80-enemy combat.
+Spatial queries match brute-force circle and swept-collision checks over cell
+boundaries. Three seeded three-minute hybrid routes reach all behaviors and both
+elite modifiers while gathering real XP. The browser journey plays a legal mixed
+build and observes actual silhouette, warning, arrow, blight, and crown drawing;
+it does not inject enemy or combat state.
 Profile tests cover bounded rewards, early-loss progression, research, earned
 larger builds, slot snapshots, duplicate rewards, reloads, migrations, malformed
 saves, backup recovery, import validation, storage failures, and stale-tab writes.
@@ -331,8 +387,14 @@ The simulation module map:
 | Entity types and fresh-run state | `state.ts` |
 | Talent allocation, validation, and cascading refunds | `builds.ts` |
 | Dimensions, timing, and gameplay tuning | `rules.ts` |
-| Player movement, boundaries, and enemy pursuit | `movement.ts` |
-| Spawn pacing and safe placement | `spawning.ts` |
+| Player movement and boundaries | `movement.ts` |
+| Per-kind approach/retreat/charge movement and shared slowing | `enemy-movement.ts` |
+| Enemy construction and snapshotted stats | `enemy-state.ts` |
+| Enemy intent, locked targets, windups, and interruptions | `enemies.ts` |
+| Attack releases, hostile projectiles, blight, and player impacts | `enemy-attacks.ts` |
+| Ephemeral grid queries for swept projectile hits and blast areas | `spatial.ts` |
+| Authored wave selection, elite cadence, and safe edge spawning | `spawning.ts` |
+| Enemy/elite/attack tuning and wave definitions | `../content/enemies.ts`, `../content/waves.ts` |
 | Targeting, cooldowns, projectile hits, and enemy contact | `combat.ts` |
 | Shared enemy damage, kill credit, and death drops | `damage.ts` |
 | Automatic directional melee arcs | `melee.ts` |
@@ -374,10 +436,10 @@ named slots, backup previews, and restoration independently of the talent graph.
 
 `run.ts` coordinates the systems in a deliberate order: advance time/cooldowns,
 expire feedback, tick periodic damage and reactions, move the player, spawn enemies,
-update snares and enemy movement, attack, resolve bolts,
+update snares, enemy intents, and enemy movement, attack, resolve bolts,
 resolve projectile effects, cleave, strike with companions, and resolve their
-effects. Collect XP, then apply contact damage and its reactions if no level reward
-paused the run. This keeps killed enemies from damaging the player and gives a
+effects. Collect XP, then release enemy attacks, advance hostile arrows/blight,
+and apply contact damage if no level reward paused the run. This keeps killed enemies from damaging the player and gives a
 level reward priority over contact. Systems mutate their own parts of the explicit
 `Run` state; there is no hidden singleton state. Rendering
 and input import only the state types and shared tuning they need. Keep new rules
@@ -412,7 +474,11 @@ apply to secondary triggers; primary damage and death drops are applied directly
 `run.effects.dropped` and `suppressed` provide diagnostics for debugging chains.
 The queue stores data only, so run state stays cloneable and contains no callbacks.
 The finite event budget accommodates simultaneous ticks on 80 foes with both DoTs
-and secondary reactions. Tests retain the depth, ancestry, and fan-out safeguards;
+and secondary reactions. Projectile collision and blast queries rebuild an ephemeral
+spatial grid after movement, then use swept narrow-phase collisions. The index
+never survives a tick or owns entities. Enemy attack state, projectiles, hazards,
+and elite stats are plain run-owned data; rendering only reads them. Enemy body
+and warning/projectile rendering live in separate focused modules. Tests retain the depth, ancestry, and fan-out safeguards;
 this is not a claim of physical Android performance.
 
 Simulation/progression stays separate from rendering and input. The background

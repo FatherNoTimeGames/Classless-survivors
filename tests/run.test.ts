@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { ENEMIES } from '../src/content/enemies';
 import { tickRun } from '../src/game/run';
 import { RULES, STEP, WORLD } from '../src/game/rules';
 import { createRun } from '../src/game/state';
@@ -109,11 +110,11 @@ describe('automatic combat', () => {
     run.player.attackIn = 10;
     run.enemies.push(enemy(101, 180, 240), enemy(102, 180, 240));
     tickRun(run, STILL);
-    expect(run.player.health).toBe(RULES.maxHealth - RULES.contactDamage);
+    expect(run.player.health).toBe(RULES.maxHealth - ENEMIES.husk.contact);
     advance(run, 0.5);
-    expect(run.player.health).toBe(RULES.maxHealth - RULES.contactDamage);
+    expect(run.player.health).toBe(RULES.maxHealth - ENEMIES.husk.contact);
     advance(run, 0.4);
-    expect(run.player.health).toBe(RULES.maxHealth - 2 * RULES.contactDamage);
+    expect(run.player.health).toBe(RULES.maxHealth - 2 * ENEMIES.husk.contact);
   });
 
   it('moves pursuers toward the player and honors their spawn grace period', () => {
@@ -211,7 +212,11 @@ describe('pickups, spawning, and run lifecycle', () => {
         const choice = priority.find((id) => run.progression.offers.includes(id))!;
         chooseUpgrade(run, choice);
       }
-      tickRun(run, STILL);
+      // Actively collect early drops; ranged enemies no longer deliver XP to an idle player.
+      const shard = run.elapsed < 35 ? run.shards.reduce<typeof run.shards[number] | undefined>((nearest, entry) => !nearest || Math.hypot(entry.x - run.player.x, entry.y - run.player.y) < Math.hypot(nearest.x - run.player.x, nearest.y - run.player.y) ? entry : nearest, undefined) : undefined;
+      const dx = shard ? shard.x - run.player.x : 0, dy = shard ? shard.y - run.player.y : 0;
+      const length = Math.hypot(dx, dy);
+      tickRun(run, length > 0 ? { x: dx / length, y: dy / length } : STILL);
     }
     expect(run.kills).toBeGreaterThan(5);
     expect(run.xp).toBeGreaterThan(0);

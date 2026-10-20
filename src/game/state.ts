@@ -1,3 +1,4 @@
+import type { EnemyKind, EliteKind } from '../content/enemies';
 import { createCompanions } from './companion-state';
 import type { CompanionKind } from '../content/companions';
 import type { DamageOverTime } from './dot-state';
@@ -20,6 +21,9 @@ export interface Player extends Point {
 }
 export interface Enemy extends Point {
   id: number; health: number; maxHealth: number; grace: number;
+  kind: EnemyKind; elite: EliteKind; speed: number; contactDamage: number; rewardXp: number;
+  previous: Point; chargedThisTick: boolean;
+  attack: { phase: 'idle' | 'windup' | 'dash' | 'recover'; remaining: number; aim: Point; direction: Point };
   holyMark: number; frost: number; stun: number; root: number; rootImmune: number; snared: boolean;
   dots: DamageOverTime[];
 }
@@ -31,6 +35,8 @@ export interface Bolt extends Point {
   damage: number; pierce: number; blastRadius: number; hitIds: number[];
   effectContext?: EffectContext;
 }
+export interface EnemyBolt extends Point { id: number; vx: number; vy: number; remaining: number; damage: number }
+export interface Blight extends Point { id: number; radius: number; remaining: number; damage: number }
 export interface Shard extends Point { id: number; value: number }
 export interface Spark extends Point { kind: 'hit' | 'pickup' | 'hurt' | 'burst' | 'heal' | 'physical' | 'arcane' | 'holy' | 'shadow' | 'cleave' | 'frost' | 'lightning' | 'shield' | 'critical' | 'poison' | 'root' | 'falcon' | 'curse' | 'detonation' | 'mark' | 'atonement' | 'imp'; life: number; radius?: number; angle?: number }
 export interface Progression {
@@ -56,6 +62,7 @@ export interface Run {
   effects: EffectQueue;
   player: Player;
   enemies: Enemy[];
+  enemyBolts: EnemyBolt[]; blights: Blight[]; spawned: number;
   bolts: Bolt[];
   companions: Companion[];
   snares: Snare[];
@@ -81,7 +88,7 @@ export function createRun(seed: number, talents: readonly TalentId[] = [], budge
       x: WORLD.width / 2, y: WORLD.height / 2, health: RULES.maxHealth,
       invulnerable: 0, attackIn: 0, facing: 1, moving: false, meleeIn: 0, shield: { amount: 0, remaining: 0 },
     },
-    enemies: [], bolts: [], snares: [],
+    enemies: [], enemyBolts: [], blights: [], spawned: 0, bolts: [], snares: [],
     companions: createCompanions(talents, { x: WORLD.width / 2, y: WORLD.height / 2 }),
     shards: [], sparks: [],
     spawnIn: RULES.firstSpawnDelay, randomState: (seed >>> 0) || 0x9e3779b9, nextId: 1,

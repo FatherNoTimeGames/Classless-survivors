@@ -7,7 +7,9 @@ import { STEP } from './rules';
 import type { Point, Run } from './state';
 import { updateCombatTimers, updateAttacks, updateProjectiles, applyContactDamage } from './combat';
 import { updateSparks } from './effects';
-import { movePlayer, moveEnemies } from './movement';
+import { movePlayer } from './movement';
+import { updateEnemies } from './enemies';
+import { releaseEnemyAttacks, updateEnemyAttacks } from './enemy-attacks';
 import { updatePickups } from './pickups';
 import { updateSpawns } from './spawning';
 import { getRunStats } from './stats';
@@ -28,7 +30,7 @@ export function tickRun(run: Run, input: Point): void {
   movePlayer(run.player, input, stats.moveSpeed);
   updateSpawns(run);
   updateSnares(run);
-  moveEnemies(run.enemies, run.player);
+  updateEnemies(run);
   updateAttacks(run, stats);
   updateProjectiles(run);
   resolveTalentEffects(run);
@@ -38,6 +40,10 @@ export function tickRun(run: Run, input: Point): void {
   resolveTalentEffects(run);
   updatePickups(run, stats.magnetRadius);
   // A level reward pauses the world before another enemy contact can occur.
-  if (run.status === 'running') applyContactDamage(run);
+  if (run.status === 'running') {
+    releaseEnemyAttacks(run);
+    updateEnemyAttacks(run);
+    applyContactDamage(run);
+  }
   resolveTalentEffects(run);
 }

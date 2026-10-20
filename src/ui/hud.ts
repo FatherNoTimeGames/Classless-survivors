@@ -1,3 +1,4 @@
+import { waveAt, WAVES } from '../content/waves';
 import { PROGRESSION_RULES, UPGRADES } from '../content/upgrades';
 import type { Run } from '../game/state';
 import { getRunStats } from '../game/stats';
@@ -22,6 +23,9 @@ export function createHud() {
 
   return {
     update(run: Run): void {
+      const wave = waveAt(run.elapsed);
+      setText(element('#wave-label'), `Wave ${WAVES.indexOf(wave) + 1} · ${wave.name}`);
+      setText(element('#enemy-count'), `${run.enemies.length} foes · ${run.enemies.filter((enemy) => enemy.elite !== 'none').length} elites`);
       const stats = getRunStats(run.progression.ranks);
       const talentKey = JSON.stringify(run.talents);
       if (talentKey !== previousTalents) {

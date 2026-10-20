@@ -1,7 +1,8 @@
 import type { Run } from '../game/state';
 import { drawFeedback } from './feedback';
 import { drawSanctuary } from './sanctuary';
-import { drawAfflictions } from './afflictions';
+import { drawEnemies } from './enemies';
+import { drawEnemyWarnings, drawEnemyProjectiles } from './enemy-attacks';
 import { drawCompanions } from './companions';
 import { drawSnares } from './snares';
 import { ARENA_HEIGHT, ARENA_WIDTH, fitViewport } from './viewport';
@@ -39,6 +40,7 @@ export function createArenaRenderer(canvas: HTMLCanvasElement) {
       context.strokeStyle = '#67714a60';
       context.lineWidth = 1;
       context.strokeRect(8, 8, ARENA_WIDTH - 16, ARENA_HEIGHT - 16);
+      drawEnemyWarnings(context, run);
       drawSnares(context, run);
       for (const shard of run.shards) {
         const bob = Math.round(Math.sin(run.elapsed * 4 + shard.id) * 1.5);
@@ -47,41 +49,7 @@ export function createArenaRenderer(canvas: HTMLCanvasElement) {
         block(shard.x - 2, shard.y - 2 + bob, 2, 3, '#b1e7c4');
       }
 
-      for (const enemy of run.enemies) {
-        if (enemy.grace > 0) {
-          context.strokeStyle = '#c9685770';
-          context.beginPath();
-          context.arc(enemy.x, enemy.y, 10 + enemy.grace * 15, 0, Math.PI * 2);
-          context.stroke();
-          context.globalAlpha = 0.5;
-        }
-        const bob = Math.round(Math.sin(run.elapsed * 7 + enemy.id));
-        const { x } = enemy;
-        const y = enemy.y + bob;
-        shadow(x, y);
-        block(x - 7, y - 8, 14, 15, '#34242c');
-        block(x - 5, y - 10, 10, 14, '#6b3b4a');
-        block(x - 7, y + 2, 4, 8, '#50303e');
-        block(x + 3, y + 2, 4, 8, '#50303e');
-        block(x - 4, y - 6, 8, 5, '#181c24');
-        block(x - 3, y - 4, 2, 2, '#ed9c80');
-        block(x + 1, y - 4, 2, 2, '#ed9c80');
-        if (enemy.frost > 0 || enemy.stun > 0) {
-          context.strokeStyle = enemy.stun > 0 ? '#fff3b5' : '#a5dce8';
-          context.lineWidth = 1.5;
-          context.strokeRect(x - 9, y - 12, 18, 23);
-          // A cap for stun, two ice prongs for Frost: status is not color alone.
-          context.beginPath();
-          context.moveTo(x - 5, y - 15); context.lineTo(x + 5, y - 15);
-          if (enemy.frost > 0) {
-            context.moveTo(x - 3, y - 18); context.lineTo(x - 3, y - 12);
-            context.moveTo(x + 3, y - 18); context.lineTo(x + 3, y - 12);
-          }
-          context.stroke();
-        }
-        context.globalAlpha = 1;
-        drawAfflictions(context, enemy);
-      }
+      drawEnemies(context, run);
 
       const player = run.player;
       const bob = player.moving ? Math.round(Math.sin(run.elapsed * 16)) : 0;
@@ -128,6 +96,7 @@ export function createArenaRenderer(canvas: HTMLCanvasElement) {
           context.closePath(); context.fill();
         } else block(bolt.x - 2, bolt.y - 2, 4, 4, bolt.blastRadius > 0 ? '#ffb878' : '#ffe2a2');
       }
+      drawEnemyProjectiles(context, run);
       drawFeedback(context, run.sparks);
     },
   };

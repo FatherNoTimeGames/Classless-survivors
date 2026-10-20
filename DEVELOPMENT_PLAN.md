@@ -146,12 +146,18 @@ these requirements. No subscription-usage or completion-time estimates are impli
   Unit/browser checks cover reloads, invalid data, migrations, earned larger builds,
   real defeat rewards, repeat-reward prevention, and disabled storage.
 
-- [ ] **9. Expand enemy variety, elites, and wave pacing.**
+- [x] **9. Expand enemy variety, elites, and wave pacing.**
   Add distinct pursuers, ranged attackers, chargers, and area-denial enemies,
   elite modifiers, spawn pacing, and readable attack warnings. Use appropriate
   spatial queries/entity caps to support dense waves.
   Done when behavior tests pass and mixed waves create distinct positioning
   decisions without spawning unavoidable hits on the player.
+  Delivered five enemy types, swift/stout elites, nine authored threat stages,
+  fixed-aim warnings, arrows/charges/blight, status interruptions, elite XP, and
+  bounded hostile effects. Added focused state/movement/intent/attack modules,
+  separate renderers, a wave HUD/field guide, and a transient spatial grid for
+  projectile sweeps/blasts. Checks cover spawn/corner safety, dense mixed waves,
+  three-minute hybrids, browser warnings, and existing progression/save journeys.
 
 - [ ] **10. Complete the timed run and boss encounters.**
   Add three bosses with distinct, telegraphed positioning mechanics across the

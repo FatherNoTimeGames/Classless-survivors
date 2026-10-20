@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { SAVE_KEY } from '../src/persistence/profile-store';
-import { playerPosition, startGame } from './game-helpers';
+import { collectUntilChoice, playerPosition, seedRuns, startGame } from './game-helpers';
 
 test('keyboard movement, pause, and focus loss preserve the run and clear held input', async ({ page }) => {
   const { canvas, errors } = await startGame(page);
@@ -52,10 +52,13 @@ test('keyboard movement, pause, and focus loss preserve the run and clear held i
 
 test('automatic combat earns XP, ends in defeat, and restarts with clean stats', async ({ page }, testInfo) => {
   test.setTimeout(60_000);
-  const { errors } = await startGame(page);
+  await seedRuns(page);
+  const { canvas, errors } = await startGame(page);
   await page.clock.runFor(12_000);
   expect(Number(await page.locator('#run-kills').textContent())).toBeGreaterThan(0);
   await page.screenshot({ path: testInfo.outputPath('combat.png'), fullPage: true });
+  // Collect visible shards before testing eventual defeat; ranged foes keep their distance.
+  await collectUntilChoice(page, canvas);
 
   for (let elapsed = 12; elapsed < 180; elapsed += 5) {
     if (await page.getByRole('button', { name: 'Try again' }).isVisible()) break;

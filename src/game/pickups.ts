@@ -5,13 +5,13 @@ import { addSpark } from './effects';
 import { emitEffect } from './events';
 import { awardXp } from './progression';
 
-export function dropShard(run: Run, point: Point): void {
+export function dropShard(run: Run, point: Point, value: number = RULES.shardValue): void {
   if (run.shards.length < RULES.maxShards) {
-    run.shards.push({ x: point.x, y: point.y, id: run.nextId++, value: RULES.shardValue });
+    run.shards.push({ x: point.x, y: point.y, id: run.nextId++, value });
   } else {
     // Preserve earned XP even when the world has reached its pickup budget.
     const nearest = run.shards.reduce((a, b) => distance(point, a) < distance(point, b) ? a : b);
-    nearest.value += RULES.shardValue;
+    nearest.value += value;
   }
 }
 

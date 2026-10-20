@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { ENEMIES } from '../src/content/enemies';
 import { PROGRESSION_RULES, UPGRADES } from '../src/content/upgrades';
 import type { UpgradeId } from '../src/content/upgrades';
 import { awardXp, choiceLevel, chooseUpgrade, eligibleUpgrades, xpForLevel } from '../src/game/progression';
@@ -82,13 +83,13 @@ describe('XP and reward selection', () => {
 
   it('freezes the whole simulation during a choice and prioritizes a level reward over contact', () => {
     const run = emptyRun();
-    run.player.health = RULES.contactDamage;
+    run.player.health = ENEMIES.husk.contact;
     run.player.attackIn = 10;
     run.enemies.push(enemy(101, 180, 240));
     run.shards.push({ id: 102, x: 180, y: 240, value: 10 });
     tickRun(run, STILL);
     expect(run.status).toBe('choosing');
-    expect(run.player.health).toBe(RULES.contactDamage);
+    expect(run.player.health).toBe(ENEMIES.husk.contact);
     const paused = structuredClone(run);
     advance(run, 5, { x: 1, y: 1 });
     expect(run).toEqual(paused);

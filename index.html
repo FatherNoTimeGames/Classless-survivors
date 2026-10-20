@@ -28,6 +28,7 @@
           <button class="quiet-button" id="pause-run" type="button" hidden>Pause</button>
         </div>
         <div class="run-hud" id="run-hud" hidden>
+          <div class="wave-row"><span id="wave-label" role="status"></span><span id="enemy-count"></span></div>
           <div class="health-row">
             <label for="health">Health <span id="health-text">60 / 60</span></label>
             <progress id="health" max="60" value="60">60 / 60</progress>
@@ -66,6 +67,17 @@
         </div>
         <div class="milestone-note">
           <p id="control-help"><strong>Move:</strong> WASD / arrows, or drag in the clearing.<br />Attacks are automatic. Escape pauses the run.</p>
+          <details class="build-summary" id="enemy-guide">
+            <summary>Enemy field guide</summary>
+            <ul>
+              <li>Grave Husks pursue steadily. Six-legged Gloom Skitters rush faster.</li>
+              <li>Bone Archers keep their distance. Dotted lines warn of fixed-aim arrows.</li>
+              <li>Horned Brutes stop to mark a dashed charge lane, then rush it. Step aside.</li>
+              <li>Mire Hexers mark crossed circles before blight forms. Leave the circle.</li>
+              <li>Crowned elites are swifter (side chevrons) or tougher (square frame). Frost and control still work.</li>
+              <li>Stuns interrupt attacks; roots interrupt charges and stop movement. Released arrows and blight persist after the caster falls.</li>
+            </ul>
+          </details>
           <details class="build-summary" id="run-build" hidden>
             <summary>Run upgrades</summary>
             <p id="ember-stats"></p>
