@@ -221,6 +221,46 @@ Use **Pause** or **Escape** to pause and **Resume run** or **Escape** to resume.
 Leaving the browser tab/window pauses the game automatically. After an input
 interruption, release and press movement keys again to resume movement.
 
+## Sound, motion, and combat readability
+
+Open **Sound & display** below the arena. Opening it pauses an active run; resume
+with the normal run controls. Sound defaults to a restrained **30% volume** and
+starts only after **Enter the clearing** or **Enable sound**. Use **Mute sound**,
+the volume slider, or **M** while the arena has focus. Reloading restores your
+settings but requires another gesture before audio can start. A browser-blocked
+context can be retried with Enable sound; missing audio support does not block play.
+
+The original procedural sounds use short sine/triangle tones for attacks, impacts,
+critical hits, healing, wards, pickups, warnings, guardians, leveling and outcomes.
+There are no recordings, music downloads, services or background music loop. A
+master gain controls volume; per-cue/global cooldowns and an eight-voice limit
+bound density. Pause, mute, focus loss, hiding the page and browser audio suspension cancel active voices.
+Lifecycle cues replace combat sounds; resuming/replaying never queues stale sounds.
+Audio time follows the browser's audio clock rather than accelerated test frames.
+
+**Motion** follows the device's `prefers-reduced-motion` setting by default.
+Choose Reduced motion or Full motion to override it. Reduced motion removes
+sprite/pickup bobs, wing flapping, arrival-ring shrinking and expanding spell
+geometry. Compact static glyphs still fade, and actual movement, projectiles,
+statuses, danger timing, warning shapes and targeting remain unchanged. The game
+uses no camera shake or full-screen damage flashes.
+
+The arena reuses its original pixel silhouettes and dark palette. Nearby XP
+pickups share a small glyph to reduce clutter; collectible positions, values and
+attraction are unchanged. Same-kind local feedback is merged, at most 28 glyphs
+are drawn, and hurt/ward/critical/cleave/healing cues take priority. Important cues can replace
+ordinary impacts in an already full cosmetic buffer. Friendly
+feedback draws before hostile ground warnings, then the player and hostile
+projectiles draw above them. Frost uses a snowflake, arcane a diamond, roots bars,
+wards a shield, and critical hits a star. Talent glyphs are reused on every upgrade
+card; names and descriptions identify related powers without more asset files.
+
+Sound/motion preferences use a separately validated local settings record, not the
+character profile or build backups. Corrupt settings recover to defaults; newer
+formats are preserved. If storage is blocked, controls still work for the current
+tab and show a notice. Progress saves and research are unaffected. Physical-speaker
+listening, Android hardware performance and non-Chromium engines remain unverified.
+
 ## Enemies and waves
 
 The wave label shows the current threat stage. Enemies appear at arena edges,
@@ -455,6 +495,17 @@ acquires Longblade/Familiars/Wintersteel/Winter Pact, inspects updated abilities
 and readable descriptions, then reloads and verifies temporary powers reset.
 Level-choice keyboard traversal includes the expandable ability summary.
 
+Presentation tests validate preferences/recovery, separate progress storage,
+visual grouping/priority budgets, static reduced-motion geometry, distinct glyphs,
+and complete icon coverage. Audio tests cover gesture gating, context reuse,
+volume/mute, voice/cue limits, lifecycle replacement, autoplay retry, unavailable
+backends and stale-event suppression. Browser checks tap the real master output
+with an analyser to measure a waveform and subsequent muted silence, verify node
+cancellation, save/reload controls, device preference changes, keyboard movement,
+actual browser-context retry and play without audio/storage. This validates the
+sound graph, not physical speaker quality. Existing dense-wave and full guardian
+journeys retain real warnings, input and progression checks.
+
 Screenshots and failure traces are
 written to ignored `test-results/`. Emulation does not replace physical device
 testing, and Chromium checks do not establish support in other browser engines.
@@ -480,7 +531,11 @@ offline installation guidance will be completed with the PWA milestone.
 - `src/persistence/`: validated versioned codec, injected storage/recovery, and browser adapter.
 - `src/ui/`: DOM helpers, HUD presentation, and accessible upgrade selection.
 - `src/input/`: keyboard and captured-pointer movement controls.
-- `src/rendering/`: canvas sizing and original procedural scene art.
+- `src/rendering/`: read-only Canvas layers and original procedural scene art.
+- `src/presentation/`: validated preferences and pure visual grouping/priority rules.
+- `src/audio/`: original tone definitions, lazy bounded Web Audio synthesis, and read-only cue direction.
+- `src/ui/presentation-settings.ts`: accessible settings and device-motion observation.
+- `src/persistence/presentation-store.ts`: separate settings storage and current-tab fallback.
 - `src/styles.css` and `index.html`: responsive, semantic page shell.
 - `tests/`: unit tests for logic independent of the browser.
 - `e2e/`: browser checks against the production build.
@@ -587,7 +642,12 @@ Guardian rendering, guardian HUD, and run-result presentation also have separate
 read-only modules (`rendering/bosses.ts`, `ui/boss-hud.ts`, `ui/run-results.ts`).
 The editor and graph renderer are separate UI modules. Feedback drawing is isolated
 in `src/rendering/feedback.ts`; companions, snares, and afflictions each have a
-focused renderer under `src/rendering/`.
+focused renderer under `src/rendering/`. Player and pickup drawing now have their
+own layers. `presentation/readability.ts` groups visual copies and prioritizes
+feedback; it never merges actual collectible entities or consumes combat events.
+The audio director observes run snapshots and sends bounded cues to the synth.
+Preferences, browser settings UI, AudioContext lifetime, tone design and Canvas
+motion variants are separate from gameplay rules.
 
 Combat effects use FIFO events with source/school information, a six-generation
 depth limit, 512-event queue/tick limits, and handler-ancestry suppression, retained by delayed projectiles. Limits

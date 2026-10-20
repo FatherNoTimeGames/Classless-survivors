@@ -1,7 +1,7 @@
 import type { TalentId } from './talents';
 
 /** Original 24-unit line glyphs. Each path stays readable at phone icon sizes. */
-export const TALENT_ICONS: Partial<Record<TalentId, string>> = {
+export const TALENT_ICONS: Record<TalentId, string> = {
   reprisal: 'M12 3 20 7 18 16 12 21 6 16 4 7Z M8 13 12 8 16 13 M12 8V17',
   'sweeping-blade': 'M5 20 18 7 21 3 17 4 4 17 M3 14 10 21 M13 5Q22 8 20 16',
   spellsteel: 'M4 21 16 9 M3 16 8 21 M18 2V10 M14 6H22 M6 3 7 6 10 7 7 8 6 11 5 8 2 7 5 6Z',

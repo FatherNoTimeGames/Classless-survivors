@@ -47,13 +47,13 @@ export function drawBossDangers(context: CanvasRenderingContext2D, run: Run): vo
   context.restore();
 }
 /** Larger silhouettes: shield/sword, veiled wings, and three-pronged crown. */
-export function drawBosses(context: CanvasRenderingContext2D, run: Run): void {
+export function drawBosses(context: CanvasRenderingContext2D, run: Run, reducedMotion = false): void {
   for (const boss of run.enemies) {
     if (!boss.boss || boss.health <= 0) continue;
     context.save(); context.translate(Math.round(boss.x), Math.round(boss.y));
     if (boss.grace > 0) {
       context.strokeStyle = '#f0c986'; context.lineWidth = 2;
-      context.beginPath(); context.arc(0, 0, 20 + boss.grace * 10, 0, Math.PI * 2); context.stroke(); context.globalAlpha = 0.6;
+      context.beginPath(); context.arc(0, 0, (reducedMotion ? 28 : 20 + boss.grace * 10), 0, Math.PI * 2); context.stroke(); context.globalAlpha = 0.6;
     }
     context.fillStyle = '#081313'; context.fillRect(-19, 11, 38, 6);
     if (boss.boss === 'knight') {

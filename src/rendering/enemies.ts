@@ -2,7 +2,7 @@ import type { Run } from '../game/state';
 import { drawAfflictions } from './afflictions';
 
 /** Distinct, inexpensive silhouettes. The player's unique head color is never reused. */
-export function drawEnemies(context: CanvasRenderingContext2D, run: Run): void {
+export function drawEnemies(context: CanvasRenderingContext2D, run: Run, reducedMotion = false): void {
   const block = (x: number, y: number, width: number, height: number, color: string) => {
     context.fillStyle = color; context.fillRect(Math.round(x), Math.round(y), width, height);
   };
@@ -11,10 +11,10 @@ export function drawEnemies(context: CanvasRenderingContext2D, run: Run): void {
     context.save();
     if (enemy.grace > 0) {
       context.strokeStyle = '#c9685770'; context.lineWidth = 1;
-      context.beginPath(); context.arc(enemy.x, enemy.y, 10 + enemy.grace * 15, 0, Math.PI * 2); context.stroke();
+      context.beginPath(); context.arc(enemy.x, enemy.y, (reducedMotion ? 19 : 10 + enemy.grace * 15), 0, Math.PI * 2); context.stroke();
       context.globalAlpha = 0.5;
     }
-    const x = Math.round(enemy.x), y = Math.round(enemy.y + Math.sin(run.elapsed * 7 + enemy.id));
+    const x = Math.round(enemy.x), y = Math.round(enemy.y + (reducedMotion ? 0 : Math.sin(run.elapsed * 7 + enemy.id)));
     block(x - 9, y + 5, 18, 5, '#081313');
     if (enemy.kind === 'husk') {
       block(x - 7, y - 8, 14, 15, '#34242c'); block(x - 5, y - 10, 10, 14, '#6b3b4a');

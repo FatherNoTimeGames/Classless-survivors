@@ -216,3 +216,15 @@ button:disabled { opacity: 0.45; cursor: default; }
 .choice-build { color: #bdc8b6; font-size: .7rem; margin-block: .5rem; }
 .choice-build summary { min-height: 32px; cursor: pointer; }
 .choice-build p { line-height: 1.5; }
+#presentation-settings { border-block: 1px solid #34483d; padding-block: .35rem; }
+#presentation-settings summary { min-height: 44px; display: list-item; }
+#presentation-settings label { display: block; margin-top: .7rem; }
+#presentation-settings input[type="checkbox"] { width: 20px; height: 20px; vertical-align: middle; margin-right: .4rem; }
+#presentation-settings input[type="range"] { display: block; width: 100%; min-height: 44px; accent-color: #dfb66e; }
+#presentation-settings select { width: 100%; min-height: 44px; background: #202d2b; color: #e5dfce; border: 1px solid #69765e; font: inherit; padding: .4rem; }
+#presentation-settings .setting-volume { display: flex; justify-content: space-between; }
+body[data-reduced-motion="true"] *, body[data-reduced-motion="true"] *::before, body[data-reduced-motion="true"] *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+.ability-icon { flex: 0 0 26px; width: 26px; height: 26px; fill: none; stroke: #e7c38c; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.choice-heading strong { display: flex; align-items: center; gap: .5rem; }
+
+#presentation-settings .setting-check { display: flex; align-items: center; min-height: 44px; margin-top: 0; }

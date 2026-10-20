@@ -71,7 +71,18 @@
           </p>
         </div>
         <div class="milestone-note">
-          <p id="control-help"><strong>Move:</strong> WASD / arrows, or drag in the clearing.<br />Attacks are automatic. Escape pauses the run.</p>
+          <p id="control-help"><strong>Move:</strong> WASD / arrows, or drag in the clearing.<br />Attacks are automatic. Escape pauses. M toggles sound.</p>
+          <details class="build-summary" id="presentation-settings">
+            <summary id="presentation-summary">Sound &amp; display</summary>
+            <label class="setting-check"><input id="sound-muted" type="checkbox" /> Mute sound</label>
+            <label class="setting-volume" for="sound-volume">Volume <span id="sound-volume-value">30%</span></label>
+            <input id="sound-volume" type="range" min="0" max="100" step="5" value="30" />
+            <button id="enable-sound" class="quiet-button" type="button">Enable sound</button>
+            <p id="sound-status" role="status"></p>
+            <label class="setting-motion" for="motion-preference">Motion</label>
+            <select id="motion-preference"><option value="system">Follow device setting</option><option value="reduced">Reduced motion</option><option value="full">Full motion</option></select>
+            <p id="motion-status"></p><p id="presentation-save-notice" role="status"></p>
+          </details>
           <details class="build-summary" id="enemy-guide">
             <summary>Enemy field guide</summary>
             <ul>

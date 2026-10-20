@@ -1,3 +1,5 @@
+import { drawPlayer } from './player';
+import { drawPickups } from './pickups';
 import type { Run } from '../game/state';
 import { drawFeedback } from './feedback';
 import { drawSanctuary } from './sanctuary';
@@ -8,7 +10,7 @@ import { drawCompanions } from './companions';
 import { drawSnares } from './snares';
 import { ARENA_HEIGHT, ARENA_WIDTH, fitViewport } from './viewport';
 
-export function createArenaRenderer(canvas: HTMLCanvasElement) {
+export function createArenaRenderer(canvas: HTMLCanvasElement, motion: () => boolean = () => false) {
   const context = canvas.getContext('2d');
   if (!context) return null;
   const backdrop = document.createElement('canvas');
@@ -22,7 +24,6 @@ export function createArenaRenderer(canvas: HTMLCanvasElement) {
     context.fillStyle = color;
     context.fillRect(Math.round(x), Math.round(y), w, h);
   };
-  const shadow = (x: number, y: number) => block(x - 9, y + 5, 18, 5, '#081313');
 
   return {
     draw(run: Run | null): void {
@@ -41,49 +42,13 @@ export function createArenaRenderer(canvas: HTMLCanvasElement) {
       context.strokeStyle = '#67714a60';
       context.lineWidth = 1;
       context.strokeRect(8, 8, ARENA_WIDTH - 16, ARENA_HEIGHT - 16);
-      drawEnemyWarnings(context, run);
-      drawBossDangers(context, run);
+      const reduced = motion();
+      drawPickups(context, run, reduced);
       drawSnares(context, run);
-      for (const shard of run.shards) {
-        const bob = Math.round(Math.sin(run.elapsed * 4 + shard.id) * 1.5);
-        block(shard.x - 3, shard.y - 3 + bob, 6, 6, '#2b6a52');
-        block(shard.x - 1, shard.y - 5 + bob, 2, 9, '#74cbaa');
-        block(shard.x - 2, shard.y - 2 + bob, 2, 3, '#b1e7c4');
-      }
+      drawEnemies(context, run, reduced);
+      drawBosses(context, run, reduced);
 
-      drawEnemies(context, run);
-      drawBosses(context, run);
-
-      const player = run.player;
-      const bob = player.moving ? Math.round(Math.sin(run.elapsed * 16)) : 0;
-      const x = Math.round(player.x);
-      const y = Math.round(player.y) + bob;
-      shadow(x, y);
-      if (player.shield.amount > 0) {
-        context.strokeStyle = '#8fbddc';
-        context.lineWidth = 2;
-        context.beginPath();
-        context.ellipse(x, y - 2, 16, 21, 0, 0, Math.PI * 2);
-        context.stroke();
-      }
-      if (player.invulnerable > 0) {
-        context.strokeStyle = '#e88c71';
-        context.lineWidth = 1.5;
-        context.beginPath();
-        context.arc(x, y, 13, 0, Math.PI * 2);
-        context.stroke();
-      }
-      block(x - 6, y - 5, 12, 15, '#172b37');
-      block(x - 5, y - 3, 10, 11, '#497180');
-      block(x - 5, y + 8, 4, 4, '#11252e');
-      block(x + 1, y + 8, 4, 4, '#11252e');
-      block(x - 5, y - 13, 10, 8, '#273c45');
-      block(x - 3, y - 10, 6, 5, '#e8dcc0');
-      block(x - 6, y - 4, 12, 3, '#bb7d4c');
-      block(x + player.facing * 9, y - 8, 2, 19, '#9f8051');
-      block(x + player.facing * 9 - 2, y - 11, 6, 6, '#e2ae63');
-
-      drawCompanions(context, run);
+      drawCompanions(context, run, reduced);
       for (const bolt of run.bolts) {
         context.strokeStyle = bolt.source === 'summon' ? '#dba4dc' : bolt.pierce > 0 ? '#91cfcc' : '#c17d3b';
         context.lineWidth = 2;
@@ -99,8 +64,12 @@ export function createArenaRenderer(canvas: HTMLCanvasElement) {
           context.closePath(); context.fill();
         } else block(bolt.x - 2, bolt.y - 2, 4, 4, bolt.blastRadius > 0 ? '#ffb878' : '#ffe2a2');
       }
+      drawFeedback(context, run.sparks, reduced);
+      // Critical hostile geometry is never covered by XP, creatures or friendly effects.
+      drawEnemyWarnings(context, run);
+      drawBossDangers(context, run);
+      drawPlayer(context, run, reduced);
       drawEnemyProjectiles(context, run);
-      drawFeedback(context, run.sparks);
     },
   };
 }

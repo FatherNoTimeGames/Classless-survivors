@@ -1,3 +1,4 @@
+import { feedbackGlyphs } from '../presentation/readability';
 import type { Spark } from '../game/state';
 import { RULES } from '../game/rules';
 import { TALENT_TUNING as T } from '../content/talent-tuning';
@@ -11,16 +12,22 @@ const COLORS: Record<Spark['kind'], string> = {
 };
 
 /** Color plus shape distinguishes feedback without making more asset files. */
-export function drawFeedback(context: CanvasRenderingContext2D, effects: readonly Spark[]): void {
-  for (const effect of effects) {
-    const progress = 1 - effect.life / RULES.sparkLifetime;
-    const radius = effect.radius ? effect.radius * progress : 3 + progress * 10.5;
-    context.globalAlpha = effect.life / RULES.sparkLifetime;
+export function drawFeedback(context: CanvasRenderingContext2D, effects: readonly Spark[], reducedMotion = false): void {
+  for (const effect of feedbackGlyphs(effects)) {
+    const progress = reducedMotion ? 0.55 : 1 - effect.life / RULES.sparkLifetime;
+    const radius = effect.radius ? effect.radius * progress : 3 + progress * 8;
+    context.globalAlpha = Math.min(0.75, effect.life / RULES.sparkLifetime);
     context.strokeStyle = COLORS[effect.kind];
     context.lineWidth = 2;
     context.setLineDash(effect.kind === 'shadow' ? [3, 3] : []);
     context.beginPath();
-    if (effect.kind === 'curse' || effect.kind === 'detonation') {
+    if (effect.kind === 'hit') {
+      context.moveTo(effect.x - 3, effect.y + 3); context.lineTo(effect.x + 3, effect.y - 3);
+    } else if (effect.kind === 'frost') {
+      for (let i = 0; i < 3; i++) { const angle = i * Math.PI / 3;
+        context.moveTo(effect.x - Math.cos(angle) * radius, effect.y - Math.sin(angle) * radius);
+        context.lineTo(effect.x + Math.cos(angle) * radius, effect.y + Math.sin(angle) * radius); }
+    } else if (effect.kind === 'curse' || effect.kind === 'detonation') {
       context.arc(effect.x, effect.y, radius, Math.PI / 2, Math.PI * 1.5);
       context.moveTo(effect.x + radius / 2, effect.y - radius);
       context.lineTo(effect.x + radius / 2, effect.y + radius);
@@ -38,7 +45,14 @@ export function drawFeedback(context: CanvasRenderingContext2D, effects: readonl
         context.moveTo(effect.x + x + 2, effect.y - radius / 2 - Math.abs(x));
         context.arc(effect.x + x, effect.y - radius / 2 - Math.abs(x), 2, 0, Math.PI * 2);
       }
-    } else if (effect.kind === 'falcon' || effect.kind === 'root') {
+    } else if (effect.kind === 'shield') {
+      context.moveTo(effect.x, effect.y - radius); context.lineTo(effect.x + radius, effect.y - radius / 2);
+      context.lineTo(effect.x + radius / 2, effect.y + radius / 2); context.lineTo(effect.x, effect.y + radius);
+      context.lineTo(effect.x - radius / 2, effect.y + radius / 2); context.lineTo(effect.x - radius, effect.y - radius / 2); context.closePath();
+    } else if (effect.kind === 'root') {
+      context.moveTo(effect.x - radius, effect.y + radius / 2); context.lineTo(effect.x + radius, effect.y + radius / 2);
+      for (const offset of [-0.7, 0, 0.7]) { context.moveTo(effect.x + radius * offset, effect.y + radius); context.lineTo(effect.x + radius * offset, effect.y - radius / 2); }
+    } else if (effect.kind === 'falcon') {
       context.moveTo(effect.x - radius, effect.y - radius / 2);
       context.lineTo(effect.x, effect.y + radius / 2);
       context.lineTo(effect.x + radius, effect.y - radius / 2);
@@ -53,7 +67,7 @@ export function drawFeedback(context: CanvasRenderingContext2D, effects: readonl
       context.lineTo(effect.x - radius / 2, effect.y);
       context.lineTo(effect.x + radius / 2, effect.y);
       context.lineTo(effect.x - radius / 2, effect.y + radius);
-    } else if (effect.kind === 'arcane' || effect.kind === 'frost') {
+    } else if (effect.kind === 'arcane') {
       context.moveTo(effect.x, effect.y - radius); context.lineTo(effect.x + radius, effect.y);
       context.lineTo(effect.x, effect.y + radius); context.lineTo(effect.x - radius, effect.y);
       context.closePath();

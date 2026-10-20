@@ -64,6 +64,12 @@ test('play mixed waves, see all silhouettes and attack warnings, and pause hosti
   for (const key of required) expect(observed[key], `Missing rendered enemy feature: ${key}`).toBe(true);
   await expect(page.getByRole('button', { name: 'Try again', exact: true })).toBeHidden();
   expect(Number((await page.locator('#wave-label').textContent())!.match(/Wave (\d+)/)![1])).toBeGreaterThanOrEqual(5);
+  // The discovery frame can also earn a level. Finish its choices before pausing.
+  while (await page.locator('#upgrade-picker').isVisible()) {
+    await choosePreferredUpgrade(page, ['vitality', 'haste', 'magnet', 'fleet', 'fork', 'pierce', 'burst'], Boolean(testInfo.project.use.hasTouch));
+  }
+  await expect(page.locator('#upgrade-picker')).toBeHidden();
+  await expect(page.locator('#pause-run')).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('mixed-waves.png'), fullPage: true });
   await activate(page.locator('#pause-run'));
   const pausedTime = await page.locator('#run-time').textContent();

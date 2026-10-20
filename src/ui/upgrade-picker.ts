@@ -1,3 +1,6 @@
+import { TALENT_ICONS } from '../content/talent-icons';
+import { UPGRADE_ICONS } from '../content/upgrade-icons';
+import { createIcon } from './icon';
 import { abilitySummary } from '../game/ability-summary';
 import { UPGRADES } from '../content/upgrades';
 import type { UpgradeId } from '../content/upgrades';
@@ -38,7 +41,7 @@ export function createUpgradePicker(root: HTMLElement, onChoose: (id: UpgradeId)
         const header = document.createElement('span');
         header.className = 'choice-heading';
         const name = document.createElement('strong');
-        name.textContent = upgrade.name;
+        name.append(createIcon(TALENT_ICONS[UPGRADE_ICONS[id]], 'ability-icon'), document.createTextNode(upgrade.name));
         const rarity = document.createElement('span');
         rarity.className = 'rarity';
         rarity.textContent = upgrade.fallback ? 'recovery' : upgrade.rarity;

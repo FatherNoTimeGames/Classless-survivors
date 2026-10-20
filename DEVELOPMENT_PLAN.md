@@ -185,7 +185,7 @@ these requirements. No subscription-usage or completion-time estimates are impli
   dawn with choices beyond ten minutes. Catalog, boss, inheritance, fallback,
   and browser checks pass. Difficulty tuning remains task 15.
 
-- [ ] **12. Finish the visual and audio presentation.**
+- [x] **12. Finish the visual and audio presentation.**
   Audit readability and fill missing visuals using the simplest original procedural
   shapes, vectors, or pixel art. Reuse visuals that already work. Ensure distinct
   player/enemy silhouettes, talent/ability icons, boss warnings, and effects.
@@ -194,6 +194,13 @@ these requirements. No subscription-usage or completion-time estimates are impli
   Done when gameplay has a consistent, readable style, all content has the visual
   cues it needs, and audio activation/settings work under browser restrictions.
   Elaborate artwork or replacing readable simple art is not required.
+  Delivered quiet, gesture-activated procedural audio with mute/volume and
+  interruption handling; separate saved presentation preferences; device-aware
+  reduced motion; grouped XP glyphs; bounded, prioritized cosmetic feedback;
+  clearer hostile layering and player outline; and reused icons for all upgrades.
+  Unit, production-build and desktop/tablet/phone browser checks pass. Native
+  audio checks cover activation, waveform, silence, suspension and retry;
+  physical-device listening and hardware performance remain unverified.
 
 - [ ] **13. Harden mobile, tablet, and desktop usability.**
   Tune portrait HUD, thumb reach, safe areas, touch targets, tooltips, and upgrade
