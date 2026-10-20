@@ -1,3 +1,5 @@
+import { upgradeRank } from '../content/upgrades';
+import { UPGRADE_TUNING as U } from '../content/upgrade-tuning';
 import type { Companion, Run } from './state';
 import { COMPANIONS } from '../content/companions';
 import { STEP, WORLD } from './rules';
@@ -10,12 +12,14 @@ import { attackInterval } from './attack-timing';
 
 function strike(run: Run, companion: Companion): boolean {
   const definition = COMPANIONS[companion.kind];
-  const target = nearestEnemy(run.enemies, run.player, definition.range);
+  const rank = upgradeRank(run.progression.ranks, 'familiar');
+  const range = definition.range + rank * U.companionRange;
+  const target = nearestEnemy(run.enemies, run.player, range);
   if (!target) { companion.targetId = null; return false; }
   companion.targetId = target.id;
-  const damage = definition.damage + companion.bonusDamage;
+  const damage = definition.damage + rank * U.companionDamage + companion.bonusDamage;
   if (definition.mode === 'projectile') {
-    if (!fireVolley(run, companion, run.player, definition.range, {
+    if (!fireVolley(run, companion, run.player, range, {
       damage, source: 'summon', school: definition.school,
     })) return false; // Keep the stored bonus/cooldown if the projectile budget is full.
     companion.attackIn = attackInterval(run, definition.interval);

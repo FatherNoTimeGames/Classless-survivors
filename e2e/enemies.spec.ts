@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import type { Locator } from '@playwright/test';
-import { seedRuns } from './game-helpers';
+import { seedRuns, choosePreferredUpgrade } from './game-helpers';
 
 test('play mixed waves, see all silhouettes and attack warnings, and pause hostile effects', async ({ page }, testInfo) => {
   test.setTimeout(120_000);
@@ -51,10 +51,7 @@ test('play mixed waves, see all silhouettes and attack warnings, and pause hosti
   let observed: Record<string, boolean> = {};
   for (let frame = 0; frame < 400; frame++) {
     while (await page.locator('#upgrade-picker').isVisible()) {
-      for (const id of ['vitality', 'haste', 'magnet', 'fleet', 'fork', 'pierce', 'burst']) {
-        const card = page.locator(`[data-upgrade="${id}"]`);
-        if (await card.isVisible()) { await activate(card); break; }
-      }
+      await choosePreferredUpgrade(page, ['vitality', 'haste', 'magnet', 'fleet', 'fork', 'pierce', 'burst'], Boolean(testInfo.project.use.hasTouch));
     }
     if (await page.getByRole('button', { name: 'Try again', exact: true }).isVisible()) break;
     const clock = (await page.locator('#run-time').textContent())!.split(':').map(Number);

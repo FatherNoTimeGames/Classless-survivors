@@ -170,14 +170,20 @@ these requirements. No subscription-usage or completion-time estimates are impli
   bounded hard control, healing breaks, deadline defeat/victory, final builds,
   rewards, free respec, and replay. Two earned-upgrade hybrid simulations win;
   full win/save/respec/reload/replay journeys pass on all three browser viewports.
-  Full build balance and the early-exhausting upgrade pool remain tasks 11/15.
+  Initial delivery left expanded upgrades, pacing, and broader balance to tasks 11/15.
 
-- [ ] **11. Deepen temporary upgrades and hybrid builds.**
+- [x] **11. Deepen temporary upgrades and hybrid builds.**
   Expand run upgrades to support all ability families and add temporary cross-branch
   synergies. Provide readable build/ability summaries and sensible fallback offers
   for capped upgrades. Preserve viable options for narrow and mixed builds.
   Done when representative retaliation, frost/melee, critical/DoT, healing/offense,
   and summon builds each have tested, noticeably different play patterns.
+  Delivered 20 choices (seven original, twelve new, one recovery fallback),
+  capability-based offers, open hybrid triggers, family improvements, level-40
+  late progression, bounded proc modules, and derived ability/build summaries.
+  Five distinct eight-point earned-upgrade routes defeat all guardians and reach
+  dawn with choices beyond ten minutes. Catalog, boss, inheritance, fallback,
+  and browser checks pass. Difficulty tuning remains task 15.
 
 - [ ] **12. Finish the visual and audio presentation.**
   Audit readability and fill missing visuals using the simplest original procedural

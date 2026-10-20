@@ -19,7 +19,8 @@ export function fireBolt(run: Run, origin: Point, target: Point, options: {
     vx: gap > 0 ? dx / gap * RULES.boltSpeed : RULES.boltSpeed,
     vy: gap > 0 ? dy / gap * RULES.boltSpeed : 0,
     effectContext: snapshotEffectContext(run.effects),
-    life: RULES.boltLifetime, damage: options.damage, source: options.source, school: options.school,
+    // Longer companion targeting ranges must not produce shots that expire before reaching their aim.
+    life: Math.max(RULES.boltLifetime, gap / RULES.boltSpeed + RULES.boltArrivalMargin), damage: options.damage, source: options.source, school: options.school,
     pierce: options.pierce ?? 0, blastRadius: options.blastRadius ?? 0, hitIds: options.excludeId === undefined ? [] : [options.excludeId],
   });
   return true;

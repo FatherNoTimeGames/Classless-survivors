@@ -212,3 +212,7 @@ button:disabled { opacity: 0.45; cursor: default; }
 #boss-hud { margin-bottom: .4rem; }
 #boss-health::-webkit-progress-value { background: #c5976b; }
 #boss-health::-moz-progress-bar { background: #c5976b; }
+.upgrade-detail { display: block; color: #aebcaf; line-height: 1.5; margin-block: .2rem .5rem; }
+.choice-build { color: #bdc8b6; font-size: .7rem; margin-block: .5rem; }
+.choice-build summary { min-height: 32px; cursor: pointer; }
+.choice-build p { line-height: 1.5; }

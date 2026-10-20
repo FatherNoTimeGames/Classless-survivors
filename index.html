@@ -56,13 +56,14 @@
             <h3 id="overlay-title">Hold back the dark</h3>
             <p id="overlay-description">Survive 15 minutes and defeat the guardians at 4:00, 9:00 and 14:00. Your ember attacks automatically. Move to dodge danger and gather green XP shards for upgrades.</p>
             <p id="run-results" hidden></p><p id="run-reward" hidden></p>
-            <details id="result-build" hidden><summary>Final build</summary><p id="result-talents"></p><p id="result-upgrades"></p></details>
+            <details id="result-build" hidden><summary>Final build</summary><p id="result-talents"></p><p id="result-upgrades"></p><p id="result-abilities"></p></details>
             <button class="primary-button" id="start-run" type="button">Enter the clearing</button>
             <button class="quiet-button" id="return-to-build" type="button" hidden>Return to build planning</button>
           </section>
           <section class="upgrade-overlay" id="upgrade-picker" role="dialog" aria-modal="true" aria-labelledby="upgrade-title" aria-describedby="upgrade-note" hidden>
             <h3 id="upgrade-title">Choose your ember</h3>
             <p id="upgrade-note">Combat is paused. Choose one upgrade for this run.</p>
+            <details class="choice-build"><summary>Your current abilities</summary><p id="upgrade-build"></p></details>
             <div id="upgrade-choices"></div>
           </section>
           <p class="canvas-error" id="canvas-error" role="alert" hidden>
@@ -87,7 +88,8 @@
             </ul>
           </details>
           <details class="build-summary" id="run-build" hidden>
-            <summary>Run upgrades</summary>
+            <summary>Run upgrades &amp; abilities</summary>
+            <ul id="ability-summary"></ul>
             <p id="ember-stats"></p>
             <ul id="active-upgrades"></ul>
             <p>Active talents</p>

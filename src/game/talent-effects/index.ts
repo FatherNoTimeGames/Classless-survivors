@@ -1,3 +1,4 @@
+import { activeUpgradeEffects } from '../upgrade-effects';
 import { TALENTS } from '../../content/talents';
 import type { TalentId } from '../../content/talents';
 import type { Run } from '../state';
@@ -36,6 +37,6 @@ export function resolveTalentEffects(run: Run): void {
   // Catalog order makes interactions independent of the order points were allocated.
   const handlers = TALENTS.filter((talent) => run.talents.includes(talent.id))
     .flatMap((talent) => TALENT_IMPLEMENTATIONS[talent.id] ?? []);
-  drainEffects(run.effects, run, handlers);
+  drainEffects(run.effects, run, [...handlers, ...activeUpgradeEffects(run)]);
   run.enemies = run.enemies.filter((enemy) => enemy.health > 0);
 }

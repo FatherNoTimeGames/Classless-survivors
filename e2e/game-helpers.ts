@@ -87,3 +87,29 @@ export async function collectUntilChoice(page: Page, canvas: Locator): Promise<v
   }
   throw new Error('Collecting actual pickups did not produce a level choice.');
 }
+
+/** Pick a preferred visible upgrade, or a valid new offer when the preferred pool is capped. */
+export async function choosePreferredUpgrade(page: Page, priority: readonly string[], touch = false): Promise<void> {
+  const offered = await page.locator('#upgrade-choices button').evaluateAll((buttons) => buttons.map((button) => (button as HTMLElement).dataset.upgrade!));
+  const id = priority.find((candidate) => offered.includes(candidate)) ?? offered[0];
+  if (!id) throw new Error('A pending level has no upgrade offers.');
+  const card = page.locator(`[data-upgrade="${id}"]`);
+  if (touch) await card.tap(); else await card.click();
+}
+
+/** Accelerate only RAF time and send movement keys from the visible clock; never mutate combat state. */
+export async function installRunPilot(page: Page): Promise<void> {
+  await page.clock.install({ time: new Date('2026-01-01T00:00:00Z') });
+  await page.clock.pauseAt(new Date('2026-01-01T00:00:01Z'));
+  await page.addInitScript(() => {
+    const original = window.requestAnimationFrame.bind(window);
+    window.requestAnimationFrame = (callback) => original((time) => {
+      const clock = document.querySelector('#run-time')?.textContent?.split(':').map(Number);
+      if (clock?.length === 2) {
+        const code = ['KeyW', 'KeyD', 'KeyS', 'KeyA'][Math.floor((clock[0]! * 60 + clock[1]!) / 3) % 4]!;
+        for (const key of ['KeyW', 'KeyD', 'KeyS', 'KeyA']) window.dispatchEvent(new KeyboardEvent(key === code ? 'keydown' : 'keyup', { code: key, cancelable: true }));
+      }
+      callback(time * 12);
+    });
+  });
+}

@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import type { Locator } from '@playwright/test';
-import { seedRuns } from './game-helpers';
+import { seedRuns, choosePreferredUpgrade } from './game-helpers';
 
 const branches = {
   Priest: ['Ember Communion', 'Searing Grace', 'Sanctuary', 'Atonement', 'Martyr Ward', 'Dawn Chorus'],
@@ -78,10 +78,7 @@ for (const branch of ['Priest', 'Warlock'] as const) {
     const seen = () => page.evaluate(() => (window as unknown as { observedDevotion: Record<string, boolean> }).observedDevotion);
     const choosePending = async () => {
       while (await page.locator('#upgrade-picker').isVisible()) {
-        for (const id of ['vitality', 'fleet', 'magnet', 'haste', 'fork', 'pierce', 'burst']) {
-          const card = page.locator(`[data-upgrade="${id}"]`);
-          if (await card.isVisible()) { await activate(card); break; }
-        }
+        await choosePreferredUpgrade(page, ['vitality', 'fleet', 'magnet', 'haste', 'fork', 'pierce', 'burst'], Boolean(testInfo.project.use.hasTouch));
       }
     };
     for (let seconds = 0; seconds < 120; seconds += 2) {

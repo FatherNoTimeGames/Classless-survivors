@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import type { Locator } from '@playwright/test';
-import { seedRuns } from './game-helpers';
+import { seedRuns, choosePreferredUpgrade } from './game-helpers';
 
 test('allocate both complete branches, then play a Warrior build with real cleave and ward feedback', async ({ page }, testInfo) => {
   test.setTimeout(90_000);
@@ -50,10 +50,7 @@ test('allocate both complete branches, then play a Warrior build with real cleav
   for (let seconds = 0; seconds < 180; seconds += 2) {
     while (await page.locator('#upgrade-picker').isVisible()) {
       // Utility choices retain close-range encounters, rather than buffing ember damage.
-      for (const id of ['fleet', 'magnet', 'vitality', 'haste', 'fork', 'pierce', 'burst']) {
-        const card = page.locator(`[data-upgrade="${id}"]`);
-        if (await card.isVisible()) { await activate(card); break; }
-      }
+      await choosePreferredUpgrade(page, ['fleet', 'magnet', 'vitality', 'haste', 'fork', 'pierce', 'burst'], Boolean(testInfo.project.use.hasTouch));
     }
     if (await page.getByRole('button', { name: 'Try again' }).isVisible()) break;
     // Walk toward the far edge then back through approaching foes, exercising close combat.

@@ -1,3 +1,4 @@
+import { abilitySummary } from '../game/ability-summary';
 import { createBossHud } from './boss-hud';
 import { waveAt, WAVES } from '../content/waves';
 import { PROGRESSION_RULES, UPGRADES } from '../content/upgrades';
@@ -58,17 +59,19 @@ export function createHud() {
       xpBar.max = capped ? 1 : xpForLevel(run.progression.level);
       xpBar.value = capped ? 1 : run.progression.xpIntoLevel;
       setText(xpLabel, capped ? 'Maximum level' : `${run.progression.xpIntoLevel} / ${xpBar.max} XP`);
-      const key = JSON.stringify(run.progression.ranks);
+      const key = JSON.stringify([run.progression.ranks, run.talents]);
       if (key !== previousRanks) {
         previousRanks = key;
         setText(statsLabel, `Ember · ${stats.attackInterval.toFixed(2)}s cooldown · ${stats.projectileCount} target${stats.projectileCount === 1 ? '' : 's'} · ${stats.pierce} pierce · ${stats.blastRadius} blast range`);
+        const summary = element('#ability-summary'); summary.replaceChildren();
+        for (const line of abilitySummary(run)) { const item = document.createElement('li'); item.textContent = line; summary.append(item); }
         active.replaceChildren();
         for (const upgrade of UPGRADES) {
           const rank = run.progression.ranks[upgrade.id] ?? 0;
           if (!rank) continue;
           const item = document.createElement('li');
-          item.textContent = `${upgrade.name} ${rank}/${upgrade.maxRank}`;
-          item.title = upgrade.description;
+          item.textContent = upgrade.fallback ? `${upgrade.name} chosen ${rank} times` : `${upgrade.name} ${rank}/${upgrade.maxRank}`;
+          const detail = document.createElement('span'); detail.className = 'upgrade-detail'; detail.textContent = upgrade.description; item.append(detail);
           active.append(item);
         }
         if (!active.childElementCount) {

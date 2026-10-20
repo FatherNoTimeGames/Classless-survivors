@@ -1,27 +1,19 @@
 import { expect, test } from '@playwright/test';
 import type { Locator } from '@playwright/test';
-import { seedRuns } from './game-helpers';
+import { seedRuns, choosePreferredUpgrade, installRunPilot } from './game-helpers';
 import { SAVE_KEY } from '../src/persistence/profile-store';
 
 test('complete fifteen minutes, fight three guardians, claim victory, respec, reload and replay', async ({ page }, testInfo) => {
   test.setTimeout(180_000);
   const errors: string[] = []; page.on('pageerror', (error) => errors.push(error.message));
   await seedRuns(page);
-  await page.clock.install({ time: new Date('2026-01-01T00:00:00Z') });
-  await page.clock.pauseAt(new Date('2026-01-01T00:00:01Z'));
-  // Only the frame-time input is accelerated. Combat, upgrades, boss HP and rewards are real.
-  // The test pilot sends ordinary movement key events based on the visible HUD clock.
+  await installRunPilot(page);
   await page.addInitScript(() => {
     const seen: Record<string, boolean> = {};
     Object.assign(window, { observedBosses: seen });
     const original = window.requestAnimationFrame.bind(window);
     window.requestAnimationFrame = (callback) => original((time) => {
-      const clock = document.querySelector('#run-time')?.textContent?.split(':').map(Number);
-      if (clock?.length === 2) {
-        const code = ['KeyW', 'KeyD', 'KeyS', 'KeyA'][Math.floor((clock[0]! * 60 + clock[1]!) / 3) % 4]!;
-        for (const key of ['KeyW', 'KeyD', 'KeyS', 'KeyA']) window.dispatchEvent(new KeyboardEvent(key === code ? 'keydown' : 'keyup', { code: key, cancelable: true }));
-      }
-      callback(time * 12);
+      callback(time);
       const name = document.querySelector('#boss-name')?.textContent;
       if (name && !(document.querySelector('#boss-hud') as HTMLElement).hidden) seen[name.split(' · ')[0]!] = true;
     });
@@ -61,10 +53,7 @@ test('complete fifteen minutes, fight three guardians, claim victory, respec, re
   let pausedBoss = false, photographed = false;
   for (let batch = 0; batch < 340; batch++) {
     while (await page.locator('#upgrade-picker').isVisible()) {
-      for (const id of ['vitality', 'haste', 'magnet', 'fleet', 'fork', 'pierce', 'burst']) {
-        const card = page.locator(`[data-upgrade="${id}"]`);
-        if (await card.isVisible()) { await activate(card); break; }
-      }
+      await choosePreferredUpgrade(page, ['vitality', 'haste', 'magnet', 'fleet', 'fork', 'pierce', 'burst'], Boolean(testInfo.project.use.hasTouch));
     }
     if (await page.locator('#return-to-build').isVisible()) break;
     if (await page.locator('#boss-hud').isVisible()) {

@@ -1,3 +1,5 @@
+import { createUpgradeMemory } from './upgrade-state';
+import type { UpgradeMemory } from './upgrade-state';
 import type { BossId } from '../content/bosses';
 import { createCampaign } from './campaign-state';
 import type { CampaignState } from './campaign-state';
@@ -66,6 +68,7 @@ export interface Run {
     criticalHits: number; snareHits: number; wildHuntIn: number; sanctuaryIn: number; dawnIn: number;
   };
   effects: EffectQueue;
+  upgradeMemory: UpgradeMemory;
   player: Player;
   enemies: Enemy[];
   enemyBolts: EnemyBolt[]; blights: Blight[]; spawned: number;
@@ -84,7 +87,7 @@ export function createRun(seed: number, talents: readonly TalentId[] = [], budge
   if (!validation.valid) throw new Error(`Invalid talent build: ${validation.errors.join(' ')}`);
   return {
     status: 'running', finishReason: null, campaign: createCampaign(), elapsed: 0, kills: 0, xp: 0,
-    talents: [...talents], effects: createEffectQueue(),
+    talents: [...talents], upgradeMemory: createUpgradeMemory(), effects: createEffectQueue(),
     talentMemory: { arcaneHits: 0, communionKills: 0, cinderKills: 0, huntingCharge: false, physicalHits: 0, spellsteelIn: 0, chainHits: 0, spellHits: 0, ironWardIn: 0, riftIn: 0, criticalHits: 0, snareHits: 0, wildHuntIn: 0, sanctuaryIn: 0, dawnIn: 0 },
     progression: {
       level: 1, xpIntoLevel: 0, pendingLevels: 0, offers: [], ranks: {},

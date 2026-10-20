@@ -1,3 +1,4 @@
+import { abilitySummary } from '../game/ability-summary';
 import { UPGRADES } from '../content/upgrades';
 import type { UpgradeId } from '../content/upgrades';
 import type { Run } from '../game/state';
@@ -11,7 +12,7 @@ export function createUpgradePicker(root: HTMLElement, onChoose: (id: UpgradeId)
   const choices = element('#upgrade-choices', root);
   const events = new AbortController();
   root.addEventListener('keydown', (event) => {
-    const buttons = [...choices.querySelectorAll<HTMLButtonElement>('button')];
+    const buttons = [...root.querySelectorAll<HTMLElement>('summary, button')];
     if (event.key === 'Tab') {
       const index = buttons.indexOf(document.activeElement as HTMLButtonElement);
       const next = (index + (event.shiftKey ? -1 : 1) + buttons.length) % buttons.length;
@@ -26,6 +27,7 @@ export function createUpgradePicker(root: HTMLElement, onChoose: (id: UpgradeId)
       note.textContent = run.progression.pendingLevels > 1
         ? `Combat is paused. ${run.progression.pendingLevels} level rewards remain. Choose one upgrade for each.`
         : 'Combat is paused. Choose one upgrade for this run.';
+      element('#upgrade-build', root).textContent = abilitySummary(run).join(' ');
       choices.replaceChildren();
       for (const id of run.progression.offers) {
         const upgrade = UPGRADES.find((entry) => entry.id === id)!;
@@ -39,14 +41,14 @@ export function createUpgradePicker(root: HTMLElement, onChoose: (id: UpgradeId)
         name.textContent = upgrade.name;
         const rarity = document.createElement('span');
         rarity.className = 'rarity';
-        rarity.textContent = upgrade.rarity;
+        rarity.textContent = upgrade.fallback ? 'recovery' : upgrade.rarity;
         header.append(name, rarity);
         const description = document.createElement('span');
         description.className = 'choice-description';
         description.textContent = upgrade.description;
         const rank = document.createElement('span');
         rank.className = 'choice-rank';
-        rank.textContent = `Rank ${(run.progression.ranks[id] ?? 0) + 1} / ${upgrade.maxRank}`;
+        rank.textContent = upgrade.fallback ? 'Immediate recovery · no lasting stat increase' : `Rank ${(run.progression.ranks[id] ?? 0) + 1} / ${upgrade.maxRank}${upgrade.needs ? ` · Works with: ${upgrade.needs.join(' + ')}` : ' · Any build'}`;
         button.append(header, description, rank);
         button.addEventListener('click', () => onChoose(id), { once: true });
         choices.append(button);

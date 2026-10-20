@@ -211,13 +211,13 @@ describe('complete fifteen-minute seeded hybrid routes', () => {
   it.each(builds.map((talents, index) => ({ talents, index })))('hybrid $index completes waves, all guardians and dawn with earned upgrades', ({ talents }) => {
     const run = createRun(42, talents); const seen = new Set<string>(); let peakAdds = 0;
     for (let i = 0; i < 55000 && !['victory', 'defeated'].includes(run.status); i++) {
-      while (run.status === 'choosing') chooseUpgrade(run, (['vitality', 'haste', 'magnet', 'fleet', 'fork', 'pierce', 'burst'] as const).find((id) => run.progression.offers.includes(id))!);
+      while (run.status === 'choosing') chooseUpgrade(run, (['vitality', 'haste', 'magnet', 'fleet', 'fork', 'pierce', 'burst'] as const).find((id) => run.progression.offers.includes(id)) ?? run.progression.offers[0]!);
       tickRun(run, [{ x: 0, y: -1 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 0 }][Math.floor(run.elapsed / 3) % 4]!);
       if (run.campaign.active) { seen.add(run.campaign.active.id); peakAdds = Math.max(peakAdds, run.enemies.filter((foe) => !foe.boss).length); }
     }
     expect(run.status).toBe('victory'); expect(run.elapsed).toBe(900); expect(run.player.health).toBeGreaterThan(0);
     expect(seen).toEqual(new Set(['knight', 'matron', 'sovereign'])); expect(run.campaign.defeated).toEqual(['knight', 'matron', 'sovereign']);
     expect(peakAdds).toBeGreaterThan(0); expect(peakAdds).toBeLessThanOrEqual(6); expect(run.kills).toBeGreaterThan(900);
-    expect(run.xp).toBeGreaterThan(2000); expect(run.progression.level).toBe(20); expect(run.effects.dropped).toBe(0);
+    expect(run.xp).toBeGreaterThan(2000); expect(run.progression.level).toBeGreaterThan(20); expect(run.effects.dropped).toBe(0);
   });
 });

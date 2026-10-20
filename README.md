@@ -7,7 +7,7 @@ Mix talents freely across six fantasy archetypes. No accounts or backend require
 implemented. Persistent progress unlocks capstones and a bounded talent budget.
 Builds support melee/spell combos, critical effects,
 Poison/curses, companions, healing offense, shields, and retaliation. Runs include
-movement, automatic combat, XP, temporary upgrades, defeat, and replay. Local
+movement, automatic combat, XP, 20 run-upgrade choices, defeat, and replay. Local
 saves, research, named builds, and backups now work. Five enemy types, two elite
 modifiers, escalating waves, and three telegraphed guardians form a timed
 15-minute run with victory, defeat, rewards, and return to build planning. Offline
@@ -134,7 +134,7 @@ focus; click/tap it to refocus. The arena edge is solid; ruined scenery is visua
 
 Your ember fires automatically at nearby enemies. Green shards are XP: move
 near them to attract and collect them. Ten XP earns the first level; each following
-threshold costs eight more XP. On leveling, combat freezes while you select a
+threshold costs eight more XP through level 20; later thresholds grow faster. On leveling, combat freezes while you select a
 run upgrade. Tap/click a card, or use Tab and Enter/Space. Escape cannot dismiss a
 level reward. If several levels are earned at once, choose once for each reward;
 excess XP carries over. Held movement input is cleared before play resumes.
@@ -142,8 +142,16 @@ excess XP carries over. Held movement input is cleared before play resumes.
 Each offer contains up to three distinct upgrades, with at least one weapon
 option when available. Common upgrades appear from level 2, uncommon from level 3,
 and rare from level 4. Common offers have greater selection weight. Maxed upgrades
-stop appearing. The initial pool supports 20 levels; at maximum level, XP remains
-counted in the run total and no more choices are required.
+stop appearing. **Level 40** bounds the run budget. Thresholds remain familiar
+through level 20, then add `2 × (level − 20)²` XP to the base cost. This keeps choices
+arriving later in a full run. XP still counts toward your total at maximum level.
+Family upgrades appear only when a talent or acquired upgrade provides their
+trigger. Your run choices can open new paths: Viper Ink enables periodic upgrades,
+Keen Instinct enables critical synergies, Blood Wellspring enables healing offense,
+and Returning Aegis enables absorption retaliation. No class restriction applies.
+If fewer than three eligible lasting upgrades remain, **Second Wind** offers
+immediate healing and a temporary ward. Narrow or capped builds cannot become
+stuck on an empty level reward; permanent combat stats remain bounded.
 
 | Run upgrade | Effect per rank | Rank cap |
 | --- | --- | --- |
@@ -156,6 +164,38 @@ counted in the run total and no more choices are required.
 | Ashburst | Ember, Spellsteel, and imp impacts explode for half shot damage before on-hit bonuses; radius +20, without chaining | 2 |
 
 
+| Additional run choice | Function / interaction | Rank cap |
+| --- | --- | --- |
+| Grave Longblade | Sweeping Blade gains 14 reach and 4 base damage per rank; its angle stays 120° | 2 |
+| Lingering Venom | New/refreshed Poison and curses gain 2 tick damage per rank; tick clocks do not reset | 3 |
+| Empowered Familiars | Falcon/imp gain 4 base damage and 20 target range per rank; imp shots snapshot it | 2 |
+| Blood Wellspring | Any six kills attempt 4 healing; actual/excess healing use normal rules | 1 |
+| Returning Aegis | With foes present, grant 6 ward per rank every 5s, lasting 4s; grants do not stack | 2 |
+| Keen Instinct | Crit every 5/4 non-periodic hits, or 3/2 with Killer Instinct; companions share cadence | 2 |
+| Viper Ink | All non-periodic hits apply 2s Poison, 3/5 per tick or 5/7 with Venom Edge; companions qualify without Pack Link | 2 |
+| Wintersteel | Physical hits apply 2s Frost after damage; later physical hits can consume it | 1 |
+| Ward Reprisal | Absorption deals 8 physical per rank to up to 8 foes within 70 range, once per second | 2 |
+| Septic Catalyst | Crits pulse existing DoTs on up to 3 afflicted foes within 60 range, once per 0.75s | 1 |
+| Radiant Reprieve | Actual healing deals 4 holy per rank to up to 8 foes within 90 range, once per second | 2 |
+| Winter Pact | Companion hit against a slowed foe causes an 8 arcane burst within 36 range, up to 6 foes, once per 0.75s | 1 |
+| Second Wind | Fallback: heal 20 and grant 8 ward for 6s; no lasting stat increase | Limited by remaining levels |
+
+Longblade requires melee; Familiars requires a companion; Lingering Venom requires
+Poison/curses; Wintersteel requires physical damage; Ward Reprisal requires a
+repeatable shield source; Catalyst requires crits and DoTs; Reprieve requires
+repeatable healing; Winter Pact requires a companion and Frost or snares. These
+capabilities come from talents or run upgrades. Frost/physical and companion
+bursts work on bosses under their existing Resolve rules.
+
+New temporary effects share the talent FIFO/ancestry safeguards. Their cooldowns
+and target caps further bound fan-out. Periodic pulses cannot crit or refresh
+DoTs, and refreshes preserve tick timing. Winter Pact's arcane burst is your
+triggered damage; its original companion hit retains ordinary Pack Link rules.
+Viper Ink explicitly grants companion Poison, while familiar damage/range bonuses
+do not grant other on-hit inheritance. Empowered imp shots live long enough to
+reach their selected aim even when the imp is trailing the player.
+
+
 Haste changes automatic attack intervals, not DoT timing, proc counters, or talent
 cooldowns. Picking it preserves elapsed cooldown progress for every attacker;
 unrelated upgrades do not reset attack timers. Projectile upgrades leave falcon
@@ -165,7 +205,11 @@ retain their captured upgrades and damage. See [SYNERGY_AUDIT.md](SYNERGY_AUDIT.
 for the talent/upgrade review, tested combinations, and intentional exclusions.
 
 Piercing bolts have a pale trail; explosive bolts produce expanding impact rings.
-Open **Run upgrades** beneath the arena to inspect your ranks and ember stats.
+Open **Run upgrades & abilities** beneath the arena to inspect damage, range,
+attack cadence, companion inheritance, and every acquired upgrade's description.
+The choice screen includes a keyboard/touch-accessible current-abilities summary;
+the results screen shows the final ability summary for that run. These values describe base abilities;
+critical hits, wounded/Frost bonuses, and stored companion bonuses can add damage.
 Enemy numbers build over time, and you lose when health reaches zero. **Try again**
 starts a fresh run with level 1, your chosen talents, and no run upgrades. Defeat
 all three guardians and survive until **15:00** to win. Health reaching zero loses
@@ -390,14 +434,26 @@ unfinished restarted run without duplicating rewards.
 Boss tests cover all three schedules and pattern families, corner escapes, locked
 warnings, arrival/grace, shared status/DoT/companion/retaliation behavior, Resolve,
 reinforcement/hazard caps, healing breaks, final-tick ordering, frozen outcomes, and
-one-time profile rewards. Two legal eight-point Mage/Priest hybrids complete real
-900-second simulations using earned XP/choices and a repeatable movement route;
-this establishes winnability for those builds, not comprehensive balance.
+one-time profile rewards. Five additional legal eight-point routes cover
+retaliation, Frost/melee, critical/DoT, healing/offense, and summons. Together with
+the two Mage/Priest routes, they complete real 900-second simulations using earned
+XP/choices and a repeatable movement route. The five new routes still earn
+choices beyond ten minutes. This establishes seeded winnability and later
+progression, not comprehensive difficulty balance or human playtest quality.
+Upgrade tests cover meaningful family effects, snapshots, capability eligibility,
+critical/periodic cadence, healing/absorption boundaries, new hybrid reactions,
+recovery fallbacks, maximum-range imp impacts, and guardian interactions. The
+36-talents × 20 individual upgrade cases plus all-maximum combinations check
+allocation-order determinism, finite state, queue limits and entity caps.
 The guardian browser journey accelerates only RAF timestamp input by 12× and sends
 movement key events based on the visible clock. It allocates a real mixed build,
 chooses earned upgrades, observes actual guardian art/warnings, pauses an encounter,
 then checks victory, saved rewards, respec, reload, and replay. It injects no combat
 state and is not a real-time performance or physical-device benchmark.
+The new browser upgrade journey selects a real Warrior/Hunter/Priest build,
+acquires Longblade/Familiars/Wintersteel/Winter Pact, inspects updated abilities
+and readable descriptions, then reloads and verifies temporary powers reset.
+Level-choice keyboard traversal includes the expandable ability summary.
 
 Screenshots and failure traces are
 written to ignored `test-results/`. Emulation does not replace physical device
@@ -473,6 +529,12 @@ The simulation module map:
 | Talent behavior modules by branch and active-handler registry | `talent-effects/` |
 | XP drops, attraction, collection, and overflow merging | `pickups.ts` |
 | XP thresholds, queued levels, offers, and validated choices | `progression.ts` |
+| Capability-based upgrade eligibility, independent of class labels | `upgrade-eligibility.ts` |
+| Temporary proc counters and cooldown state | `upgrade-state.ts` |
+| Temporary shields and cooldown aging | `upgrade-timers.ts` |
+| Bounded upgrade event handlers sharing the talent queue | `upgrade-effects.ts` |
+| Player-facing derived ability descriptions | `ability-summary.ts` |
+| Upgrade definitions, requirements, rank caps, and effect tuning | `../content/upgrades.ts`, `../content/upgrade-tuning.ts` |
 | Deriving current run stats from selected upgrade ranks | `stats.ts` |
 | Feedback events and their lifetimes | `effects.ts` |
 | Distances, bounds, and swept collision geometry | `geometry.ts` |

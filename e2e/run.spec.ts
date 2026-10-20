@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { SAVE_KEY } from '../src/persistence/profile-store';
-import { collectUntilChoice, playerPosition, seedRuns, startGame } from './game-helpers';
+import { collectUntilChoice, playerPosition, seedRuns, startGame, choosePreferredUpgrade } from './game-helpers';
 
 test('keyboard movement, pause, and focus loss preserve the run and clear held input', async ({ page }) => {
   const { canvas, errors } = await startGame(page);
@@ -64,10 +64,7 @@ test('automatic combat earns XP, ends in defeat, and restarts with clean stats',
     if (await page.getByRole('button', { name: 'Try again' }).isVisible()) break;
     while (await page.getByRole('dialog').isVisible()) {
       // Deliberately choose utility/survival first to retain a vulnerable starter build.
-      for (const id of ['fleet', 'magnet', 'vitality', 'haste', 'fork', 'pierce', 'burst']) {
-        const card = page.locator(`[data-upgrade="${id}"]`);
-        if (await card.isVisible()) { await card.click(); break; }
-      }
+      await choosePreferredUpgrade(page, ['fleet', 'magnet', 'vitality', 'haste', 'fork', 'pierce', 'burst'], Boolean(testInfo.project.use.hasTouch));
     }
     await page.clock.runFor(5000);
   }

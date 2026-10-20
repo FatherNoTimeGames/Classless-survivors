@@ -21,7 +21,15 @@ test('collect XP, freeze for a keyboard/touch choice, improve an ability, level 
   const first = dialog.locator('button').first();
   await first.focus();
   await page.keyboard.press('Shift+Tab');
+  const abilities = dialog.locator('.choice-build summary');
+  await expect(abilities).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(dialog.locator('#upgrade-build')).toBeVisible();
+  await expect(dialog.locator('#upgrade-build')).toContainText('Ember:');
+  await page.keyboard.press('Shift+Tab');
   await expect(dialog.locator('button').last()).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(abilities).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(first).toBeFocused();
   await page.screenshot({ path: testInfo.outputPath('level-choice.png'), fullPage: true });

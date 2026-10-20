@@ -96,3 +96,43 @@ The starting attack remains present in every build, so projectile offers always
 have a recipient. Retaliation/healing-specific upgrade choices, temporary hybrid
 rewards, wider enemy balance, and full-length testing remain tasks 9–11 and 15–16.
 Physical Android hardware and other browser engines have not been checked here.
+
+
+## Task 11 extension: temporary hybrid upgrades
+
+The original audit above describes the seven-upgrade pool at task 7a. Task 11
+adds twelve lasting upgrade choices and Second Wind recovery (20 total choices).
+Definitions and prerequisites live in `content/upgrades.ts`; event tuning in
+`content/upgrade-tuning.ts`; eligibility, timers, and effect handlers have separate
+simulation modules. Pure ability summaries are shared by HUD, picker, and results.
+
+- Offers check capabilities supplied by talents **or acquired upgrades**. Shields,
+  healing, Poison, and critical cadence can be acquired during a run without a
+  matching talent branch. Narrow builds receive recovery when the pool is short.
+- Longblade changes melee damage/reach; Familiars changes both companion families'
+  damage/targeting. Haste, imp projectile upgrades, shot snapshots, and Pack Link
+  retain their established behavior. Projectile lifetime now covers the selected
+  aim distance, including a trailing imp at its expanded range.
+- Viper Ink explicitly gives companions Poison without Pack Link. Potency applies
+  once when Poison/curses are created/refreshed; copied DoTs retain their snapshot.
+  No periodic tick creates a new DoT or advances critical cadence.
+- Wintersteel uses any non-periodic physical hit, including retaliation/companions.
+  Frost is applied after damage, allowing later Frost consumption. Boss Resolve
+  still bounds hard control but does not block Frost or consumption damage.
+- Absorption retaliation feeds physical talents. Actual healing waves feed holy
+  marks and magical triggers; excess healing remains a separate boundary. Kill
+  healing accepts all kill sources. Cooldowns/caps bound these additional paths.
+- Catalyst accepts crits from any non-periodic family and pulses at most three
+  afflicted foes, with a shared 0.75s cooldown; pulses cannot crit/refresh themselves.
+- Winter Pact accepts slowed companion hits, including snares and pre-hit Frost
+  snapshots. Its bounded arcane burst is player-triggered damage, feeding arcane
+  triggers. It cannot count as another companion hit and retrigger itself.
+- All secondary paths use the same FIFO ancestry/depth/work limits as talents.
+  Delayed shots retain their ancestry. Catalog order preserves allocation-order
+  determinism. No persistent stats, save version, backend, or paid service is added.
+
+Validation includes individual behavior/eligibility tests, five distinct hybrid
+boss checks, five complete earned-upgrade 900-second routes, the existing two
+Mage/Priest full routes, and the expanded 36-talents × 20-upgrades plus all-maximum
+bounded interaction sweep. The full balance/presentation/device passes remain
+later milestones; seeded scripted victories are not a comprehensive balance claim.

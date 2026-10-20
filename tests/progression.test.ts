@@ -116,7 +116,10 @@ describe('XP and reward selection', () => {
     expect(run.status).toBe('running');
     expect(run.progression.pendingLevels).toBe(0);
     expect(run.progression.offers).toEqual([]);
-    for (const definition of UPGRADES) expect(run.progression.ranks[definition.id]).toBe(definition.maxRank);
+    expect(Object.values(run.progression.ranks).reduce((sum, rank) => sum + rank, 0)).toBe(PROGRESSION_RULES.maxLevel - 1);
+    expect(run.progression.ranks.longblade).toBeUndefined(); // No melee ability to improve.
+    expect(run.progression.ranks.familiar).toBeUndefined();
+    expect(run.progression.ranks.recovery).toBeGreaterThan(0);
     awardXp(run, 100);
     expect(run.xp).toBe(1_000_100);
     expect(run.status).toBe('running');

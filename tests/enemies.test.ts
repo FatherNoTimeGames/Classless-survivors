@@ -268,7 +268,7 @@ describe('real seeded mixed-wave routes', () => {
     const kinds = new Set(), warnings = new Set(), elites = new Set();
     for (let i = 0; i < 180 / STEP && run.status !== 'defeated'; i++) {
       while (run.status === 'choosing') {
-        const chosen = (['vitality', 'haste', 'magnet', 'fleet', 'fork', 'pierce', 'burst'] as const).find((id) => run.progression.offers.includes(id))!;
+        const chosen = (['vitality', 'haste', 'magnet', 'fleet', 'fork', 'pierce', 'burst'] as const).find((id) => run.progression.offers.includes(id)) ?? run.progression.offers[0]!;
         chooseUpgrade(run, chosen);
       }
       const directions = [{ x: 0, y: -1 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 0 }];

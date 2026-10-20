@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import type { Locator } from '@playwright/test';
-import { seedRuns } from './game-helpers';
+import { seedRuns, choosePreferredUpgrade } from './game-helpers';
 
 const branches = {
   Rogue: ['Expose Weakness', 'Venom Edge', 'Killer Instinct', 'Siphon Toxin', 'Contagion', 'Nightfall'],
@@ -67,10 +67,7 @@ for (const branch of ['Rogue', 'Hunter'] as const) {
     const seen = () => page.evaluate(() => (window as unknown as { observedHybrid: Record<string, boolean> }).observedHybrid);
     for (let seconds = 0; seconds < 120; seconds += 2) {
       while (await page.locator('#upgrade-picker').isVisible()) {
-        for (const id of ['fleet', 'magnet', 'vitality', 'haste', 'fork', 'pierce', 'burst']) {
-          const card = page.locator(`[data-upgrade="${id}"]`);
-          if (await card.isVisible()) { await activate(card); break; }
-        }
+        await choosePreferredUpgrade(page, ['fleet', 'magnet', 'vitality', 'haste', 'fork', 'pierce', 'burst'], Boolean(testInfo.project.use.hasTouch));
       }
       if (await page.getByRole('button', { name: 'Try again' }).isVisible()) break;
       const direction = seconds % 12 < 6 ? 'KeyW' : 'KeyS';

@@ -1,3 +1,4 @@
+import { updateUpgradeTimers } from './upgrade-timers';
 import { updateEncounterSchedule, resolveBossDefeat, updateBossIntent } from './bosses';
 import { updateBossDangers } from './boss-dangers';
 import { checkDawn } from './run-ending';
@@ -37,6 +38,7 @@ export function tickRun(run: Run, input: Point): void {
   updateSnares(run);
   updateEnemies(run);
   updateBossIntent(run);
+  updateUpgradeTimers(run);
   updateAttacks(run, stats);
   updateProjectiles(run);
   resolveTalentEffects(run);

@@ -24,6 +24,7 @@ export const RULES = {
   firstSpawnDelay: 0.35,
   boltRadius: 2,
   boltLifetime: 1,
+  boltArrivalMargin: 0.1,
   shardValue: 5,
   shardSpeed: 130,
   maxSparks: 64,

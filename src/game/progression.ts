@@ -1,3 +1,7 @@
+import { upgradeCapabilities } from './upgrade-eligibility';
+import type { TalentId } from '../content/talents';
+import { grantShield } from './shields';
+import { UPGRADE_TUNING as U } from '../content/upgrade-tuning';
 import { PROGRESSION_RULES, UPGRADES } from '../content/upgrades';
 import type { UpgradeDefinition, UpgradeId, UpgradeRanks } from '../content/upgrades';
 import type { Run } from './state';
@@ -7,19 +11,23 @@ import { healPlayer } from './healing';
 import { rescaleAttackTimers } from './attack-timing';
 
 export function xpForLevel(level: number): number {
-  return PROGRESSION_RULES.firstLevelXp + (level - 1) * PROGRESSION_RULES.extraXpPerLevel;
+  return PROGRESSION_RULES.firstLevelXp + (level - 1) * PROGRESSION_RULES.extraXpPerLevel + Math.max(0, level - PROGRESSION_RULES.lateLevelStart) ** 2 * PROGRESSION_RULES.lateLevelXpGrowth;
 }
 
 export function choiceLevel(run: Run): number {
   return run.progression.level - run.progression.pendingLevels + 1;
 }
 
-export function eligibleUpgrades(level: number, ranks: UpgradeRanks): UpgradeDefinition[] {
-  return UPGRADES.filter((upgrade) => level >= upgrade.minLevel && (ranks[upgrade.id] ?? 0) < upgrade.maxRank);
+export function eligibleUpgrades(level: number, ranks: UpgradeRanks, talents: readonly TalentId[] = []): UpgradeDefinition[] {
+  const capabilities = upgradeCapabilities(talents, ranks);
+  const available = UPGRADES.filter((upgrade) => level >= upgrade.minLevel && (ranks[upgrade.id] ?? 0) < upgrade.maxRank
+    && (upgrade.needs ?? []).every((need) => capabilities.has(need)));
+  const pool = available.filter((upgrade) => !upgrade.fallback);
+  return pool.length < PROGRESSION_RULES.offerCount ? [...pool, ...available.filter((upgrade) => upgrade.fallback)] : pool;
 }
 
 function rollOffers(run: Run): UpgradeId[] {
-  let pool = eligibleUpgrades(choiceLevel(run), run.progression.ranks);
+  let pool = eligibleUpgrades(choiceLevel(run), run.progression.ranks, run.talents);
   const offers: UpgradeId[] = [];
   while (pool.length && offers.length < PROGRESSION_RULES.offerCount) {
     // Always include one weapon option when one is eligible, then draw freely.
@@ -71,12 +79,13 @@ export function awardXp(run: Run, amount: number): void {
 /** Only a currently offered, eligible choice can spend a queued level reward. */
 export function chooseUpgrade(run: Run, id: string): boolean {
   if (run.status !== 'choosing' || run.progression.pendingLevels <= 0) return false;
-  const upgrade = eligibleUpgrades(choiceLevel(run), run.progression.ranks).find((entry) => entry.id === id);
+  const upgrade = eligibleUpgrades(choiceLevel(run), run.progression.ranks, run.talents).find((entry) => entry.id === id);
   if (!upgrade || !run.progression.offers.includes(upgrade.id)) return false;
   const before = getRunStats(run.progression.ranks);
   run.progression.ranks[upgrade.id] = (run.progression.ranks[upgrade.id] ?? 0) + 1;
   const after = getRunStats(run.progression.ranks);
-  healPlayer(run, after.maxHealth - before.maxHealth);
+  if (upgrade.id === 'recovery') { healPlayer(run, U.recoveryHeal); grantShield(run, U.recoveryWard, U.recoveryDuration); }
+  else healPlayer(run, after.maxHealth - before.maxHealth);
   if (after.attackInterval !== before.attackInterval) rescaleAttackTimers(run, after.attackInterval / before.attackInterval);
   run.progression.pendingLevels--;
   run.progression.offers = [];
