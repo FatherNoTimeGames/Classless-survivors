@@ -1,6 +1,7 @@
 import { decodeProfile, encodeProfile } from './profile-codec';
 import { newProfile } from '../profile/profile';
 import type { Profile } from '../profile/profile';
+import { LEGACY } from '../content/legacy';
 
 export const SAVE_KEY = 'classless-survivors.save';
 export const BACKUP_KEY = `${SAVE_KEY}.backup`;
@@ -35,14 +36,19 @@ export function createProfileStore(storage: StoragePort | null) {
   if (profile.activeRun !== null) { profile = { ...profile, activeRun: null }; notice += ' An unfinished run was discarded; completed progress and builds were retained.'; durable = false; }
 
   function commit(next: Profile, importing = false): boolean {
-    if (storage && !blocked) {
+    if (storage && (!blocked || importing)) {
       try {
         if (storage.getItem(SAVE_KEY) !== knownRaw) { notice = 'Progress changed in another tab. Reload this page before making more changes.'; return false; }
-      } catch { /* The write below reports storage failures consistently. */ }
+      } catch {
+        // An unchecked write could replace newer progress. Continue in memory instead.
+        storage = null;
+        notice = 'Local saving is unavailable. Changes are in memory; export a backup before leaving.';
+      }
     }
     const validated = decodeProfile(encodeProfile(next));
     if (!validated.ok || validated.notices.length) return false;
-    const updated = { ...validated.profile, revision: profile.revision + 1 };
+    // The raw saved payload guards stale writes; revision can safely saturate.
+    const updated = { ...validated.profile, revision: Math.min(LEGACY.maxRevision, profile.revision + 1) };
     if (storage && (!blocked || importing)) {
       try {
         // Preserve the previous valid primary; a bad/future payload is never a fallback.

@@ -26,7 +26,7 @@ export function decodeProfile(text: string): Decoded {
     profile.insight = Math.min(LEGACY.startingInsight, RESEARCH_TALENTS.length - profile.unlocked.length);
     return { ok: true, profile, notices: ['Updated an early save to the current format.'] };
   }
-  if (data.version !== 2 || !integer(data.revision, Number.MAX_SAFE_INTEGER - 1) || !integer(data.completedRuns, LEGACY.maxRuns)
+  if (data.version !== 2 || !integer(data.revision, LEGACY.maxRevision) || !integer(data.completedRuns, LEGACY.maxRuns)
     || !integer(data.insight, RESEARCH_TALENTS.length) || !integer(data.nextRunId, LEGACY.maxRunId) || data.nextRunId < 1
     || (data.activeRun !== null && (!integer(data.activeRun, LEGACY.maxRunId) || data.activeRun < 1 || data.activeRun !== data.nextRunId - 1))
     || typeof data.bestSeconds !== 'number' || !Number.isFinite(data.bestSeconds) || data.bestSeconds < 0 || data.bestSeconds > LEGACY.maxRunSeconds

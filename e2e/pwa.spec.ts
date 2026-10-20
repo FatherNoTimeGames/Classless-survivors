@@ -125,6 +125,24 @@ test('failed update download keeps the current shell playable offline and retrie
   } finally { await page.close(); await server.close(); }
 });
 
+test('retry an initial offline-download failure, then reload and play the repaired shell offline', async ({ page, context }) => {
+  const server = await releaseServer(true);
+  try {
+    await page.goto(server.origin + '/game/');
+    await expect(page.locator('#offline-notice')).toContainText(/download failed|setup did not finish/);
+    expect(server.failed()).toBeGreaterThan(0);
+    await expect(page.locator('#offline-status')).not.toContainText('Offline ready');
+    server.repair(); await page.locator('#offline-settings summary').click(); await page.locator('#cache-game').click();
+    await ready(page);
+    await context.setOffline(true); await page.reload(); await ready(page);
+    await page.clock.install(); await page.clock.pauseAt(new Date());
+    await page.locator('#start-run').click(); const canvas = page.locator('#arena');
+    const before = await playerPosition(canvas);
+    await page.keyboard.down('KeyD'); await page.clock.runFor(300); await page.keyboard.up('KeyD');
+    expect((await playerPosition(canvas)).x).toBeGreaterThan(before.x + 20);
+  } finally { await page.close(); await server.close(); }
+});
+
 test('unavailable registration leaves gameplay usable; the optional install button follows browser offers', async ({ page }) => {
   await page.addInitScript(() => { ServiceWorkerContainer.prototype.register = () => Promise.reject(new DOMException('Blocked', 'SecurityError')); });
   await page.clock.install(); await page.clock.pauseAt(new Date()); await page.goto('/');

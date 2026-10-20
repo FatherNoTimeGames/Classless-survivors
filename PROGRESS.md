@@ -2,7 +2,7 @@
 
 ## Current state
 
-- Completed: tasks 0–15, modular refactor 2a, and synergy pass 7a.
+- Completed: tasks 0–16, modular refactor 2a, and synergy pass 7a.
 - Playable: keyboard/touch movement, automatic combat, XP/levels, 20 run upgrades,
   five enemy types, elites, three guardians and a 15-minute campaign. Victory and
   defeat return to persistent rewards, build planning/free respec and replay.
@@ -30,6 +30,13 @@
   profile/settings storage and browser-independent simulation stay separate.
   The development benchmark harness stays outside the production game; no profile/
   settings save-format, dependency or lockfile change was needed.
+- Task 16 checks all nine requested play journeys, legal talent pairs and repeated
+  campaign/reload cycles. Three reproduced save defects are fixed: stale imports
+  from a future-save session, unchecked writes after read failure and revision
+  overflow. See [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) for evidence and limits.
+- Full browser regression caught a failed-update notice race. Its deterministic
+  fixture and an initial-install retry regression now pass; native failed-download
+  repair/retry remains covered. Welcome/help text now matches the 13:30 guardian.
 
 ## Standing requirements
 
@@ -43,47 +50,46 @@
 
 ## Next task
 
-**Task 16: Complete regression testing and fix release blockers.**
+**Task 17: Prepare and deliver the playable release.**
 
-Wait for **continue** after task 15's committed report. Exercise the full release
-criteria, every talent, high-risk combinations, migration, repeated restarts and
-long-run stability. Diagnose/fix failures, document limits, commit and pause.
-Task 17 delivers the production game; no deployment target is configured.
+Wait for **continue** after task 16's committed report. Produce/smoke-test the
+release, finish play/development/save/hosting/PWA-update instructions and deliver
+the production files. Deploy only if a suitable authorized target is available;
+otherwise provide the exact remaining hosting step. No target is configured.
 
 ## Latest validation
 
-- Final `npm test`: **1,114 tests passed in 20 files**, including 16 new balance/
-  optimization cases. Existing talent matrix, full campaigns, progression,
+- Final `npm test -- --disableConsoleIntercept`: **1,647 tests passed in 24 files**,
+  including 533 new release cases. Existing talent matrix, full campaigns, progression,
   bosses, persistence, audio, presentation and offline checks pass.
 - Final `npm run build`: TypeScript and production generation pass. Approximately
-  **126.10 kB JS (42.10 kB gzip), 14.41 kB CSS, 12.40 kB HTML, 3.42 kB worker**.
+  **126.31 kB JS (42.14 kB gzip), 14.41 kB CSS, 12.40 kB HTML, 3.42 kB worker**.
   PNG icons total about 6.24 kB. No dependency or lockfile changes.
-- Final production browser suite: **88/88 passed** (two workers, 5.4 minutes),
-  including offline full campaigns, victories/rewards/respec/replay on desktop,
-  tablet and Android portrait emulation. Touch interruption/recovery, actual
-  synthesized audio, native browser restart and safe PWA update cases also pass.
-- Nine builds × three seeds finish with 21/27 fixed-pilot wins and 25/27 wins
-  when choosing defense while hurt. All nine fixed routes win seed 42; the six-
-  branch starter wins all three seeds. All ordinary routes have zero dropped
-  effects. Losses, differing pilot behavior and research requirements are explicit.
-- Matched final tuning/seed/policy with the old implementation: all recorded
-  non-timing fields match across nine campaigns/control. Accelerated campaign
-  wall time drops from 21.34 to 11.40 seconds (~47%). This is not displayed FPS.
-- Synthetic cap workload: optimized Node tick median/p95 about 1.79/3.24 ms;
-  native Chromium simulation + Canvas/director p95 about 3.0 ms desktop and
-  3.1 ms phone emulation. The extreme fixture intentionally hits the 512-event
-  cap and drops secondary reactions. Limits/methods are in BALANCE_REPORT.md;
-  ordinary campaigns do not saturate the queue. No physical-device claim.
-- Reviewed current mixed-wave and phone final-guardian screenshots: silhouettes,
-  hostile warnings, pickups and the revised guardian HUD remain readable.
-  The workspace restart preserved
-  work and diagnostics; no setup configuration changes were required.
+- First full browser run: 93/94 passed; the Android update-notice failure was
+  diagnosed/fixed, with deterministic client coverage. All five targeted Android
+  PWA cases pass. Final rebuilt production run: **97/97 passed**, two workers,
+  5.9 minutes. Offline campaigns, native restart, migration/replay, failed initial
+  downloads, update recovery, touch controls and audio pass on all three projects.
+- All 525 affordable cross-branch pairs cover every talent with prerequisites,
+  valid 39-rank choice sets and reversed allocation order. Synthetic two-second
+  fixtures test bounded reactions/state, complementing dedicated talent behavior.
+- Twelve real sequential campaign/save/reload cycles yield 11 wins and one defeat,
+  about 9,965 simulated seconds, zero dropped effects and 12 durable outcomes.
+  Research, budgets 8→9→10, slots, finished-state freezing, independent run state
+  and one discarded unfinished identity all pass. No combat stats/XP are injected.
+- Both initial persistence regressions failed before the fix. A third read/write
+  failure reproduced during audit. All pass with prior save/recovery/import cases.
+  Reviewed imports cannot bypass stale checks; failed guard reads continue in
+  memory with export guidance; the revision ceiling remains reloadable.
+- Task-15 balance/performance findings remain in BALANCE_REPORT.md. No gameplay
+  tuning changed in task 16. No dependency, lockfile or environment setup changes.
+  No unresolved failures remain in the executed release checks.
 - **103 TypeScript source modules**, with three separate build modules. Node
   24.19.0/npm 11.9.0/Chromium 154 remain the tested environment.
 
 ## Remaining work and limits
 
-- Two tasks remain: 16 release regressions; 17 production delivery/deployment.
+- One task remains: 17 production delivery/deployment.
   Seeded wins alone do not prove enjoyable balance or Android hardware performance.
   Broader seeds/pilots and physical playtesting remain useful. The fixed pilot
   has six losses; the health-aware pilot has two. Synthetic saturation deliberately
@@ -113,4 +119,6 @@ Task 17 delivers the production game; no deployment target is configured.
 - Task 14: offline/PWA assets, integrity-checked shell, safe waiting updates,
   repair/status/install UI and native offline/restart journeys `472c005`.
 - Task 15: balance matrix, survival offers, opening/guardian tuning, profiled
-  allocation reductions and independent performance harness (this milestone).
+  allocation reductions and independent performance harness `5b987eb`.
+- Task 16: release criteria audit, legal pair/repeated-run/browser regressions
+  and persistence/offline lifecycle fixes (this milestone).

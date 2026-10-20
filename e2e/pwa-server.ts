@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { releaseWorker } from '../build/offline-release';
 
 /** Two real shell releases on a subdirectory host, using the production emitter. */
-export async function releaseServer() {
+export async function releaseServer(initialFailure = false) {
   const first = new Map<string, Uint8Array>();
   function collect(path: string, relative = ''): void {
     for (const entry of readdirSync(path, { withFileTypes: true })) {
@@ -17,7 +17,7 @@ export async function releaseServer() {
   const second = new Map(first); second.delete('sw.js');
   second.set('index.html', Buffer.from(Buffer.from(first.get('index.html')!).toString().replace('<head>', '<head><meta name="test-release" content="two" />')));
   second.set('sw.js', Buffer.from(releaseWorker(second)));
-  let updated = false, broken = false, failedRequests = 0;
+  let updated = false, broken = initialFailure, failedRequests = 0;
   const missing = [...first.keys()].find((path) => path.endsWith('.css'))!;
   const server = createServer((request, response) => {
     const path = new URL(request.url!, 'http://local.test').pathname;
@@ -26,7 +26,7 @@ export async function releaseServer() {
     const name = path === '/game/' ? 'index.html' : path.slice('/game/'.length);
     if (!path.startsWith('/game/')) { response.statusCode = 404; response.end('Missing'); return; }
     // A successful HTTP response with the wrong bytes must also fail installation.
-    if (broken && name === missing) { failedRequests++; response.setHeader('Content-Type', 'text/css'); response.end('/* incomplete deployment */'); return; }
+    if (broken && name === missing && request.headers['sec-fetch-dest'] !== 'style') { failedRequests++; response.setHeader('Content-Type', 'text/css'); response.end('/* incomplete deployment */'); return; }
     const bytes = (updated ? second : first).get(name);
     if (!bytes) { response.statusCode = 404; response.end('Missing'); return; }
     const type = name.endsWith('.js') ? 'text/javascript' : name.endsWith('.css') ? 'text/css' : name.endsWith('.html') ? 'text/html' : name.endsWith('.png') ? 'image/png' : name.endsWith('.svg') ? 'image/svg+xml' : 'application/manifest+json';
@@ -37,7 +37,12 @@ export async function releaseServer() {
   return {
     origin: `http://127.0.0.1:${address.port}`,
     update(fail = false): void { updated = true; broken = fail; },
+    repair(): void { broken = false; },
     failed: () => failedRequests,
-    close: () => new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve())),
+    close: () => new Promise<void>((resolve, reject) => {
+      server.close((error) => error ? reject(error) : resolve());
+      // A still-running worker can retain a socket after page.close(), including failed installs.
+      server.closeAllConnections();
+    }),
   };
 }

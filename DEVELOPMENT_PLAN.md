@@ -249,13 +249,22 @@ these requirements. No subscription-usage or completion-time estimates are impli
   All 1,114 unit tests, the production build and all 88 browser cases pass,
   including offline full campaigns. Final guardian arrival is now 13:30.
 
-- [ ] **16. Complete regression testing and fix release blockers.**
+- [x] **16. Complete regression testing and fix release blockers.**
   Exercise all completion criteria: mixed build, combat, leveling, different enemies
   and bosses, win/loss, rewards, respec, replay, browser closure/reopen, and offline
   return. Test every talent, representative cross-branch pairs, and high-risk effect
   combinations. Check save migration, long-run stability, and repeated restarts.
   Done when required checks pass, reported failures are diagnosed/fixed, and remaining
   limitations are explicit. No unused or inert talent may be called complete.
+  Delivered a checklist mapping all nine play criteria to actual checks, all 525
+  affordable cross-branch pairs, twelve real campaign/save/reload cycles and new
+  browser migration/repeated-restart/stale-import journeys. Three reproduced
+  persistence defects are fixed without changing save format or combat balance.
+  Full browser regression additionally caught an offline notice race; it and an
+  initial-download retry gap are fixed with client/native regressions. Help text
+  matches the guardian schedule. All 1,647 unit tests, the production build and
+  all 97 browser cases pass. Physical-device and synthetic-overload limits remain explicit in
+  RELEASE_CHECKLIST.md. Packaging/publication remain task 17.
 
 - [ ] **17. Prepare and deliver the playable release.**
   Produce and smoke-test the production build. Finish instructions for playing,

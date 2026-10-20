@@ -12,7 +12,8 @@ saves, research, named builds, and backups now work. Five enemy types, two elite
 modifiers, escalating waves, and three telegraphed guardians form a timed
 15-minute run with victory, defeat, rewards, and return to build planning. Production
 builds support offline play and optional home-screen installation. The first balance
-and measured performance pass is complete; final release validation and delivery remain.
+and measured performance pass is complete. Release regression evidence is in
+[RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md); final packaging and delivery remain.
 See [the task list](DEVELOPMENT_PLAN.md) and [progress log](PROGRESS.md).
 
 ## Play this milestone
@@ -595,6 +596,8 @@ events are explicit test fixtures; headless tests do not validate an OS install 
 Screenshots and failure traces are
 written to ignored `test-results/`. Emulation does not replace physical device
 testing, and Chromium checks do not establish support in other browser engines.
+The release checklist maps the nine requested play journeys to checks and records
+the legal cross-branch sweep, repeated campaign/save soak and save-boundary fixes.
 
 ## Production
 
@@ -724,6 +727,10 @@ reconstructs known fields, validates finite bounds/prerequisites/research, repai
 individual damaged builds, and migrates the early `{version: 1, build,
 completedRuns}` format to version 2. `profile-store.ts` owns storage failures,
 previous-save recovery, and stale-write checks through an injected storage port.
+Reviewed imports also check for newer local data. If the pre-write read fails,
+the page continues in memory with an export reminder; it cannot write unchecked
+progress. Revision counts saturate at their validated ceiling without making
+the next saved profile unreadable.
 Only `browser-profile.ts` acquires localStorage. `ui/profile-panel.ts` coordinates
 named slots, backup previews, and restoration independently of the talent graph.
 
