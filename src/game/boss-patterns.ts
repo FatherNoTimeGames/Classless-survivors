@@ -2,7 +2,6 @@ import { CAMPAIGN } from '../content/bosses';
 import type { BossDanger, BossFight, BossShape } from './campaign-state';
 import type { Enemy, Point, Run } from './state';
 import { clamp } from './geometry';
-import { WORLD } from './rules';
 
 /** Lock all geometry when the warning starts. Attacks never track a dodging player. */
 export function prepareBossPattern(run: Run, boss: Enemy, fight: BossFight): number {
@@ -24,11 +23,11 @@ export function prepareBossPattern(run: Run, boss: Enemy, fight: BossFight): num
   } else {
     warning = 1.3;
     if (pattern % 3 === 0) {
-      warn({ kind: 'line', from: { x: 0, y: aim.y }, to: { x: WORLD.width, y: aim.y }, width: 12 }, warning, 0.25, 20);
-      warn({ kind: 'line', from: { x: aim.x, y: 0 }, to: { x: aim.x, y: WORLD.height }, width: 12 }, warning, 0.25, 20);
+      warn({ kind: 'line', from: { x: 0, y: aim.y }, to: { x: run.world.width, y: aim.y }, width: 12 }, warning, 0.25, 20);
+      warn({ kind: 'line', from: { x: aim.x, y: 0 }, to: { x: aim.x, y: run.world.height }, width: 12 }, warning, 0.25, 20);
     } else if (pattern % 3 === 1) {
       // Fixed offsets remain separated even when the player hugs a corner.
-      const center: Point = { x: clamp(aim.x, 100, WORLD.width - 100), y: clamp(aim.y, 100, WORLD.height - 100) };
+      const center: Point = { x: clamp(aim.x, 100, run.world.width - 100), y: clamp(aim.y, 100, run.world.height - 100) };
       for (const offset of [-66, 0, 66]) warn({ kind: 'circle', origin: { x: center.x + offset, y: center.y }, radius: 24 }, warning, 2, 12);
     } else warn({ kind: 'volley', origin, angles: Array.from({ length: 8 }, (_, i) => angle + i * Math.PI / 4), speed: 90 }, warning, 0, 12);
   }

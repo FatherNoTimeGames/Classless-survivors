@@ -1,3 +1,4 @@
+import { menuSection } from './game-helpers';
 import { expect, test } from '@playwright/test';
 import type { Locator } from '@playwright/test';
 import { seedRuns, choosePreferredUpgrade } from './game-helpers';
@@ -31,9 +32,9 @@ test('play mixed waves, see all silhouettes and attack warnings, and pause hosti
   await page.clock.pauseAt(new Date('2026-01-01T00:00:01Z'));
   await page.goto('/');
   const activate = async (locator: Locator) => testInfo.project.use.hasTouch ? locator.tap() : locator.click();
-  await activate(page.locator('#enemy-guide summary'));
+  await menuSection(page, '#enemy-guide summary');
   await expect(page.locator('#enemy-guide')).toContainText('Stuns interrupt attacks');
-  await activate(page.locator('#enemy-guide summary'));
+  await menuSection(page, '#enemy-guide summary');
   await activate(page.locator('#edit-talents'));
   const editor = page.getByRole('dialog', { name: 'Classless talents' });
   await activate(editor.getByRole('tab', { name: /Priest/ }));

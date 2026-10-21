@@ -1,4 +1,4 @@
-const MAX_RUN_LEVEL = 40;
+const MAX_RUN_LEVEL = 24;
 
 /** Run-only content. Add/tune offers here; selection and combat stay generic. */
 export type UpgradeId = 'haste' | 'fork' | 'pierce' | 'burst' | 'fleet' | 'magnet' | 'vitality' | 'longblade' | 'potency' | 'familiar' | 'wellspring' | 'aegis' | 'precision' | 'icebrand' | 'riposte' | 'catalyst' | 'benediction' | 'frost-pact' | 'venom' | 'recovery';
@@ -73,12 +73,13 @@ export const UPGRADES: readonly UpgradeDefinition[] = [
 
 export const PROGRESSION_RULES = {
   firstLevelXp: 10,
-  extraXpPerLevel: 8,
+  extraXpPerLevel: 10,
+  maxUpgradeTypes: 8,
   offerCount: 3,
   // A bounded run budget; Second Wind fills exhausted or narrow build pools.
   maxLevel: MAX_RUN_LEVEL,
-  lateLevelStart: 20,
-  lateLevelXpGrowth: 2,
+  lateLevelStart: 10,
+  lateLevelXpGrowth: 5,
   rarityWeights: { common: 6, uncommon: 3, rare: 1 } satisfies Record<Rarity, number>,
 } as const;
 

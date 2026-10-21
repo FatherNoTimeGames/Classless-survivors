@@ -1,3 +1,4 @@
+import { menuSection } from './game-helpers';
 import { expect, test } from '@playwright/test';
 import type { Locator } from '@playwright/test';
 import { seedRuns, choosePreferredUpgrade } from './game-helpers';
@@ -89,7 +90,7 @@ for (const branch of ['Rogue', 'Hunter'] as const) {
       await choosePreferredUpgrade(page, ['fleet', 'magnet', 'vitality', 'haste', 'fork', 'pierce', 'burst'], Boolean(testInfo.project.use.hasTouch));
     }
     await page.screenshot({ path: testInfo.outputPath(`${branch.toLowerCase()}-hybrid.png`), fullPage: true });
-    await page.locator('#run-build summary').click();
+    await menuSection(page, '#run-build summary');
     await expect(page.locator('#active-talents li')).toHaveCount(8);
     expect(errors).toEqual([]);
   });

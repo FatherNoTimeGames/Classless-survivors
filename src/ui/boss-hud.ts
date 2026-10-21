@@ -1,4 +1,5 @@
-import { BOSSES, CAMPAIGN, bossById } from '../content/bosses';
+import { guardianMessage } from './campaign-label';
+import { CAMPAIGN, bossById } from '../content/bosses';
 import type { Run } from '../game/state';
 import { element, formatTime, setText } from './dom';
 
@@ -8,9 +9,8 @@ export function createBossHud() {
     update(run: Run): void {
       const fight = run.campaign.active;
       const boss = fight && run.enemies.find((enemy) => enemy.id === fight.enemyId && enemy.health > 0);
-      setText(element('#campaign-progress'), `${run.campaign.defeated.length}/3 guardians · Dawn in ${formatTime(Math.max(0, CAMPAIGN.duration - run.elapsed))}`);
-      const next = BOSSES[run.campaign.nextBoss];
-      setText(element('#next-guardian'), next ? `Next guardian ${formatTime(next.at)}` : run.campaign.active ? 'Final guardian' : 'Survive until 15:00');
+      setText(element('#campaign-progress'), `${run.campaign.defeated.length}/3 guardians · Dawn in ${formatTime(Math.ceil(Math.max(0, CAMPAIGN.duration - run.elapsed)))}`);
+      setText(element('#next-guardian'), guardianMessage(run));
       panel.hidden = !boss;
       if (!boss || !fight) return;
       const definition = bossById(fight.id);

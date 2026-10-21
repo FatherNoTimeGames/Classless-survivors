@@ -1,4 +1,5 @@
 import { BOSSES, CAMPAIGN, bossById } from '../content/bosses';
+import type { ArenaSize } from './arena-size';
 import type { Enemy, Point, Run } from './state';
 import { createEnemy } from './enemy-state';
 import { clamp, distance } from './geometry';
@@ -9,12 +10,12 @@ import { prepareBossPattern } from './boss-patterns';
 import { healPlayer } from './healing';
 import { getRunStats } from './stats';
 
-export function bossSpawnPoint(player: Point): Point {
-  const towardCenter = Math.atan2(WORLD.height / 2 - player.y, WORLD.width / 2 - player.x);
-  let best = { x: WORLD.width / 2, y: WORLD.height / 2 }, error = Infinity;
+export function bossSpawnPoint(player: Point, world: ArenaSize = WORLD): Point {
+  const towardCenter = Math.atan2(world.height / 2 - player.y, world.width / 2 - player.x);
+  let best = { x: world.width / 2, y: world.height / 2 }, error = Infinity;
   for (let i = 0; i < 16; i++) {
     const angle = towardCenter + i * Math.PI / 8;
-    const point = { x: clamp(player.x + Math.cos(angle) * 155, 32, WORLD.width - 32), y: clamp(player.y + Math.sin(angle) * 155, 32, WORLD.height - 32) };
+    const point = { x: clamp(player.x + Math.cos(angle) * 155, 32, world.width - 32), y: clamp(player.y + Math.sin(angle) * 155, 32, world.height - 32) };
     const difference = Math.abs(distance(player, point) - 155);
     if (difference < error) { best = point; error = difference; }
   }
@@ -27,7 +28,7 @@ export function updateEncounterSchedule(run: Run): void {
   const campaign = run.campaign, definition = BOSSES[campaign.nextBoss];
   if (campaign.active || !definition || run.elapsed + 1e-8 < definition.at || run.elapsed < campaign.breakUntil) return;
   clearThreats(run);
-  const enemy = createEnemy(run.nextId++, bossSpawnPoint(run.player));
+  const enemy = createEnemy(run.nextId++, bossSpawnPoint(run.player, run.world));
   Object.assign(enemy, { boss: definition.id, radius: CAMPAIGN.radius, health: definition.health, maxHealth: definition.health, speed: definition.speed,
     contactDamage: definition.contact, rewardXp: definition.xp, grace: CAMPAIGN.arrivalGrace });
   run.enemies.push(enemy);
@@ -52,8 +53,8 @@ function moveBoss(enemy: Enemy, run: Run, keepDistance: number): void {
   if (gap === 0) return;
   const direction = keepDistance === 0 || gap > keepDistance + 12 ? 1 : gap < keepDistance - 20 ? -1 : 0;
   const travel = Math.min(gap, enemy.speed * enemySlow(enemy) * STEP) * direction;
-  enemy.x = clamp(enemy.x + (run.player.x - enemy.x) / gap * travel, enemy.radius, WORLD.width - enemy.radius);
-  enemy.y = clamp(enemy.y + (run.player.y - enemy.y) / gap * travel, enemy.radius, WORLD.height - enemy.radius);
+  enemy.x = clamp(enemy.x + (run.player.x - enemy.x) / gap * travel, enemy.radius, run.world.width - enemy.radius);
+  enemy.y = clamp(enemy.y + (run.player.y - enemy.y) / gap * travel, enemy.radius, run.world.height - enemy.radius);
 }
 export function updateBossIntent(run: Run): void {
   const fight = run.campaign.active;

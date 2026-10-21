@@ -1,6 +1,6 @@
 import { ENEMIES, ENEMY_ATTACKS as A } from '../content/enemies';
 import type { Enemy, Run } from './state';
-import { STEP, WORLD } from './rules';
+import { STEP } from './rules';
 import { clamp, distance } from './geometry';
 import { moveEnemies } from './enemy-movement';
 
@@ -25,7 +25,7 @@ export function updateEnemies(run: Run): void {
     if (attack.remaining > 0 || gap > definition.attackRange || gap < (enemy.kind === 'charger' ? A.chargeMinimumRange : A.spellMinimumRange)) continue;
     if (run.enemies.filter((foe) => foe.health > 0 && foe.attack.phase === 'windup').length >= A.maxWindups) continue;
     const aim = enemy.kind === 'hexer'
-      ? { x: clamp(run.player.x, A.blightRadius + 4, WORLD.width - A.blightRadius - 4), y: clamp(run.player.y, A.blightRadius + 4, WORLD.height - A.blightRadius - 4) }
+      ? { x: clamp(run.player.x, A.blightRadius + 4, run.world.width - A.blightRadius - 4), y: clamp(run.player.y, A.blightRadius + 4, run.world.height - A.blightRadius - 4) }
       : { x: run.player.x, y: run.player.y };
     if (enemy.kind === 'hexer') {
       const warnings = run.enemies.filter((foe) => foe.health > 0 && foe.kind === 'hexer' && foe.attack.phase === 'windup');
@@ -37,5 +37,5 @@ export function updateEnemies(run: Run): void {
     attack.aim = enemy.kind === 'charger' ? { x: enemy.x + attack.direction.x * A.dashDistance, y: enemy.y + attack.direction.y * A.dashDistance } : aim;
     attack.phase = 'windup'; attack.remaining = definition.warning;
   }
-  moveEnemies(run.enemies, run.player);
+  moveEnemies(run.enemies, run.player, run.world);
 }

@@ -1,4 +1,4 @@
-import { RULES, STEP, WORLD } from './rules';
+import { RULES, STEP } from './rules';
 import type { Point, Run } from './state';
 import { distance } from './geometry';
 import { random } from './random';
@@ -13,18 +13,18 @@ export function safeSpawnPoint(run: Run): Point {
     const along = random(run);
     position = edge < 2
       ? {
-        x: edge === 0 ? RULES.spawnInset : WORLD.width - RULES.spawnInset,
-        y: RULES.spawnInset + along * (WORLD.height - RULES.spawnInset * 2),
+        x: edge === 0 ? RULES.spawnInset : run.world.width - RULES.spawnInset,
+        y: RULES.spawnInset + along * (run.world.height - RULES.spawnInset * 2),
       }
       : {
-        x: RULES.spawnInset + along * (WORLD.width - RULES.spawnInset * 2),
-        y: edge === 2 ? RULES.spawnInset : WORLD.height - RULES.spawnInset,
+        x: RULES.spawnInset + along * (run.world.width - RULES.spawnInset * 2),
+        y: edge === 2 ? RULES.spawnInset : run.world.height - RULES.spawnInset,
       };
     if (distance(position, run.player) >= RULES.spawnDistance) break;
     if (attempt === RULES.spawnAttempts - 1) {
       position = {
-        x: run.player.x < WORLD.width / 2 ? WORLD.width - RULES.spawnInset : RULES.spawnInset,
-        y: run.player.y < WORLD.height / 2 ? WORLD.height - RULES.spawnInset : RULES.spawnInset,
+        x: run.player.x < run.world.width / 2 ? run.world.width - RULES.spawnInset : RULES.spawnInset,
+        y: run.player.y < run.world.height / 2 ? run.world.height - RULES.spawnInset : RULES.spawnInset,
       };
     }
   }

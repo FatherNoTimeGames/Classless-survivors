@@ -2,7 +2,7 @@ import { upgradeRank } from '../content/upgrades';
 import { UPGRADE_TUNING as U } from '../content/upgrade-tuning';
 import type { Companion, Run } from './state';
 import { COMPANIONS } from '../content/companions';
-import { STEP, WORLD } from './rules';
+import { STEP } from './rules';
 import { clamp } from './geometry';
 import { nearestEnemy } from './targeting';
 import { damageEnemy } from './damage';
@@ -26,8 +26,8 @@ function strike(run: Run, companion: Companion): boolean {
     companion.bonusDamage = 0;
     addSpark(run, companion, 'imp');
   } else {
-    companion.x = clamp(target.x, 12, WORLD.width - 12);
-    companion.y = clamp(target.y - 16, 12, WORLD.height - 12);
+    companion.x = clamp(target.x, 12, run.world.width - 12);
+    companion.y = clamp(target.y - 16, 12, run.world.height - 12);
     companion.attackIn = attackInterval(run, definition.interval);
     companion.bonusDamage = 0;
     damageEnemy(run, target, damage, { source: 'summon', school: definition.school });
@@ -43,8 +43,8 @@ export function updateCompanions(run: Run): void {
     if (companion.attackIn === 0 && strike(run, companion)) continue;
     // Return toward the player between strikes; rendering never updates companion positions.
     const follow = Math.min(1, STEP * 6);
-    companion.x += (clamp(run.player.x + definition.offsetX, 12, WORLD.width - 12) - companion.x) * follow;
-    companion.y += (clamp(run.player.y + definition.offsetY, 12, WORLD.height - 12) - companion.y) * follow;
+    companion.x += (clamp(run.player.x + definition.offsetX, 12, run.world.width - 12) - companion.x) * follow;
+    companion.y += (clamp(run.player.y + definition.offsetY, 12, run.world.height - 12) - companion.y) * follow;
   }
 }
 

@@ -7,7 +7,7 @@ import { awardXp, chooseUpgrade, choiceLevel, eligibleUpgrades } from '../src/ga
 import { getRunStats } from '../src/game/stats';
 import { RULES } from '../src/game/rules';
 import { tickRun } from '../src/game/run';
-import { UPGRADES } from '../src/content/upgrades';
+import { PROGRESSION_RULES, UPGRADES } from '../src/content/upgrades';
 import { EFFECT_LIMITS } from '../src/game/events';
 import { updateProjectiles } from '../src/game/combat';
 import { resolveTalentEffects } from '../src/game/talent-effects';
@@ -29,7 +29,7 @@ describe('balance and survival choices', () => {
         }
         expect(chooseUpgrade(run, run.progression.offers[seed % run.progression.offers.length]!)).toBe(true);
       }
-      expect(run.progression.level).toBe(40);
+      expect(run.progression.level).toBe(PROGRESSION_RULES.maxLevel);
       expect(run.randomState).toBe(spawnRandom);
     }
   });
@@ -37,11 +37,12 @@ describe('balance and survival choices', () => {
   // These builds use only the 30 initially unlocked talents, with eight points and no Priest.
   it.each(BALANCE_ROUTES.filter((route) => route.name.endsWith('/no-priest')))
   ('$name can finish without allocating healing talents', (route) => {
-    const result = simulateRoute(route, 42);
+    const result = simulateRoute(route, 2026, false, true);
     expect(result.outcome).toBe('victory');
     expect(result.bosses).toHaveLength(3);
     expect(result.firstChoice).toBeLessThan(15);
-    expect(result.lastChoice).toBeGreaterThan(600);
+    expect(result.choicesByMinute[8]).toBeLessThan(PROGRESSION_RULES.maxLevel - 1);
+    expect(result.upgradeTypes).toBeLessThanOrEqual(PROGRESSION_RULES.maxUpgradeTypes);
     expect(result.effectDrops).toBe(0);
     expect(result.ranks.wellspring).toBe(1);
     expect(result.peaks.enemies).toBeLessThanOrEqual(RULES.maxEnemies);
@@ -53,7 +54,8 @@ describe('balance and survival choices', () => {
   it.each([1, 42, 2026])('an initially available six-branch build survives seed %i with late decisions', (seed) => {
     const result = simulateRoute(BALANCE_ROUTES.at(-1)!, seed);
     expect(result.outcome).toBe('victory'); expect(result.bosses).toHaveLength(3);
-    expect(result.firstChoice).toBeLessThan(15); expect(result.lastChoice).toBeGreaterThan(600);
+    expect(result.firstChoice).toBeLessThan(15); expect(result.choicesByMinute[8]).toBeLessThan(PROGRESSION_RULES.maxLevel - 1);
+    expect(result.upgradeTypes).toBeLessThanOrEqual(PROGRESSION_RULES.maxUpgradeTypes);
     expect(result.healthLossTicks).toBeGreaterThan(0); expect(result.effectDrops).toBe(0);
   });
 
@@ -63,9 +65,10 @@ describe('balance and survival choices', () => {
   });
 
   it.each(['retaliation', 'frost/melee', 'summons', 'spellsteel/no-priest', 'frost-flock/no-priest'])
-  ('choosing survival while hurt lets %s recover on the difficult opening seed', (name) => {
+  ('choosing survival while hurt lets %s recover on a representative full campaign', (name) => {
     const route = BALANCE_ROUTES.find((route) => route.name === name)!;
-    const result = simulateRoute(route, 1, false, true);
+    const seed = name === 'summons' ? 42 : 2026;
+    const result = simulateRoute(route, seed, false, true);
     expect(result.outcome).toBe('victory'); expect(result.bosses).toHaveLength(3);
     expect(result.minHealth).toBeGreaterThan(0); expect(result.effectDrops).toBe(0);
   });

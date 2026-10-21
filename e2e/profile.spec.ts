@@ -1,3 +1,4 @@
+import { menuSection } from './game-helpers';
 import { expect, test } from '@playwright/test';
 import type { Locator } from '@playwright/test';
 import { SAVE_KEY } from '../src/persistence/profile-store';
@@ -83,7 +84,7 @@ test('save mixed builds, research, reload, export/import, and play an earned lar
   await activate(editor.locator('#close-talents'));
   await activate(page.locator('#start-run'));
   await page.clock.runFor(64);
-  await page.locator('#run-build summary').click();
+  await menuSection(page, '#run-build summary');
   await expect(page.locator('#active-talents li')).toHaveCount(9);
   expect(errors).toEqual([]);
 });

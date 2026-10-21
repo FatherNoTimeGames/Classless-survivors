@@ -3,7 +3,7 @@ import type { Locator } from '@playwright/test';
 import { seedRuns, choosePreferredUpgrade, installRunPilot } from './game-helpers';
 import { SAVE_KEY } from '../src/persistence/profile-store';
 
-test('complete fifteen minutes offline, fight three guardians, claim victory, respec, reload and replay', async ({ page, context }, testInfo) => {
+test('complete twelve minutes offline, fight three guardians, claim victory, respec, reload and replay', async ({ page, context }, testInfo) => {
   test.setTimeout(180_000);
   const errors: string[] = []; page.on('pageerror', (error) => errors.push(error.message));
   await seedRuns(page);
@@ -56,7 +56,7 @@ test('complete fifteen minutes offline, fight three guardians, claim victory, re
   let pausedBoss = false, photographed = false;
   for (let batch = 0; batch < 340; batch++) {
     while (await page.locator('#upgrade-picker').isVisible()) {
-      await choosePreferredUpgrade(page, ['vitality', 'haste', 'magnet', 'fleet', 'fork', 'pierce', 'burst'], Boolean(testInfo.project.use.hasTouch));
+      await choosePreferredUpgrade(page, ['haste', 'vitality', 'wellspring', 'fork', 'pierce', 'burst'], Boolean(testInfo.project.use.hasTouch));
     }
     if (await page.locator('#return-to-build').isVisible()) break;
     if (await page.locator('#boss-hud').isVisible()) {
@@ -77,7 +77,7 @@ test('complete fifteen minutes offline, fight three guardians, claim victory, re
     await page.clock.runFor(250);
   }
   await expect(page.locator('#overlay-title')).toHaveText('Dawn breaks');
-  await expect(page.locator('#run-time')).toHaveText('15:00');
+  await expect(page.locator('#run-time')).toHaveText('12:00');
   await expect(page.locator('#run-results')).toContainText('3/3 guardians');
   await expect(page.locator('#run-reward')).toContainText('insight earned');
   const seen = await page.evaluate(() => (window as unknown as { observedBosses: Record<string, boolean> }).observedBosses);
@@ -88,7 +88,7 @@ test('complete fifteen minutes offline, fight three guardians, claim victory, re
   await page.screenshot({ path: testInfo.outputPath('victory.png'), fullPage: true });
   const completed = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!).completedRuns as number, SAVE_KEY);
   expect(completed).toBe(1);
-  await page.clock.runFor(5000); await expect(page.locator('#run-time')).toHaveText('15:00');
+  await page.clock.runFor(5000); await expect(page.locator('#run-time')).toHaveText('12:00');
   await activate(page.locator('#return-to-build')); await activate(editor.locator('#respec-talents'));
   await expect(editor.locator('#talent-points')).toContainText('0 / 8');
   await activate(editor.locator('#close-talents')); await page.reload();

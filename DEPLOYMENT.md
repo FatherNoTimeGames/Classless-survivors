@@ -13,7 +13,8 @@ and supports HTTPS and service workers. Pages is free for public repositories;
 private-repository availability depends on the GitHub plan. Publishing the game
 does not add accounts or online requirements for players.
 
-The source includes a **Deploy game to GitHub Pages** workflow, started manually:
+The source includes **Deploy game to GitHub Pages**. It runs automatically when
+completed changes reach `main`, and also supports manual deployment:
 
 1. Put this completed source, including `.github/workflows/pages.yml`, on the
    repository's default branch (normally `main`). Manual workflows must exist
@@ -27,8 +28,8 @@ The source includes a **Deploy game to GitHub Pages** workflow, started manually
    expected path is `/Classless-survivors/`; use the URL GitHub actually reports.
    Wait for **Offline ready**, then test a reload with networking disabled.
 
-The workflow deliberately has no automatic push trigger. Later releases use the
-same manual action. GitHub controls eligibility, quotas and repository permissions.
+Later releases deploy automatically after a push to `main`; the manual action
+remains available for retries. GitHub controls eligibility, quotas and repository permissions.
 No remote deployment was performed during release preparation: no host was
 configured, and the environment's Pages API request was blocked by network policy.
 
@@ -100,7 +101,7 @@ npm run release
 npm run test:release
 ```
 
-The first command rebuilds and creates `release/classless-survivors-1.0.0.zip`
+The first command rebuilds and creates `release/classless-survivors-1.1.0.zip`
 and its `.sha256` checksum. The second extracts that ZIP into a temporary folder,
 verifies its inventory and hashes, then serves the extracted site at both a root
 and project subdirectory. Desktop, touch tablet and Android portrait Chromium

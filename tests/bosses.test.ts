@@ -33,7 +33,7 @@ function encounter(index = 0, talents: TalentId[] = []) {
 
 describe('campaign scheduling and encounter boundaries', () => {
   it('starts at the authored time, clears old threats without credit, and preserves the build, XP and ranks', () => {
-    const run = createRun(42, ['reprisal']); run.elapsed = 240 - STEP;
+    const run = createRun(42, ['reprisal']); run.elapsed = BOSSES[0].at - STEP;
     run.enemies.push(enemy(800, 20, 20)); run.progression.ranks.haste = 2;
     run.shards.push({ id: 900, x: 100, y: 100, value: 5 });
     run.enemyBolts.push({ id: 901, x: 20, y: 20, vx: 1, vy: 0, remaining: 1, damage: 10 });
@@ -169,7 +169,7 @@ describe('run completion and durable outcomes', () => {
   it.each(['victory', 'defeated'] as const)('%s freezes all combat/progression mutations and pays its profile reward once', (status) => {
     const run = createRun(42); const foe = enemy(200, 180, 240); run.enemies.push(foe);
     if (status === 'victory') run.campaign.defeated = ['knight', 'matron', 'sovereign'];
-    run.elapsed = 900; checkDawn(run); expect(run.status).toBe(status);
+    run.elapsed = CAMPAIGN.duration; checkDawn(run); expect(run.status).toBe(status);
     const frozen = structuredClone(run);
     advance(run, 10); damageEnemy(run, foe, 100); damagePlayer(run, 100); awardXp(run, 50); healPlayer(run, 100); grantShield(run, 50, 2); resolveTalentEffects(run);
     expect(chooseUpgrade(run, 'haste')).toBe(false); expect(run).toEqual(frozen);
@@ -181,29 +181,29 @@ describe('run completion and durable outcomes', () => {
   });
   it('requires both dawn and all three kills, and never resurrects a slain run', () => {
     const { run } = encounter();
-    run.campaign.active = null; run.campaign.defeated = ['knight', 'matron', 'sovereign']; run.elapsed = 899;
+    run.campaign.active = null; run.campaign.defeated = ['knight', 'matron', 'sovereign']; run.elapsed = CAMPAIGN.duration - 1;
     expect(checkDawn(run)).toBe(false); expect(run.status).toBe('running');
-    completeRun(run, 'defeated', 'slain'); run.elapsed = 900; checkDawn(run);
+    completeRun(run, 'defeated', 'slain'); run.elapsed = CAMPAIGN.duration; checkDawn(run);
     expect(run.status).toBe('defeated'); expect(run.finishReason).toBe('slain');
   });
   it('credits a final projectile kill on the deadline before a hostile impact, clears queued choices and caps elapsed', () => {
-    const { run, boss } = encounter(2); run.elapsed = 900 - STEP;
+    const { run, boss } = encounter(2); run.elapsed = CAMPAIGN.duration - STEP;
     run.campaign.defeated = ['knight', 'matron']; boss.x = 180; boss.y = 220; boss.health = 1;
     run.bolts.push(bolt({ x: 180, y: 220 })); run.blights.push({ id: 999, x: 180, y: 240, radius: 24, remaining: 1, damage: 100 });
     tickRun(run, STILL);
-    expect(run.status).toBe('victory'); expect(run.elapsed).toBe(900); expect(run.player.health).toBe(60);
+    expect(run.status).toBe('victory'); expect(run.elapsed).toBe(CAMPAIGN.duration); expect(run.player.health).toBe(60);
     expect(run.progression.offers).toEqual([]); expect(run.enemyBolts).toEqual([]); expect(run.blights).toEqual([]);
     expect(run.campaign.defeated).toEqual(['knight', 'matron', 'sovereign']);
   });
   it('loses at the deadline if a guardian remains and records ordinary health defeat separately', () => {
-    const { run } = encounter(); run.elapsed = 900 - STEP; tickRun(run, STILL);
-    expect(run.status).toBe('defeated'); expect(run.finishReason).toBe('timeout'); expect(run.elapsed).toBe(900);
+    const { run } = encounter(); run.elapsed = CAMPAIGN.duration - STEP; tickRun(run, STILL);
+    expect(run.status).toBe('defeated'); expect(run.finishReason).toBe('timeout'); expect(run.elapsed).toBe(CAMPAIGN.duration);
     const slain = createRun(1); damagePlayer(slain, 100); expect(slain.finishReason).toBe('slain'); expect(slain.progression.pendingLevels).toBe(0);
   });
 });
 
 // No injected health, damage, ranks, XP, kills, or timeline: real ticks, choices and movement.
-describe('complete fifteen-minute seeded hybrid routes', () => {
+describe('complete twelve-minute seeded hybrid routes', () => {
   const builds: TalentId[][] = [
     ['arcane-echo', 'rime-sigil', 'chain-spark', 'shatterglass', 'mana-ward', 'riftweaver', 'communion', 'searing-grace'],
     ['arcane-echo', 'rime-sigil', 'chain-spark', 'mana-ward', 'communion', 'searing-grace', 'sanctuary', 'atonement'],
@@ -211,13 +211,13 @@ describe('complete fifteen-minute seeded hybrid routes', () => {
   it.each(builds.map((talents, index) => ({ talents, index })))('hybrid $index completes waves, all guardians and dawn with earned upgrades', ({ talents }) => {
     const run = createRun(42, talents); const seen = new Set<string>(); let peakAdds = 0;
     for (let i = 0; i < 55000 && !['victory', 'defeated'].includes(run.status); i++) {
-      while (run.status === 'choosing') chooseUpgrade(run, (['vitality', 'haste', 'magnet', 'fleet', 'fork', 'pierce', 'burst'] as const).find((id) => run.progression.offers.includes(id)) ?? run.progression.offers[0]!);
+      while (run.status === 'choosing') chooseUpgrade(run, (['haste', 'vitality', 'wellspring', 'fork', 'pierce', 'burst'] as const).find((id) => run.progression.offers.includes(id)) ?? run.progression.offers[0]!);
       tickRun(run, [{ x: 0, y: -1 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 0 }][Math.floor(run.elapsed / 3) % 4]!);
       if (run.campaign.active) { seen.add(run.campaign.active.id); peakAdds = Math.max(peakAdds, run.enemies.filter((foe) => !foe.boss).length); }
     }
-    expect(run.status).toBe('victory'); expect(run.elapsed).toBe(900); expect(run.player.health).toBeGreaterThan(0);
+    expect(run.status).toBe('victory'); expect(run.elapsed).toBe(CAMPAIGN.duration); expect(run.player.health).toBeGreaterThan(0);
     expect(seen).toEqual(new Set(['knight', 'matron', 'sovereign'])); expect(run.campaign.defeated).toEqual(['knight', 'matron', 'sovereign']);
     expect(peakAdds).toBeGreaterThan(0); expect(peakAdds).toBeLessThanOrEqual(6); expect(run.kills).toBeGreaterThan(900);
-    expect(run.xp).toBeGreaterThan(2000); expect(run.progression.level).toBeGreaterThan(20); expect(run.effects.dropped).toBe(0);
+    expect(run.xp).toBeGreaterThan(2000); expect(run.progression.level).toBeGreaterThan(14); expect(run.effects.dropped).toBe(0);
   });
 });

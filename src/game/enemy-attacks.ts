@@ -1,6 +1,6 @@
 import type { Run } from './state';
 import { ENEMIES, ELITES, ENEMY_ATTACKS as A } from '../content/enemies';
-import { STEP, RULES, WORLD } from './rules';
+import { STEP, RULES } from './rules';
 import { distance, hitTime } from './geometry';
 import { damagePlayer } from './damage';
 import { interruptAttack } from './enemies';
@@ -36,7 +36,7 @@ export function updateEnemyAttacks(run: Run): void {
     }
     bolt.x = end.x; bolt.y = end.y; bolt.remaining -= STEP;
   }
-  run.enemyBolts = run.enemyBolts.filter((bolt) => bolt.remaining > 0 && bolt.x >= -8 && bolt.x <= WORLD.width + 8 && bolt.y >= -8 && bolt.y <= WORLD.height + 8);
+  run.enemyBolts = run.enemyBolts.filter((bolt) => bolt.remaining > 0 && bolt.x >= -8 && bolt.x <= run.world.width + 8 && bolt.y >= -8 && bolt.y <= run.world.height + 8);
   for (const zone of run.blights) {
     if (distance(zone, run.player) <= zone.radius + RULES.playerRadius) damagePlayer(run, zone.damage);
     zone.remaining -= STEP;

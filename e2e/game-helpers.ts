@@ -49,7 +49,10 @@ export async function playerPosition(canvas: Locator) {
       }
     }
     if (!count) throw new Error('The player head was not rendered.');
-    return { x: x / count / surface.width * 360, y: y / count / surface.height * 480 };
+    const width = Number(surface.dataset.worldWidth), height = Number(surface.dataset.worldHeight);
+    const scale = Math.min(surface.width / width, surface.height / height);
+    return { x: (x / count - (surface.width - width * scale) / 2) / scale,
+      y: (y / count - (surface.height - height * scale) / 2) / scale };
   });
 }
 
@@ -59,8 +62,10 @@ async function firstShard(canvas: Locator) {
     const data = surface.getContext('2d')!.getImageData(0, 0, surface.width, surface.height).data;
     for (let index = 0; index < data.length; index += 4) {
       if (data[index] === 116 && data[index + 1] === 203 && data[index + 2] === 170) {
-        return { x: (index / 4 % surface.width) / surface.width * 360,
-          y: Math.floor(index / 4 / surface.width) / surface.height * 480 };
+        const width = Number(surface.dataset.worldWidth), height = Number(surface.dataset.worldHeight);
+        const scale = Math.min(surface.width / width, surface.height / height);
+        return { x: (index / 4 % surface.width - (surface.width - width * scale) / 2) / scale,
+          y: (Math.floor(index / 4 / surface.width) - (surface.height - height * scale) / 2) / scale };
       }
     }
     return null;
@@ -112,4 +117,15 @@ export async function installRunPilot(page: Page): Promise<void> {
       callback(time * 12);
     });
   });
+}
+
+/** Use the public menu to reach settings/help; the page itself has no scrollable panels. */
+export async function menuSection(page: Page, selector: string): Promise<void> {
+  const touch = await page.evaluate(() => navigator.maxTouchPoints > 0);
+  const activate = (node: Locator) => touch ? node.tap() : node.click();
+  if (!await page.locator('#game-menu').evaluate((node) => (node as HTMLDialogElement).open)) await activate(page.locator('#open-menu'));
+  const summary = page.locator(selector).first();
+  const closing = await summary.evaluate((node) => (node.parentElement as HTMLDetailsElement).open);
+  await activate(summary);
+  if (closing) await activate(page.locator('#close-menu'));
 }

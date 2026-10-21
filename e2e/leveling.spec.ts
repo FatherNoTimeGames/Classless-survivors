@@ -1,3 +1,4 @@
+import { menuSection } from './game-helpers';
 import { expect, test } from '@playwright/test';
 import { collectUntilChoice, startGame } from './game-helpers';
 
@@ -40,10 +41,10 @@ test('collect XP, freeze for a keyboard/touch choice, improve an ability, level 
   await expect(dialog).toBeHidden();
   await expect(canvas).toBeFocused();
   await expect(page.locator('#run-level')).toHaveText('2');
-  await page.locator('#run-build summary').click();
+  await menuSection(page, '#run-build summary');
   await expect(page.locator('#active-upgrades')).toContainText('Quickened Ember 1/4');
   await expect(page.locator('#ember-stats')).toContainText('0.62s cooldown');
-  await page.locator('#run-build summary').click();
+  await menuSection(page, '#run-build summary');
   await expect(page.getByRole('button', { name: 'Resume run' })).toBeVisible();
   await page.getByRole('button', { name: 'Resume run' }).click();
   await collectUntilChoice(page, canvas);

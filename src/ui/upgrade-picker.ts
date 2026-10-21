@@ -2,7 +2,8 @@ import { TALENT_ICONS } from '../content/talent-icons';
 import { UPGRADE_ICONS } from '../content/upgrade-icons';
 import { createIcon } from './icon';
 import { abilitySummary } from '../game/ability-summary';
-import { UPGRADES } from '../content/upgrades';
+import { selectedUpgradeCount } from '../game/progression';
+import { PROGRESSION_RULES, UPGRADES } from '../content/upgrades';
 import type { UpgradeId } from '../content/upgrades';
 import type { Run } from '../game/state';
 import { choiceLevel } from '../game/progression';
@@ -31,6 +32,7 @@ export function createUpgradePicker(root: HTMLDialogElement, onChoose: (id: Upgr
       note.textContent = run.progression.pendingLevels > 1
         ? `Combat is paused. ${run.progression.pendingLevels} level rewards remain. Choose one upgrade for each.`
         : 'Combat is paused. Choose one upgrade for this run.';
+      note.textContent += ` ${selectedUpgradeCount(run.progression.ranks)}/${PROGRESSION_RULES.maxUpgradeTypes} upgrade slots used. Rank-ups use no extra slot.`;
       element('#upgrade-build', root).textContent = abilitySummary(run).join(' ');
       choices.replaceChildren();
       for (const id of run.progression.offers) {

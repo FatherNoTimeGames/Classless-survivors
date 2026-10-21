@@ -17,7 +17,7 @@ remaining plan. Never silently drop a requirement.
 
 ## Product and technical direction
 
-- A single-player dark fantasy survival game, with a complete run targeting 15
+- A single-player dark fantasy survival game, with a complete run targeting 12
   minutes and three boss encounters. Victory and defeat return to build planning.
 - TypeScript, HTML5 Canvas for the arena, accessible HTML/CSS for menus, and Vite
   for local development and production builds. Keep runtime dependencies small.
@@ -281,6 +281,25 @@ these requirements. No subscription-usage or completion-time estimates are impli
   blocked by the environment network policy, so the production-build fallback and
   exact remaining publication steps are delivered. No push or remote deployment
   occurred. Physical-device/OS/other-browser limits remain in RELEASE_CHECKLIST.md.
+
+- [x] **18. Apply player feedback: fixed viewport and focused run pacing.**
+  Replace the scrolling page with one game window and internal menus. Preserve
+  touch, rotation, focus and local progression. Shape new arenas to the viewport
+  without stretching sprites or increasing combat area. Limit temporary build
+  breadth, slow later XP, tighten guardian spacing and display a real countdown.
+  Add pause-menu abandonment that preserves prior progress without awarding a
+  completed-run reward. Validate legal offers, all talent interactions, repeated
+  play, desktop/tablet/phone browser journeys, and full seeded balance campaigns.
+  Update running/playing instructions and package the verified 1.1.0 release.
+  Delivered the fixed viewport/internal menus, constant-area run bounds, eight-slot
+  temporary loadouts, slower late XP, 3/6/9-minute guardians and 12-minute dawn,
+  remaining-time display and reward-free abandonment. All 1,656 unit tests pass;
+  45 real balance campaigns and six extracted offline journeys are recorded.
+  The full browser regression's rotated-tablet readability failure is fixed and
+  verified by 43 final UI/touch cases, including three new landscape starts;
+  all 109 current scenarios are covered across regression and final rerun.
+  Version 1.1.0 is packaged with updated guides; main pushes now deploy via Pages.
+  See PLAYTEST_REPORT.md and PROGRESS.md for methods, losses and remaining limits.
 
 ## Completion standard
 

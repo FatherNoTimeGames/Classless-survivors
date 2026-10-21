@@ -1,3 +1,4 @@
+import { menuSection } from './game-helpers';
 import { expect, test } from '@playwright/test';
 import type { Locator } from '@playwright/test';
 
@@ -88,7 +89,7 @@ test('inspect six branches, allocate and refund prerequisites, respec, and run a
   await page.getByRole('button', { name: 'Enter the clearing' }).click();
   await page.clock.runFor(12_000);
   await expect(page.locator('#edit-talents')).toBeHidden();
-  await page.locator('#run-build summary').click();
+  await menuSection(page, '#run-build summary');
   await expect(page.locator('#active-talents li')).toHaveCount(3);
   await expect(page.locator('#active-talents')).toContainText('Iron Reprisal');
   await expect(page.locator('#active-talents')).toContainText('Arcane Echo');

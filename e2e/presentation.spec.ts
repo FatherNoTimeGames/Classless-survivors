@@ -1,3 +1,4 @@
+import { menuSection } from './game-helpers';
 import { expect, test } from '@playwright/test';
 import type { Locator } from '@playwright/test';
 import { PRESENTATION_KEY } from '../src/persistence/presentation-store';
@@ -37,11 +38,11 @@ test('activate real synthesized audio, mute it, persist volume/motion and follow
   const activate = async (node: Locator) => testInfo.project.use.hasTouch ? node.tap() : node.click();
   await expect(page.locator('body')).toHaveAttribute('data-reduced-motion', 'true');
   expect(await page.evaluate(() => (window as unknown as { audioAudit: Audit }).audioAudit.contexts.length)).toBe(0);
-  await activate(page.locator('#presentation-summary'));
+  await menuSection(page, '#presentation-summary');
   await expect(page.locator('#sound-status')).toContainText('Sound starts after');
   await activate(page.locator('#enable-sound')); await expect(page.locator('#sound-status')).toContainText('Sound ready');
   expect(await page.evaluate(() => (window as unknown as { audioAudit: Audit }).audioAudit.contexts.length)).toBe(1);
-  await activate(page.locator('#presentation-summary')); await activate(page.locator('#start-run'));
+  await menuSection(page, '#presentation-summary'); await activate(page.locator('#start-run'));
   // Read a real analyser tap on the master gain while native audio time advances.
   await expect.poll(async () => page.evaluate(() => {
     const analyser = (window as unknown as { audioAudit: Audit }).audioAudit.analyser!;
@@ -52,9 +53,9 @@ test('activate real synthesized audio, mute it, persist volume/motion and follow
   // A real browser audio suspension must clear pending notes and allow a gesture retry.
   await page.evaluate(() => (window as unknown as { audioAudit: Audit }).audioAudit.contexts[0]!.suspend());
   await expect(page.locator('#sound-status')).toContainText('Tap Enable sound');
-  await activate(page.locator('#presentation-summary')); await activate(page.locator('#enable-sound'));
+  await menuSection(page, '#presentation-summary'); await activate(page.locator('#enable-sound'));
   await expect(page.locator('#sound-status')).toContainText('Sound ready');
-  await activate(page.locator('#presentation-summary')); await activate(page.locator('#start-run'));
+  await menuSection(page, '#presentation-summary'); await activate(page.locator('#start-run'));
   await page.keyboard.press('KeyM');
   await expect(page.locator('#presentation-summary')).toContainText('sound off');
   expect(await page.evaluate(() => (window as unknown as { audioAudit: Audit }).audioAudit.stoppedNow)).toBeGreaterThan(0);
@@ -63,7 +64,7 @@ test('activate real synthesized audio, mute it, persist volume/motion and follow
     const samples = new Float32Array(analyser.fftSize); analyser.getFloatTimeDomainData(samples); return Math.max(...samples.map(Math.abs));
   })).toBeLessThan(0.00001);
   await expect.poll(async () => page.evaluate(() => { const audit = (window as unknown as { audioAudit: Audit }).audioAudit; return audit.ended >= audit.started; })).toBe(true);
-  await page.keyboard.press('KeyM'); await activate(page.locator('#presentation-summary'));
+  await page.keyboard.press('KeyM'); await menuSection(page, '#presentation-summary');
   await expect(page.locator('#start-run')).toHaveText('Resume run');
   await page.locator('#sound-volume').focus(); await page.keyboard.press('Home');
   for (let step = 0; step < 11; step++) await page.keyboard.press('ArrowRight');
@@ -77,13 +78,13 @@ test('activate real synthesized audio, mute it, persist volume/motion and follow
   await page.reload();
   expect(await page.evaluate(() => (window as unknown as { audioAudit: Audit }).audioAudit.contexts.length)).toBe(0);
   await expect(page.locator('body')).toHaveAttribute('data-reduced-motion', 'true');
-  await activate(page.locator('#presentation-summary')); await expect(page.locator('#sound-volume')).toHaveValue('55');
+  await menuSection(page, '#presentation-summary'); await expect(page.locator('#sound-volume')).toHaveValue('55');
   await expect(page.locator('#motion-preference')).toHaveValue('reduced');
-  await activate(page.locator('#presentation-summary')); await activate(page.locator('#start-run'));
+  await menuSection(page, '#presentation-summary'); await activate(page.locator('#start-run'));
   const canvas = page.locator('#arena'); const before = await playerPosition(canvas);
   await page.keyboard.down('KeyD'); await page.waitForTimeout(250); await page.keyboard.up('KeyD');
   expect((await playerPosition(canvas)).x).toBeGreaterThan(before.x + 15);
-  await activate(page.locator('#pause-run')); await activate(page.locator('#presentation-summary'));
+  await activate(page.locator('#pause-run')); await menuSection(page, '#presentation-summary');
   await page.screenshot({ path: testInfo.outputPath('sound-display-settings.png'), fullPage: true });
   expect(await page.locator('.shell').evaluate((node) => node.scrollWidth <= node.clientWidth)).toBe(true); expect(errors).toEqual([]);
 });
@@ -99,9 +100,9 @@ test('recover browser autoplay denial with a fresh gesture while gameplay remain
   });
   await page.goto('/'); const activate = async (node: Locator) => testInfo.project.use.hasTouch ? node.tap() : node.click();
   await activate(page.locator('#start-run')); await expect(page.locator('#sound-status')).toContainText('Tap Enable sound');
-  await activate(page.locator('#presentation-summary')); await expect(page.locator('#enable-sound')).toBeEnabled();
+  await menuSection(page, '#presentation-summary'); await expect(page.locator('#enable-sound')).toBeEnabled();
   await activate(page.locator('#enable-sound')); await expect(page.locator('#sound-status')).toContainText('Sound ready');
-  await activate(page.locator('#presentation-summary')); await activate(page.locator('#start-run')); await expect(page.locator('#pause-run')).toBeVisible();
+  await menuSection(page, '#presentation-summary'); await activate(page.locator('#start-run')); await expect(page.locator('#pause-run')).toBeVisible();
   expect(errors).toEqual([]);
 });
 
@@ -116,9 +117,9 @@ test('play without audio or writable storage and keep current-tab presentation c
   const activate = async (node: Locator) => testInfo.project.use.hasTouch ? node.tap() : node.click();
   await activate(page.locator('#start-run')); await page.clock.runFor(1100);
   await expect(page.locator('#run-time')).not.toHaveText('00:00'); await expect(page.locator('#sound-status')).toContainText('Audio is unavailable');
-  await activate(page.locator('#presentation-summary')); await page.locator('#sound-muted').check();
+  await menuSection(page, '#presentation-summary'); await page.locator('#sound-muted').check();
   await page.locator('#motion-preference').selectOption('reduced'); await expect(page.locator('body')).toHaveAttribute('data-reduced-motion', 'true');
   await expect(page.locator('#presentation-save-notice')).toContainText('this tab');
-  await activate(page.locator('#presentation-summary')); await activate(page.locator('#start-run')); await expect(page.locator('#pause-run')).toBeVisible();
+  await menuSection(page, '#presentation-summary'); await activate(page.locator('#start-run')); await expect(page.locator('#pause-run')).toBeVisible();
   expect(errors).toEqual([]);
 });

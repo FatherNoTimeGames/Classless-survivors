@@ -7,6 +7,7 @@ import type { EnemyKind, EliteKind } from '../content/enemies';
 import { createCompanions } from './companion-state';
 import type { CompanionKind } from '../content/companions';
 import type { DamageOverTime } from './dot-state';
+import type { ArenaSize } from './arena-size';
 import { RULES, WORLD } from './rules';
 import type { UpgradeId, UpgradeRanks } from '../content/upgrades';
 import type { TalentId } from '../content/talents';
@@ -54,8 +55,9 @@ export interface Progression {
   randomState: number;
 }
 export interface Run {
+  world: ArenaSize;
   status: 'running' | 'choosing' | 'defeated' | 'victory';
-  finishReason: 'slain' | 'timeout' | 'dawn' | null;
+  finishReason: 'abandoned' | 'slain' | 'timeout' | 'dawn' | null;
   campaign: CampaignState;
   elapsed: number;
   kills: number;
@@ -82,11 +84,11 @@ export interface Run {
   nextId: number;
 }
 
-export function createRun(seed: number, talents: readonly TalentId[] = [], budget?: number): Run {
+export function createRun(seed: number, talents: readonly TalentId[] = [], budget?: number, world: ArenaSize = WORLD): Run {
   const validation = validateBuild(talents, budget);
   if (!validation.valid) throw new Error(`Invalid talent build: ${validation.errors.join(' ')}`);
   return {
-    status: 'running', finishReason: null, campaign: createCampaign(), elapsed: 0, kills: 0, xp: 0,
+    world: { ...world }, status: 'running', finishReason: null, campaign: createCampaign(), elapsed: 0, kills: 0, xp: 0,
     talents: [...talents], upgradeMemory: createUpgradeMemory(), effects: createEffectQueue(),
     talentMemory: { arcaneHits: 0, communionKills: 0, cinderKills: 0, huntingCharge: false, physicalHits: 0, spellsteelIn: 0, chainHits: 0, spellHits: 0, ironWardIn: 0, riftIn: 0, criticalHits: 0, snareHits: 0, wildHuntIn: 0, sanctuaryIn: 0, dawnIn: 0 },
     progression: {
@@ -94,11 +96,11 @@ export function createRun(seed: number, talents: readonly TalentId[] = [], budge
       randomState: ((seed ^ 0xa5a5a5a5) >>> 0) || 0x9e3779b9,
     },
     player: {
-      x: WORLD.width / 2, y: WORLD.height / 2, health: RULES.maxHealth,
+      x: world.width / 2, y: world.height / 2, health: RULES.maxHealth,
       invulnerable: 0, attackIn: 0, facing: 1, moving: false, meleeIn: 0, shield: { amount: 0, remaining: 0 },
     },
     enemies: [], enemyBolts: [], blights: [], spawned: 0, bolts: [], snares: [],
-    companions: createCompanions(talents, { x: WORLD.width / 2, y: WORLD.height / 2 }),
+    companions: createCompanions(talents, { x: world.width / 2, y: world.height / 2 }),
     shards: [], sparks: [],
     spawnIn: RULES.firstSpawnDelay, randomState: (seed >>> 0) || 0x9e3779b9, nextId: 1,
   };

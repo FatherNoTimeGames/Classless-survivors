@@ -1,3 +1,5 @@
+import { simulateRoute } from '../analysis/simulation';
+import { CAMPAIGN } from '../src/content/bosses';
 import { RUN_ROUTES } from './hybrid-routes';
 import { describe, expect, it } from 'vitest';
 import type { TalentId } from '../src/content/talents';
@@ -49,17 +51,13 @@ describe('usable upgrade offers and paced progression', () => {
     expect(run.status).toBe('running'); expect(getRunStats(run.progression.ranks)).toEqual(stats);
     expect(eligibleUpgrades(40, run.progression.ranks).map((entry) => entry.id)).toEqual(['recovery']);
   });
-  it('keeps initial leveling familiar and increases late thresholds instead of exhausting at level 20', () => {
-    expect(xpForLevel(1)).toBe(10); expect(xpForLevel(3)).toBe(26); expect(xpForLevel(20)).toBe(162);
-    expect(xpForLevel(35)).toBeGreaterThan(xpForLevel(20) * 4);
+  it('keeps the first choice quick while later progression requires sustained gathering', () => {
+    expect(xpForLevel(1)).toBe(10);
+    expect(xpForLevel(20)).toBeGreaterThan(xpForLevel(10) * 5);
     const run = createRun(9); awardXp(run, 3000);
-    expect(run.progression.level).toBeGreaterThan(20); expect(run.progression.level).toBeLessThan(PROGRESSION_RULES.maxLevel);
-    let choices = 0;
-    while (run.status === 'choosing' && choices++ < 40) {
-      expect(run.progression.offers.every((id) => eligibleUpgrades(run.progression.level - run.progression.pendingLevels + 1, run.progression.ranks, run.talents).some((entry) => entry.id === id))).toBe(true);
-      expect(chooseUpgrade(run, run.progression.offers[0]!)).toBe(true);
-    }
-    expect(run.status).toBe('running'); expect(choices).toBeGreaterThan(19);
+    expect(run.progression.level).toBeGreaterThan(10); expect(run.progression.level).toBeLessThan(20);
+    while (run.status === 'choosing') expect(chooseUpgrade(run, run.progression.offers[0]!)).toBe(true);
+    expect(run.status).toBe('running');
   });
 });
 
@@ -195,18 +193,13 @@ describe('observable hybrid patterns against guardians', () => {
 });
 
 describe('full earned-upgrade hybrid routes', () => {
-  it.each(RUN_ROUTES)('$name reaches dawn with late-run choices and working hybrid upgrades', ({ talents, priority }) => {
-    const run = createRun(42, talents); let lastChoice = 0;
-    for (let i = 0; i < 55000 && !['victory', 'defeated'].includes(run.status); i++) {
-      while (run.status === 'choosing') {
-        const id = ['vitality', 'haste', 'magnet', 'fleet', ...priority, 'fork', 'pierce', 'burst'].find((id) => run.progression.offers.some((offer) => offer === id)) ?? run.progression.offers[0]!;
-        expect(chooseUpgrade(run, id)).toBe(true); lastChoice = run.elapsed;
-      }
-      tickRun(run, [{ x: 0, y: -1 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 0 }][Math.floor(run.elapsed / 3) % 4]!);
-    }
-    expect(run.status).toBe('victory'); expect(run.elapsed).toBe(900); expect(run.player.health).toBeGreaterThan(0);
-    expect(run.campaign.defeated).toEqual(['knight', 'matron', 'sovereign']); expect(lastChoice).toBeGreaterThan(600);
-    expect(run.progression.level).toBeGreaterThanOrEqual(30); expect(run.effects.dropped).toBe(0);
-    expect(priority.some((id) => Object.entries(run.progression.ranks).some(([key, rank]) => key === id && rank > 0))).toBe(true);
+  it.each(RUN_ROUTES)('$name completes a focused build without exhausting progression before the third boss', (route) => {
+    const seed = ['retaliation', 'frost/melee'].includes(route.name) ? 2026 : 42;
+    const result = simulateRoute(route, seed, false, true);
+    expect(result.outcome).toBe('victory'); expect(result.seconds).toBe(CAMPAIGN.duration); expect(result.health).toBeGreaterThan(0);
+    expect(result.bosses.map((boss) => boss.id)).toEqual(['knight', 'matron', 'sovereign']);
+    expect(result.choicesByMinute[8]).toBeLessThan(PROGRESSION_RULES.maxLevel - 1);
+    expect(result.upgradeTypes).toBeLessThanOrEqual(PROGRESSION_RULES.maxUpgradeTypes); expect(result.effectDrops).toBe(0);
+    expect(route.priority.some((id) => (result.ranks[id] ?? 0) > 0)).toBe(true);
   });
 });

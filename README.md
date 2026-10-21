@@ -3,14 +3,14 @@
 A single-player dark fantasy survival roguelite built with TypeScript and Canvas.
 Mix talents freely across six fantasy archetypes. No accounts or backend required.
 
-**Version 1.0.0:** all **36 talents across six freely mixed branches** are
+**Version 1.1.0:** all **36 talents across six freely mixed branches** are
 implemented. Persistent progress unlocks capstones and a bounded talent budget.
 Builds support melee/spell combos, critical effects,
 Poison/curses, companions, healing offense, shields, and retaliation. Runs include
 movement, automatic combat, XP, 20 run-upgrade choices, defeat, and replay. Local
 saves, research, named builds, and backups now work. Five enemy types, two elite
 modifiers, escalating waves, and three telegraphed guardians form a timed
-15-minute run with victory, defeat, rewards, and return to build planning. Production
+12-minute run with victory, defeat, rewards, and return to build planning. Production
 builds support offline play and optional home-screen installation. The first balance
 and measured performance pass is complete. Release regression evidence is in
 [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md). The complete game is ready for static
@@ -138,7 +138,7 @@ focus; click/tap it to refocus. The arena edge is solid; ruined scenery is visua
 
 Your ember fires automatically at nearby enemies. Green shards are XP: move
 near them to attract and collect them. Ten XP earns the first level; each following
-threshold costs eight more XP through level 20; later thresholds grow faster. On leveling, combat freezes while you select a
+threshold costs ten more XP through level 10; later thresholds grow faster. On leveling, combat freezes while you select a
 run upgrade. Tap/click a card, or use Tab and Enter/Space. Escape cannot dismiss a
 level reward. If several levels are earned at once, choose once for each reward;
 excess XP carries over. Held movement input is cleared before play resumes.
@@ -146,9 +146,11 @@ excess XP carries over. Held movement input is cleared before play resumes.
 Each offer contains up to three distinct upgrades, including a weapon and a survival
 option whenever eligible options from both categories remain. Common upgrades appear from level 2, uncommon from level 3,
 and rare from level 4. Common offers have greater selection weight. Maxed upgrades
-stop appearing. **Level 40** bounds the run budget. Thresholds remain familiar
-through level 20, then add `2 × (level − 20)²` XP to the base cost. This keeps choices
-arriving later in a full run. XP still counts toward your total at maximum level.
+stop appearing. **Eight distinct lasting upgrades** fit in a run. Rank-ups use
+no extra slot; at capacity, only selected upgrades and eligible **Second Wind**
+recovery can appear. Talent allocations remain freely mixed. **Level 24** bounds
+the reward budget. Each threshold is `10 + 10 × (level − 1) + 5 × max(0, level − 10)²`
+XP. XP still counts toward your total at maximum level.
 Family upgrades appear only when a talent or acquired upgrade provides their
 trigger. Your run choices can open new paths: Viper Ink enables periodic upgrades,
 Keen Instinct enables critical synergies, Blood Wellspring enables healing offense,
@@ -209,17 +211,20 @@ retain their captured upgrades and damage. See [SYNERGY_AUDIT.md](SYNERGY_AUDIT.
 for the talent/upgrade review, tested combinations, and intentional exclusions.
 
 Piercing bolts have a pale trail; explosive bolts produce expanding impact rings.
-Open **Run upgrades & abilities** beneath the arena to inspect damage, range,
+Open **Run upgrades & abilities** in **Menu** to inspect damage, range,
 attack cadence, companion inheritance, and every acquired upgrade's description.
 The choice screen includes a keyboard/touch-accessible current-abilities summary;
 the results screen shows the final ability summary for that run. These values describe base abilities;
 critical hits, wounded/Frost bonuses, and stored companion bonuses can add damage.
 Enemy numbers build over time, and you lose when health reaches zero. **Try again**
 starts a fresh run with level 1, your chosen talents, and no run upgrades. Defeat
-all three guardians and survive until **15:00** to win. Health reaching zero loses
-immediately; guardians remaining at 15:00 also lose the run. Both outcomes award
+all three guardians and survive until **12:00** to win. Health reaching zero loses
+immediately; guardians remaining at 12:00 also lose the run. Both outcomes award
 persistent progress. The results show survival time, kills, XP, level, guardians,
 and the final talent/upgrade build. **Return to build planning** opens free respecs.
+
+**Abandon run** in the pause menu returns to planning without rewards or
+completed-run credit. It preserves your prior progression and saved builds.
 
 Use **Pause** or **Escape** to pause. Use **Resume run**, or **Escape** while that
 button has keyboard focus, to resume. Escape in a settings control keeps the run paused.
@@ -228,11 +233,14 @@ interruption, release and press movement keys again to resume movement.
 
 ## Phone, tablet, and desktop controls
 
-During a run the HUD stays above the arena and Pause sits in a toolbar below it,
-within thumb reach. The arena keeps its 3:4 aspect ratio and scales to the actual
-viewport space after the HUD, controls and safe-area padding. On short landscape
-screens the HUD/toolbar sit beside the arena. Starting or resuming returns to the
-top of the play area. Combat rules and movement distances are independent of size.
+The entire game occupies one fixed viewport, with no document scrolling. The arena
+fills the space between a compact HUD and the bottom toolbar; short landscape places the HUD beside a full-height arena for readability.
+**Menu** opens
+settings, offline support, enemy help and the run build as an internal modal;
+talents, upgrades, pause and results also stay inside the game window. Long menu
+contents scroll internally. New runs match the screen aspect while keeping the
+same combat area and unstretched sprites. A run retains its logical bounds after
+rotation/resizing, fitting the whole field without cropping or changing hazards.
 
 Rotation pauses once and requires an explicit resume. Resizing clears held keys
 and touch capture; release and press again, or start a fresh drag. The first
@@ -254,7 +262,7 @@ and OS interruptions still need physical-device verification.
 
 ## Sound, motion, and combat readability
 
-Open **Sound & display** below the arena. Opening it pauses an active run; resume
+Open **Sound & display** in **Menu**. Opening it pauses an active run; resume
 with the normal run controls. Sound defaults to a restrained **30% volume** and
 starts only after **Enter the clearing** or **Enable sound**. Use **Mute sound**,
 the volume slider, or **M** while the arena has focus. Reloading restores your
@@ -297,7 +305,7 @@ listening, Android hardware performance and non-Chromium engines remain unverifi
 The wave label shows the current threat stage. Enemies appear at arena edges,
 at least 110 units away, with a visible 0.6s arrival grace before moving or
 attacking. Movement remains player-controlled; the warnings give time to reposition.
-The **Enemy field guide** beneath the arena explains silhouettes and counterplay.
+The **Enemy field guide** in **Menu** explains silhouettes and counterplay.
 
 | Enemy | Behavior and counterplay | Base health / XP |
 | --- | --- | --- |
@@ -345,16 +353,17 @@ in [the balance and performance report](BALANCE_REPORT.md).
 
 | Arrival | Guardian | Positioning |
 | --- | --- | --- |
-| 4:00 | Ossuary Knight | Escape its forward sweep; sidestep its long cleave |
-| 9:00 | Veil Matron | Weave between fan bolts; stand inside or outside the warned ring |
-| 13:30 | Night Sovereign | Leave crossed lanes diagonally; avoid marked pools and radial bolts |
+| 3:00 | Ossuary Knight | Escape its forward sweep; sidestep its long cleave |
+| 6:00 | Veil Matron | Weave between fan bolts; stand inside or outside the warned ring |
+| 9:00 | Night Sovereign | Leave crossed lanes diagonally; avoid marked pools and radial bolts |
 
 Dashed gold outlines warn before an attack, then solid bright outlines mark active
 areas. Aim is locked when a warning appears. Rings mark their safe center with a
 check; pools carry a cross. Boss bodies have larger silhouettes and hitboxes. The
 HUD shows guardian health, positioning advice, progress, and time remaining until
-dawn. Below half health, guardian recovery is 20% shorter; warning times stay unchanged.
-The final guardian leaves a 90-second window before dawn. Close distance when using
+dawn. **Next guardian** counts down the remaining time, freezing while paused;
+a queued boss waits for the current fight and respite to finish. Below half health, guardian recovery is 20% shorter; warning times stay unchanged.
+The final guardian leaves a three-minute window before dawn. Close distance when using
 melee; constantly running away reduces its damage opportunities.
 
 Arrival banishes normal enemies and released hostile attacks without free kill
@@ -372,7 +381,7 @@ warnings; roots stop movement but allow stationary casts. Released bolts remain
 active until the encounter ends. Danger and projectile counts remain capped.
 
 The run clock stops during pauses and level choices. Victory requires all three
-guardians defeated and the player alive at 15:00. A friendly killing hit on the
+guardians defeated and the player alive at 12:00. A friendly killing hit on the
 final tick resolves before hostile damage; a previously slain run cannot win.
 Combat and pending choices freeze at either ending. Finished combat is not restored
 after reload, but its saved reward/result is retained and cannot be claimed again.
@@ -423,7 +432,7 @@ progress and builds. Closing the browser does not preserve unfinished combat.
 ## Offline play and installation
 
 Open the production game while connected, then expand **Offline & installation**
-below the arena. Opening the panel pauses combat. Wait for **Offline ready** before
+in **Menu**. Opening the panel pauses combat. Wait for **Offline ready** before
 disconnecting: it means the complete game files have been saved on this device.
 You can then close and reopen the game, make builds, finish runs, earn rewards,
 and replay offline. Installation is optional; the normal browser game also works
@@ -547,7 +556,7 @@ warnings, arrival/grace, shared status/DoT/companion/retaliation behavior, Resol
 reinforcement/hazard caps, healing breaks, final-tick ordering, frozen outcomes, and
 one-time profile rewards. Five additional legal eight-point routes cover
 retaliation, Frost/melee, critical/DoT, healing/offense, and summons. Together with
-the two Mage/Priest routes, they complete real 900-second simulations using earned
+the two Mage/Priest routes, they complete real 720-second simulations using earned
 XP/choices and a repeatable movement route. The five new routes still earn
 choices beyond ten minutes. This establishes seeded winnability and later
 progression, not comprehensive difficulty balance or human playtest quality.
@@ -636,13 +645,12 @@ Upload a complete release atomically where supported, or upload hashed assets
 first and HTML/manifest/worker last, retaining older hashed assets during rollout.
 Incomplete updates fail safely and can be retried after all files are available.
 `npm run release` rebuilds and packages the site into
-`release/classless-survivors-1.0.0.zip` with player/hosting guides and SHA-256
+`release/classless-survivors-1.1.0.zip` with player/hosting guides and SHA-256
 checksums. `npm run test:release` verifies the extracted archive and plays it
 offline at root and subdirectory paths in three Chromium layouts. These commands
 need `zip`/`unzip` and a configured Playwright browser; see
-[DEPLOYMENT.md](DEPLOYMENT.md). The manual GitHub Pages workflow is ready; remote
-publication still needs the committed source on GitHub and Pages enabled there.
-No hosting deployment or push was performed during release preparation.
+[DEPLOYMENT.md](DEPLOYMENT.md). The GitHub Pages workflow deploys successful `main` updates automatically and
+also accepts manual runs. Pages must use GitHub Actions as its source.
 
 Original install icons can be regenerated from the repository root with
 `node scripts/generate-icons.mjs`. The script uses built-in Node APIs and keeps
@@ -661,7 +669,9 @@ the sigil inside the mask-safe area; no asset services or added dependencies.
 - `src/presentation/`: validated preferences and pure visual grouping/priority rules.
 - `src/audio/`: original tone definitions, lazy bounded Web Audio synthesis, and read-only cue direction.
 - `src/ui/presentation-settings.ts`: accessible settings and device-motion observation.
-- `src/ui/play-layout.ts` and `src/ui/usability.css`: viewport fitting, rotation boundaries, safe areas and responsive play/menu layout.
+- `src/ui/play-layout.ts`, `src/ui/fullscreen.css`, `src/ui/usability.css`: fixed viewport, rotation, safe areas and readable internal menus.
+- `src/ui/game-menu.ts`, `src/ui/campaign-label.ts`: native options menu and pure guardian countdown text.
+- `src/game/arena-size.ts`: screen-shaped, constant-area logical bounds for new runs.
 - `src/offline/client.ts`: guarded worker registration, readiness, repair and update checks.
 - `src/ui/offline-panel.ts`: offline status and optional browser installation affordance.
 - `build/`: deterministic release digests, worker runtime and Vite build integration.
@@ -816,3 +826,6 @@ systems should have focused, testable modules and clear ownership; content and
 tuning should be easy to find and change. New art may use simple Canvas shapes,
 SVG/vectors, or monochrome/limited-palette pixels, whichever is easiest to produce.
 Readable existing art can stay. See [AGENTS.md](AGENTS.md) for development guidance.
+
+Version 1.1.0 player-feedback changes and measured balance evidence are recorded in
+[PLAYTEST_REPORT.md](PLAYTEST_REPORT.md).

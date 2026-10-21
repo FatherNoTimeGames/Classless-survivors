@@ -20,7 +20,9 @@ export function choiceLevel(run: Run): number {
 
 export function eligibleUpgrades(level: number, ranks: UpgradeRanks, talents: readonly TalentId[] = []): UpgradeDefinition[] {
   const capabilities = upgradeCapabilities(talents, ranks);
+  const full = selectedUpgradeCount(ranks) >= PROGRESSION_RULES.maxUpgradeTypes;
   const available = UPGRADES.filter((upgrade) => level >= upgrade.minLevel && (ranks[upgrade.id] ?? 0) < upgrade.maxRank
+    && (!full || upgrade.fallback || (ranks[upgrade.id] ?? 0) > 0)
     && (upgrade.needs ?? []).every((need) => capabilities.has(need)));
   const pool = available.filter((upgrade) => !upgrade.fallback);
   return pool.length < PROGRESSION_RULES.offerCount ? [...pool, ...available.filter((upgrade) => upgrade.fallback)] : pool;
@@ -97,4 +99,9 @@ export function chooseUpgrade(run: Run, id: string): boolean {
   if (run.progression.pendingLevels > 0) prepareChoice(run);
   else run.status = 'running';
   return true;
+}
+
+/** Recovery never occupies a lasting build slot. Talent capabilities remain unrestricted. */
+export function selectedUpgradeCount(ranks: UpgradeRanks): number {
+  return UPGRADES.filter((upgrade) => !upgrade.fallback && (ranks[upgrade.id] ?? 0) > 0).length;
 }

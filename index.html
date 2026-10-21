@@ -13,12 +13,7 @@
   <body>
     <a class="skip-link" href="#sanctuary">Skip to sanctuary</a>
     <main class="shell">
-      <header class="masthead">
-        <img class="sigil" src="./sigil.svg" alt="" width="40" height="40" />
-        <p class="eyebrow">No oath. No master.</p>
-        <h1>Classless <span>Survivors</span></h1>
-        <p class="tagline">Take what you need from the light. And from the dark.</p>
-      </header>
+
 
       <section class="sanctuary" id="sanctuary" aria-labelledby="sanctuary-title" tabindex="-1">
         <div class="scene-heading">
@@ -28,6 +23,7 @@
           </div>
           <button class="quiet-button" id="edit-talents" type="button">Talents (0/8)</button>
           <button class="quiet-button" id="pause-run" type="button" hidden>Pause</button>
+          <button class="quiet-button" id="open-menu" type="button" aria-haspopup="dialog">Menu</button>
         </div>
         <div class="run-hud" id="run-hud" hidden>
           <div class="wave-row"><span id="wave-label" role="status"></span><span id="enemy-count"></span></div>
@@ -54,12 +50,19 @@
           </canvas>
           <div class="joystick" id="joystick" aria-hidden="true" hidden><span></span></div>
           <section class="run-overlay" id="run-overlay" aria-labelledby="overlay-title">
+      <header class="masthead">
+        <img class="sigil" src="./sigil.svg" alt="" width="40" height="40" />
+        <p class="eyebrow">No oath. No master.</p>
+        <h1>Classless <span>Survivors</span></h1>
+        <p class="tagline">Take what you need from the light. And from the dark.</p>
+      </header>
             <span class="small-label">The first ember</span>
             <h3 id="overlay-title">Hold back the dark</h3>
-            <p id="overlay-description">Survive 15 minutes and defeat the guardians at 4:00, 9:00 and 13:30. Your ember attacks automatically. Move to dodge danger and gather green XP shards for upgrades.</p>
+            <p id="overlay-description">Survive 12 minutes and defeat the guardians at 3:00, 6:00 and 9:00. Your ember attacks automatically. Move to dodge danger and gather green XP shards for upgrades.</p>
             <p id="run-results" hidden></p><p id="run-reward" hidden></p>
             <details id="result-build" hidden><summary>Final build</summary><p id="result-talents"></p><p id="result-upgrades"></p><p id="result-abilities"></p></details>
             <button class="primary-button" id="start-run" type="button">Enter the clearing</button>
+            <button class="quiet-button" id="abandon-run" type="button" hidden>Abandon run</button>
             <button class="quiet-button" id="return-to-build" type="button" hidden>Return to build planning</button>
           </section>
           <dialog class="upgrade-overlay" id="upgrade-picker" aria-labelledby="upgrade-title" aria-describedby="upgrade-note" hidden>
@@ -68,10 +71,8 @@
             <details class="choice-build"><summary>Your current abilities</summary><p id="upgrade-build"></p></details>
             <div id="upgrade-choices"></div>
           </dialog>
-          <p class="canvas-error" id="canvas-error" role="alert" hidden>
-            The sanctuary could not be drawn. Please try a browser with Canvas support.
-          </p>
-        </div>
+          <dialog id="game-menu" class="game-dialog" aria-labelledby="game-menu-title">
+            <div class="menu-header"><h2 id="game-menu-title">Game menu</h2><button id="close-menu" class="quiet-button" type="button">Close menu</button></div>
         <div class="milestone-note">
           <p id="control-help"><strong>Move:</strong> WASD / arrows, or drag in the clearing.<br />Attacks are automatic. Escape pauses. M toggles sound.</p>
           <details class="build-summary" id="presentation-settings">
@@ -102,7 +103,7 @@
               <li>Horned Brutes stop to mark a dashed charge lane, then rush it. Step aside.</li>
               <li>Mire Hexers mark crossed circles before blight forms. Leave the circle.</li>
               <li>Crowned elites are swifter (side chevrons) or tougher (square frame). Frost and control still work.</li>
-              <li>Guardians arrive at 4:00, 9:00 and 13:30. Defeat all three and survive until 15:00. Victory and defeat both earn progression.</li>
+              <li>Guardians arrive at 3:00, 6:00 and 9:00. Defeat all three and survive until 12:00. Victory and defeat both earn progression.</li>
               <li>Ossuary Knight: dodge sweeps and long cleaves. Veil Matron: dodge fans; stand inside or outside rings. Night Sovereign: leave crossed lanes diagonally and avoid pools.</li>
               <li>Guardian defeat restores 25% maximum health and grants a five-second respite. Small reinforcements keep kill-triggered builds active.</li>
               <li>Boss Resolve: after a successful stun or root, a guardian resists more hard control for 3 seconds. Slows and Frost-consumption damage still work.</li>
@@ -118,11 +119,7 @@
             <ul id="active-talents"></ul>
           </details>
         </div>
-        <p class="sr-only" id="announcement" role="status" aria-live="polite"></p>
-      </section>
-
-      <footer>Single player <span aria-hidden="true">·</span> A world without classes</footer>
-    </main>
+          </dialog>
     <dialog id="talent-editor" aria-labelledby="talent-editor-title">
       <div class="talent-editor-header">
         <div><p class="small-label">No classes. Your choices.</p><h2 id="talent-editor-title">Classless talents</h2></div>
@@ -167,6 +164,16 @@
       </div>
       <p id="talent-catalog-status"></p>
     </dialog>
+          <p class="canvas-error" id="canvas-error" role="alert" hidden>
+            The sanctuary could not be drawn. Please try a browser with Canvas support.
+          </p>
+        </div>
+        <p class="sr-only" id="announcement" role="status" aria-live="polite"></p>
+      </section>
+
+      <footer>Single player <span aria-hidden="true">·</span> A world without classes</footer>
+    </main>
+
     <noscript>This game needs JavaScript enabled in your browser.</noscript>
     <script type="module" src="/src/main.ts"></script>
   </body>

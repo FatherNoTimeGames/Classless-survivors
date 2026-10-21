@@ -1,3 +1,7 @@
+import { CAMPAIGN } from '../src/content/bosses';
+import type { ArenaSize } from '../src/game/arena-size';
+import { WORLD } from '../src/game/rules';
+import { selectedUpgradeCount } from '../src/game/progression';
 import { createRun } from '../src/game/state';
 import { tickRun } from '../src/game/run';
 import { chooseUpgrade } from '../src/game/progression';
@@ -6,12 +10,12 @@ import type { UpgradeId } from '../src/content/upgrades';
 import type { BalanceRoute } from './routes';
 
 const MOVEMENT = [{ x: 0, y: -1 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 0 }] as const;
-const CORE: readonly UpgradeId[] = ['vitality', 'haste', 'magnet', 'fleet'];
-const SECONDARY: readonly UpgradeId[] = ['fork', 'pierce', 'burst'];
+const CORE: readonly UpgradeId[] = ['haste', 'vitality'];
+const SECONDARY: readonly UpgradeId[] = ['wellspring', 'fork', 'pierce', 'burst', 'fleet', 'magnet'];
 
 /** Real fixed ticks and earned choices only. This simple pilot deliberately cannot dodge warnings. */
-export function simulateRoute(route: BalanceRoute, seed: number, stationary = false, adaptive = false) {
-  const run = createRun(seed, [...route.talents]);
+export function simulateRoute(route: BalanceRoute, seed: number, stationary = false, adaptive = false, world: ArenaSize = WORLD) {
+  const run = createRun(seed, [...route.talents], undefined, world);
   const choices: { at: number; id: UpgradeId }[] = [];
   const bosses: { id: string; seconds: number }[] = [];
   const peaks = { enemies: 0, bolts: 0, shards: 0, sparks: 0, effects: 0 };
@@ -20,7 +24,7 @@ export function simulateRoute(route: BalanceRoute, seed: number, stationary = fa
   while (!['victory', 'defeated'].includes(run.status) && ticks < 55000) {
     while (run.status === 'choosing') {
       const hurt = adaptive && run.player.health < getRunStats(run.progression.ranks).maxHealth * 0.6;
-      const priority: readonly UpgradeId[] = [...(hurt ? ['wellspring', 'vitality', 'aegis', 'recovery'] as const : []), ...CORE, ...route.priority, ...SECONDARY];
+      const priority: readonly UpgradeId[] = [...(hurt ? ['wellspring', 'vitality', 'aegis', 'recovery'] as const : []), ...(run.progression.ranks.magnet ? [] : ['magnet'] as const), ...CORE, ...route.priority, ...SECONDARY];
       const id = priority.find((id) => run.progression.offers.includes(id)) ?? run.progression.offers[0]!;
       if (!chooseUpgrade(run, id)) throw new Error('Pilot could not spend an earned choice');
       choices.push({ at: run.elapsed, id });
@@ -44,6 +48,8 @@ export function simulateRoute(route: BalanceRoute, seed: number, stationary = fa
     route: route.name, seed, stationary, adaptive, outcome: run.status, seconds: run.elapsed,
     level: run.progression.level, kills: run.kills, xp: run.xp, health: run.player.health,
     minHealth, healthLossTicks, firstChoice: choices[0]?.at ?? null, lastChoice: choices.at(-1)?.at ?? null,
+    upgradeTypes: selectedUpgradeCount(run.progression.ranks),
+    choicesByMinute: Array.from({ length: Math.ceil(CAMPAIGN.duration / 60) }, (_, index) => choices.filter((choice) => choice.at < (index + 1) * 60).length),
     ranks: run.progression.ranks, bosses, peaks, effectDrops: run.effects.dropped,
     ticks, wallMs: performance.now() - started,
   };

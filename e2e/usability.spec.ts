@@ -1,3 +1,4 @@
+import { menuSection } from './game-helpers';
 import { expect, test } from '@playwright/test';
 import type { Locator, Page } from '@playwright/test';
 import { collectUntilChoice, playerPosition, seedRuns, startGame } from './game-helpers';
@@ -24,7 +25,11 @@ test('keep the full HUD, arena and thumb controls visible across small, portrait
     for (const selector of ['#run-hud', '#arena', '#pause-run']) await insideViewport(page, page.locator(selector));
     const bounds = (await canvas.boundingBox())!;
     expect(bounds.width).toBeGreaterThan(140);
-    expect(bounds.width / bounds.height).toBeCloseTo(.75, 2);
+    const sidebar = width! > height! && height! <= 600;
+    const hud = (await page.locator('#run-hud').boundingBox())!;
+    expect(bounds.width + (sidebar ? hud.width : 0)).toBeCloseTo(width!, 0);
+    if (sidebar) expect(bounds.height).toBeCloseTo(height!, 0);
+    expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight)).toBe(true);
     const pause = (await page.locator('#pause-run').boundingBox())!;
     expect(pause.width).toBeGreaterThanOrEqual(44); expect(pause.height).toBeGreaterThanOrEqual(44);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -74,7 +79,7 @@ test('pause for reading and settings without stealing focus or resuming on Escap
   const activate = (locator: Locator) => testInfo.project.use.hasTouch ? locator.tap() : locator.click();
   for (const id of ['presentation-settings', 'offline-settings', 'enemy-guide', 'run-build']) {
     const summary = page.locator(`#${id} summary`).first();
-    await activate(summary);
+    await menuSection(page, `#${id} summary`);
     await expect(page.getByRole('button', { name: 'Resume run' })).toBeVisible();
     await expect(summary).toBeFocused();
     expect(await page.locator('#arena').evaluate((node) => getComputedStyle(node).touchAction)).not.toBe('none');
@@ -87,7 +92,7 @@ test('pause for reading and settings without stealing focus or resuming on Escap
       await page.locator('#motion-preference').focus(); await page.keyboard.press('Escape');
       await expect(page.getByRole('button', { name: 'Resume run' })).toBeVisible();
     }
-    await activate(summary); await activate(page.getByRole('button', { name: 'Resume run' }));
+    await menuSection(page, `#${id} summary`); await activate(page.getByRole('button', { name: 'Resume run' }));
     expect(await page.evaluate(() => scrollY)).toBe(0);
   }
   expect(errors).toEqual([]);

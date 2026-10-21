@@ -2,144 +2,94 @@
 
 ## Current state
 
-- Completed: tasks 0–17, modular refactor 2a, and synergy pass 7a. Version **1.0.0**
-  is packaged for static hosting; all planned implementation tasks are complete.
-- Playable: keyboard/touch movement, automatic combat, XP/levels, 20 run upgrades,
-  five enemy types, elites, three guardians and a 15-minute campaign. Victory and
-  defeat return to persistent rewards, build planning/free respec and replay.
-- All 36 talents work across six freely mixed branches. Thirty start unlocked;
-  research opens six capstones. Eight starting points expand to ten after runs
-  2/5. Three named builds, autosaved drafts, validated/versioned profiles,
-  migration/recovery and reviewed backup import/export work. No permanent stat
-  purchases. See SYNERGY_AUDIT.md for open triggers, inheritance and proc bounds.
-- Original procedural audio, saved mute/volume/motion preferences, reduced motion,
-  prioritized feedback, grouped XP glyphs and reused icons remain. Responsive
-  play keeps a full-size HUD/toolbar with a fitted arena; short landscape uses
-  a side layout. Native upgrade modals, touch ownership/cancellation, rotation,
-  pointer/keyboard recovery and reading pauses remain covered by browser tests.
-- Production offline/PWA support includes original icons, an integrity-checked
-  atomic cache, repair/readiness/install UI and safe waiting updates. No mid-run
-  takeover. Cache failures preserve a usable old release and separate local saves.
-  Native restart/offline play, subdirectory hosting and two-client updates work.
-- Task 15 tunes introductory density, eligible survival offers and guardian
-  health. Guardians arrive at 4:00/9:00/13:30; dawn remains 15:00. Permanent rewards
-  remain bounded. Multiple unresearched builds without Priest talents can win.
-- Measured idle-allocation optimizations preserve handler order, live ranks,
-  proc/entity limits and observable routes. Repeatable balance/profiling/Canvas
-  tools and honest loss/saturation results live in [BALANCE_REPORT.md](BALANCE_REPORT.md).
-- Offline runtime/client UI, build/release generation, rendering, input, local
-  profile/settings storage and browser-independent simulation stay separate.
-  The development benchmark harness stays outside the production game; no profile/
-  settings save-format, dependency or lockfile change was needed.
-- Task 16 checks all nine requested play journeys, legal talent pairs and repeated
-  campaign/reload cycles. Three reproduced save defects are fixed: stale imports
-  from a future-save session, unchecked writes after read failure and revision
-  overflow. See [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) for evidence and limits.
-- Full browser regression caught a failed-update notice race. Its deterministic
-  fixture and an initial-install retry regression now pass; native failed-download
-  repair/retry remains covered. Welcome/help text now matches the 13:30 guardian.
-- Task 17 delivers a versioned ZIP, SHA-256 inventory/checksum, short player and
-  hosting guides, and a manual GitHub Pages workflow. Separate packaging and smoke
-  scripts rebuild and verify the extracted game without changing shipped gameplay.
-- Hosting follow-up: the user's screenshots confirm GitHub Actions as the Pages
-  source and HTTPS enabled. Release `1494cf3` was pushed to `origin/main` and its
-  exact remote commit verified. The site has not yet been deployed: starting the
-  manual workflow through the API is blocked by the environment proxy (CONNECT 403).
+- Tasks **0–18**, refactor 2a and synergy pass 7a are complete. Version **1.1.0**
+  implements the latest player feedback and is verified for publication.
+- One fixed, non-scrolling game viewport replaces the web-page layout. The arena
+  fills the HUD/toolbar space (full height beside the HUD in short landscape); native
+  menus contain talents, upgrades, settings,
+  offline support, help, current build and results. Long menus scroll internally.
+- New runs match screen aspect without stretching sprites or increasing combat
+  area. Run-owned bounds cover movement, spawning, companions and boss hazards.
+  Resize/rotation keeps the existing field intact and pauses once; input resets.
+- Temporary builds have **eight lasting upgrade types**, rank-ups cost no extra
+  slot, recovery uses none, and levels stop at **24**. Later XP costs rise faster.
+  Talents remain freely mixed: all 36 across six branches and their triggers work.
+- Guardians arrive at **3:00/6:00/9:00**, dawn at **12:00**. The next-guardian label
+  counts down, freezes with combat and explains an overdue queued encounter.
+  Guardian health and later wave pressure account for the smaller upgrade budget.
+- **Pause → Abandon run** preserves prior records, builds and research, consumes
+  the current identity and awards no insight/completed-run credit. Replay and
+  free respec are available afterward. Genuine defeats retain their normal rewards.
+- Existing local profiles, research, three named build slots, eight-to-ten permanent
+  points, original procedural art/audio, touch/keyboard control and PWA integrity/
+  recovery/waiting updates remain. No save migration or new dependency is required.
 
-## Standing requirements
+## Validation
 
-- Complete one authorized task, validate, update progress, commit, report, then
-  pause until **continue**. Make ordinary design/technical decisions independently.
-- Focused typed modules and explicit ownership; run.ts coordinates simulation.
-  Open cross-branch triggers, accurate descriptions, explicit companion
-  inheritance and bounded procs remain priorities. See AGENTS.md.
-- Reuse readable original programmatic art. No paid APIs, asset services,
-  accounts or backend. See DEVELOPMENT_PLAN.md and README.md.
+- Final `npm test -- --disableConsoleIntercept --reporter=dot`: **1,656/1,656 pass**
+  in 25 files (31.97 seconds). Includes 525 legal talent pairs, variable bounds,
+  eight-slot/forged-choice boundaries, countdowns and abandoning without rewards.
+- Repeated-run soak: **8 wins, 4 defeats, 7,585 simulated seconds**, twelve durable
+  outcomes with research/builds/reload preserved and finished state frozen.
+- `npm run release` passes typechecking/build and produces the **65,248-byte**
+  `release/classless-survivors-1.1.0.zip`. Approximately 127.94 kB JS (42.86 gzip),
+  16.13 kB CSS, 12.87 kB HTML and 3.42 kB worker, plus unchanged local icons/manifest.
+- `npm run test:release`: **6/6 extracted-ZIP offline journeys pass**, covering `/`
+  and `/Classless-survivors/` on desktop, tablet and Android portrait. Archive
+  checksum/inventory, saved mixed build, reload, movement, kills and earned choice
+  are verified. Screenshots/report are generated under `release/`.
+- Initial full browser run: 100/106 pass; six failures were two outdated fixtures
+  repeated across projects. Their corrected journeys pass 12/12. The final full
+  regression passes **105/106**; a rotated tablet rendered the portrait field too
+  small below the HUD. The corrected landscape sidebar and fresh-run measurement
+  then pass **43/43** final browser cases across desktop/tablet/Android (1.4 minutes),
+  including the failed rotation and three new fresh-landscape cases. All 109 current
+  scenarios are covered across the full regression and scoped final rerun; no
+  unresolved failure remains. No retry setting or case was disabled.
+- Balance: **45 real campaigns**, **20/27 original-area wins**, **7/9 phone-shape
+  wins**, **5/9 desktop-shape wins**; all nine builds have a winning original seed.
+  All normal campaigns have zero dropped effects and at most eight lasting types.
+  No tested campaign exhausts 23 choices before the third guardian; the earliest
+  cap is 9:39. There are 27 distinct final loadouts. Negative stationary controls
+  still lose. Methods, losses and limits are in [PLAYTEST_REPORT.md](PLAYTEST_REPORT.md).
+- Pages YAML parses with `main` push and manual triggers; deploy depends on a
+  successful unit-test/build job and uploads only `dist/`. The previously configured
+  GitHub Pages site is playable according to the user's run feedback.
 
-## Delivery and resuming
+## Delivery and remaining work
 
-No numbered implementation tasks remain. The generated artifact is
-`release/classless-survivors-1.0.0.zip`; publish only its `web/` contents to HTTPS.
-[PLAYING.md](PLAYING.md) covers controls/builds/saves/offline play;
-[DEPLOYMENT.md](DEPLOYMENT.md) covers development, verification and exact hosting
-steps, including the prepared manual GitHub Pages workflow. Generated artifacts
-are ignored by Git; recreate with `npm run release` and `npm run test:release`.
-The source and `.github/workflows/pages.yml` are now on `origin/main`, and the
-user has selected GitHub Actions in Pages settings. The remaining hosting step is
-**Actions → Deploy game to GitHub Pages → Run workflow → main → Run workflow**.
-Use the deployment job's returned URL after success. The remote workflow has not
-been started or verified here; the API dispatch request was blocked before reaching
-GitHub. Alternatively upload `web/` to another suitable HTTPS static host.
+Implementation and verification are complete. Commit/push this milestone to
+`origin/main` to publish: the workflow now deploys successful `main` pushes
+without requiring a manual action. Check the deployment job before claiming a
+live update. Normal GitHub web access exposes run status even though the API is
+blocked. The generated ZIP can also be recreated with `npm run release`.
 
-## Latest validation
+Artifact SHA-256:
+`2250948aaa0c1fb37717cd72beec65746ec7f7fc197a45aac2a74e197a7c4faf`.
+Pause after reporting this authorized cycle; await further player feedback.
 
-- Final `npm test -- --disableConsoleIntercept`: **1,647 tests passed in 24 files**,
-  including 533 new release cases. Existing talent matrix, full campaigns, progression,
-  bosses, persistence, audio, presentation and offline checks pass.
-  Repeated for 1.0.0: **1,647/1,647 pass**, 28.17 seconds, unchanged soak totals.
-- Final `npm run build`: TypeScript and production generation pass. Approximately
-  **126.31 kB JS (42.14 kB gzip), 14.41 kB CSS, 12.40 kB HTML, 3.42 kB worker**.
-  PNG icons total about 6.24 kB. Task 17 produces the same game bundle/worker bytes;
-  only package/lockfile release-version metadata and release tooling/docs change.
-- First full browser run: 93/94 passed; the Android update-notice failure was
-  diagnosed/fixed, with deterministic client coverage. All five targeted Android
-  PWA cases pass. Final rebuilt production run: **97/97 passed**, two workers,
-  5.9 minutes. Offline campaigns, native restart, migration/replay, failed initial
-  downloads, update recovery, touch controls and audio pass on all three projects.
-- All 525 affordable cross-branch pairs cover every talent with prerequisites,
-  valid 39-rank choice sets and reversed allocation order. Synthetic two-second
-  fixtures test bounded reactions/state, complementing dedicated talent behavior.
-- Twelve real sequential campaign/save/reload cycles yield 11 wins and one defeat,
-  about 9,965 simulated seconds, zero dropped effects and 12 durable outcomes.
-  Research, budgets 8→9→10, slots, finished-state freezing, independent run state
-  and one discarded unfinished identity all pass. No combat stats/XP are injected.
-- Both initial persistence regressions failed before the fix. A third read/write
-  failure reproduced during audit. All pass with prior save/recovery/import cases.
-  Reviewed imports cannot bypass stale checks; failed guard reads continue in
-  memory with export guidance; the revision ceiling remains reloadable.
-- Task-15 balance/performance findings remain in BALANCE_REPORT.md. No gameplay
-  tuning changed in task 16. No dependency, lockfile or environment setup changes.
-  No unresolved failures remain in the executed release checks.
-- **103 TypeScript source modules**, with three separate build modules. Node
-  24.19.0/npm 11.9.0/Chromium 154 remain the tested environment.
-- `npm run release` rebuilds successfully and produces a **63,837-byte ZIP**:
-  eight production files plus two guides, START-HERE.txt and a hashed inventory.
-  `npm run test:release` verifies all twelve extracted files and the archive hash;
-  **6/6 native Chromium journeys pass** at `/` and `/Classless-survivors/`, each
-  in desktop, touch tablet and Android portrait layouts. Real UI saves a two-branch
-  build, reloads offline, moves by keyboard/touch, kills enemies, collects actual
-  XP and selects an earned level upgrade. No combat state is injected. Screenshots
-  and matching-archive `smoke-results.json` are generated under `release/`.
-- Release scripts pass Node syntax checks. Pages YAML parses; the manual-only
-  trigger, build dependency and `dist/` upload were checked. Action versions were
-  checked against official action sources/template; the workflow has not run on GitHub.
-- Runtime is connected/running with no hosting capability/identity/secret bindings.
-  Read-only Git access succeeds; the Pages API CONNECT request returns **403**
-  from the network proxy. This is a deployment-access limit, not a failed game check.
+[PLAYING.md](PLAYING.md) covers the new menu/control/build/save/offline behavior.
+[DEPLOYMENT.md](DEPLOYMENT.md) covers development, checks and automatic/manual Pages
+publication. After deployment, use **Menu → Offline & installation → Check for
+updates**, then close all game tabs/installed windows and reopen to activate it.
+Existing saves remain; unfinished combat is deliberately not restored after reload.
 
-## Remaining work and limits
+## Standing requirements and limits
 
-- No implementation tasks remain. Source publication is complete; the Pages
-  workflow run and live-site verification are pending as described above.
-  Seeded wins alone do not prove enjoyable balance or Android hardware performance.
-  Broader seeds/pilots and physical playtesting remain useful. The fixed pilot
-  has six losses; the health-aware pilot has two. Synthetic saturation deliberately
-  drops secondary events, retaining bounded work and primary damage.
-- Physical phones/tablets, OS installation, browser chrome/notches, app switching,
-  soft keyboards, pinch zoom and speaker quality remain unverified. Chromium
-  emulation does not establish Safari/Firefox support or device ergonomics.
-- Production offline/install support needs HTTPS (loopback is a testing exception)
-  and all built files served unchanged. Browser storage can be evicted/disabled;
-  installation does not guarantee retention. Open an installed app online once
-  and verify readiness there. Some browser/app containers have separate storage.
-- Closing/reloading discards unfinished combat without a reward. Completed
-  progress remains local; export character backups before clearing data or
-  switching browser/device/origin/container. Preferences are separate from those
-  backups. Failed local profile writes require exporting the in-memory profile.
-- GitHub Pages settings are configured and source is pushed; no successful site
-  deployment is claimed. GitHub Pages is the recommended free option for a public
-  repository; ChatGPT Sites' static
-  hosting/service-worker support has not been verified. Guides cover both contracts.
+- Complete one authorized work cycle, verify it, update progress, commit and report,
+  then wait for the next user instruction. Preserve focused typed modules and
+  independent simulation; reuse readable original programmatic assets.
+- Seeded pilots establish viability and pacing, not human enjoyment or player win
+  rates. The simple movement pattern misses some XP and does not dodge warnings.
+  Strong players may earn upgrades faster. Synthetic overload can drop secondary
+  events at the documented cap; normal measured campaigns do not.
+- Physical Android/tablet ergonomics, OS installation, keyboard/browser chrome,
+  app switching, speaker quality, thermal behavior, Firefox and Safari remain
+  unverified. Chromium device emulation cannot establish those outcomes.
+- Profiles are local to browser/origin/container and storage may be denied/evicted.
+  Export backups before clearing data/changing device or after a save failure.
+  Preferences are separate. Offline support needs HTTPS and unchanged release
+  bytes; installation does not guarantee storage retention.
 
 ## Milestone history
 
@@ -157,4 +107,7 @@ GitHub. Alternatively upload `web/` to another suitable HTTPS static host.
 - Task 16: release criteria audit, legal pair/repeated-run/browser regressions
   and persistence/offline lifecycle fixes `bcb2708`.
 - Task 17: version 1.0.0 packaging, verified extracted offline game, player/hosting
-  guides and prepared manual GitHub Pages workflow (this milestone).
+  guides and prepared manual GitHub Pages workflow `1494cf3`.
+
+- Task 18: fixed viewport/internal menus, run-owned arena sizing, focused upgrades,
+  guardian pacing/countdown, abandonment and verified 1.1.0 update (this milestone).

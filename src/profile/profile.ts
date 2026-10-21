@@ -59,3 +59,8 @@ export function finishProfileRun(profile: Profile, id: number, summary: RunSumma
   const result: RunRecord = { ...summary, id, insight, points: talentBudget(next) - talentBudget(profile) };
   return { ...next, lastResult: result };
 }
+
+/** Consume the active identity without progression; abandoning cannot farm rewards. */
+export function abandonProfileRun(profile: Profile, id: number): Profile | null {
+  return profile.activeRun === id ? { ...profile, activeRun: null } : null;
+}

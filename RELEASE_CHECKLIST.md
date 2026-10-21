@@ -1,5 +1,9 @@
 # Release regression and delivery evidence — tasks 16–17
 
+This is the historical **1.0.0** regression/delivery record. Current **1.1.0**
+player-feedback changes and validation are in [PLAYTEST_REPORT.md](PLAYTEST_REPORT.md)
+and [PROGRESS.md](PROGRESS.md).
+
 Checked on 2026-10-20 with Node 24.19.0, npm 11.9.0 and Chromium
 154.0.8037.57 in the managed Linux workspace. Task 16 checks the playable game and
 fixes release blockers. Task 17 packages and verifies the delivered 1.0.0 release.

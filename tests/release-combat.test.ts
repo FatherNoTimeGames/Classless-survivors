@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { PROGRESSION_RULES } from '../src/content/upgrades';
 import { TALENTS, talentById } from '../src/content/talents';
 import type { TalentId } from '../src/content/talents';
 import { validateBuild } from '../src/game/builds';
@@ -37,13 +38,13 @@ describe('legal cross-branch release sweep', () => {
   it.each(pairs)('$name preserves allocation-order independence and bounded reactions', ({ build }) => {
     const runs = [createRun(42, build, 10), createRun(42, [...build].reverse(), 10)];
     for (const run of runs) {
-      // Explicit fixture: earned-choice validation supplies 39 legal ranks, not all maximum ranks.
+      // Explicit fixture: earned-choice validation supplies a full legal run budget, not all maximum ranks.
       awardXp(run, 100_000);
       let choices = 0;
       while (run.status === 'choosing') {
         expect(chooseUpgrade(run, run.progression.offers[choices++ % run.progression.offers.length]!)).toBe(true);
       }
-      expect(choices).toBe(39);
+      expect(choices).toBe(PROGRESSION_RULES.maxLevel - 1);
       run.spawnIn = Infinity;
       for (let index = 0; index < 12; index++) {
         const angle = index * Math.PI / 6;

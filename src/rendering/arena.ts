@@ -8,17 +8,17 @@ import { drawEnemies } from './enemies';
 import { drawEnemyWarnings, drawEnemyProjectiles } from './enemy-attacks';
 import { drawCompanions } from './companions';
 import { drawSnares } from './snares';
-import { ARENA_HEIGHT, ARENA_WIDTH, fitViewport } from './viewport';
+import { fitViewport } from './viewport';
+import { arenaSize } from '../game/arena-size';
 
 export function createArenaRenderer(canvas: HTMLCanvasElement, motion: () => boolean = () => false) {
   const context = canvas.getContext('2d');
   if (!context) return null;
   const backdrop = document.createElement('canvas');
-  backdrop.width = ARENA_WIDTH;
-  backdrop.height = ARENA_HEIGHT;
+  let backdropKey = '';
   const backdropContext = backdrop.getContext('2d');
   if (!backdropContext) return null;
-  drawSanctuary(backdropContext);
+
 
   const block = (x: number, y: number, w: number, h: number, color: string) => {
     context.fillStyle = color;
@@ -28,7 +28,14 @@ export function createArenaRenderer(canvas: HTMLCanvasElement, motion: () => boo
   return {
     draw(run: Run | null): void {
       const bounds = canvas.getBoundingClientRect();
-      const view = fitViewport(bounds.width, bounds.height, window.devicePixelRatio);
+      const world = run?.world ?? arenaSize(bounds.width, bounds.height);
+      const key = `${world.width}:${world.height}`;
+      if (key !== backdropKey) {
+        canvas.dataset.worldWidth = String(world.width); canvas.dataset.worldHeight = String(world.height);
+        backdropKey = key; backdrop.width = Math.ceil(world.width); backdrop.height = Math.ceil(world.height);
+        drawSanctuary(backdropContext, world);
+      }
+      const view = fitViewport(bounds.width, bounds.height, window.devicePixelRatio, world);
       if (!view) return;
       if (canvas.width !== view.bufferWidth) canvas.width = view.bufferWidth;
       if (canvas.height !== view.bufferHeight) canvas.height = view.bufferHeight;
@@ -41,7 +48,7 @@ export function createArenaRenderer(canvas: HTMLCanvasElement, motion: () => boo
 
       context.strokeStyle = '#67714a60';
       context.lineWidth = 1;
-      context.strokeRect(8, 8, ARENA_WIDTH - 16, ARENA_HEIGHT - 16);
+      context.strokeRect(8, 8, world.width - 16, world.height - 16);
       const reduced = motion();
       drawPickups(context, run, reduced);
       drawSnares(context, run);

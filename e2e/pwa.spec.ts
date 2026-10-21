@@ -1,3 +1,4 @@
+import { menuSection } from './game-helpers';
 import { chromium, expect, test } from '@playwright/test';
 import type { BrowserContext, Page } from '@playwright/test';
 import { mkdtempSync, rmSync } from 'node:fs';
@@ -18,7 +19,7 @@ async function build(page: Page): Promise<void> {
   await page.getByRole('tab', { name: /Mage/ }).click(); await page.getByRole('button', { name: /Inspect Arcane Echo/ }).click(); await page.locator('#allocate-talent').click();
   await page.locator('#profile-panel > summary').click(); await page.locator('#build-name').fill('Offline hybrid'); await page.locator('#save-build').click();
   await page.locator('#close-talents').click();
-  await page.locator('#presentation-summary').click(); await page.locator('#sound-muted').check(); await page.locator('#motion-preference').selectOption('reduced'); await page.locator('#presentation-summary').click();
+  await menuSection(page, '#presentation-summary'); await page.locator('#sound-muted').check(); await page.locator('#motion-preference').selectOption('reduced'); await menuSection(page, '#presentation-summary');
 }
 
 test('manifest/icons and offline progress survive a real browser restart, then move, fight, level and choose offline', async ({}, testInfo) => {
@@ -45,7 +46,7 @@ test('manifest/icons and offline progress survive a real browser restart, then m
       const name = (await caches.keys()).find((key) => key.startsWith('classless-survivors:'))!;
       await (await caches.open(name)).delete(new URL('manifest.webmanifest', location.href).href);
     });
-    await page.locator('#offline-settings summary').click(); await page.locator('#cache-game').click();
+    await menuSection(page, '#offline-settings summary'); await page.locator('#cache-game').click();
     await expect(page.locator('#cache-game')).toBeEnabled(); await ready(page);
     expect(await page.evaluate(async () => {
       const name = (await caches.keys()).find((key) => key.startsWith('classless-survivors:'))!;
@@ -88,7 +89,7 @@ test('a new release waits for all game clients, then activates offline without d
     const old = await first.evaluate(async () => (await caches.keys()).find((key) => key.startsWith('classless-survivors:%2Fgame%2F:shell:'))!);
     await first.locator('#start-run').click(); await first.clock.runFor(500);
     const second = await context.newPage(); await second.goto(server.origin + '/game/'); await ready(second);
-    server.update(); await second.locator('#offline-settings summary').click(); await second.locator('#check-updates').click();
+    server.update(); await menuSection(second, '#offline-settings summary'); await second.locator('#check-updates').click();
     await expect(second.locator('#offline-notice')).toContainText('An update is ready');
     expect(await first.evaluate(async () => (await navigator.serviceWorker.getRegistration())!.waiting!.state)).toBe('installed');
     await expect(first.locator('#run-overlay')).toBeHidden();
@@ -115,12 +116,12 @@ test('failed update download keeps the current shell playable offline and retrie
   try {
     await page.goto(server.origin + '/game/'); await ready(page);
     const original = await page.evaluate(() => caches.keys());
-    server.update(true); await page.locator('#offline-settings summary').click(); await page.locator('#check-updates').click();
+    server.update(true); await menuSection(page, '#offline-settings summary'); await page.locator('#check-updates').click();
     await expect(page.locator('#offline-notice')).toContainText('download failed');
     expect(server.failed()).toBeGreaterThan(0); expect(await page.evaluate(() => caches.keys())).toEqual(original);
     await context.setOffline(true); await page.reload(); await ready(page); await expect(page.locator('meta[name="test-release"]')).toHaveCount(0);
     await page.locator('#start-run').click(); await expect(page.locator('#pause-run')).toBeVisible(); await page.locator('#pause-run').click();
-    await context.setOffline(false); server.update(); await page.locator('#offline-settings summary').click(); await page.locator('#check-updates').click();
+    await context.setOffline(false); server.update(); await menuSection(page, '#offline-settings summary'); await page.locator('#check-updates').click();
     await expect(page.locator('#offline-notice')).toContainText('An update is ready');
   } finally { await page.close(); await server.close(); }
 });
@@ -132,7 +133,7 @@ test('retry an initial offline-download failure, then reload and play the repair
     await expect(page.locator('#offline-notice')).toContainText(/download failed|setup did not finish/);
     expect(server.failed()).toBeGreaterThan(0);
     await expect(page.locator('#offline-status')).not.toContainText('Offline ready');
-    server.repair(); await page.locator('#offline-settings summary').click(); await page.locator('#cache-game').click();
+    server.repair(); await menuSection(page, '#offline-settings summary'); await page.locator('#cache-game').click();
     await ready(page);
     await context.setOffline(true); await page.reload(); await ready(page);
     await page.clock.install(); await page.clock.pauseAt(new Date());
@@ -147,7 +148,7 @@ test('unavailable registration leaves gameplay usable; the optional install butt
   await page.addInitScript(() => { ServiceWorkerContainer.prototype.register = () => Promise.reject(new DOMException('Blocked', 'SecurityError')); });
   await page.clock.install(); await page.clock.pauseAt(new Date()); await page.goto('/');
   await expect(page.locator('#offline-notice')).toContainText('could not start');
-  await page.locator('#offline-settings summary').click();
+  await menuSection(page, '#offline-settings summary');
   // The OS install UI is unavailable in headless Chromium. Verify only the
   // deferred-offer/gesture boundary with an explicit browser-event fixture.
   await page.evaluate(() => {
@@ -158,7 +159,7 @@ test('unavailable registration leaves gameplay usable; the optional install butt
   await page.locator('#install-game').click(); await expect(page.locator('body')).toHaveAttribute('data-install-requested', 'true'); await expect(page.locator('#install-game')).toBeHidden();
   await page.evaluate(() => window.dispatchEvent(new Event('appinstalled')));
   await expect(page.locator('#install-help')).toContainText('App installed');
-  await page.locator('#offline-settings summary').click(); await page.locator('#start-run').click(); await page.clock.runFor(1500);
+  await menuSection(page, '#offline-settings summary'); await page.locator('#start-run').click(); await page.clock.runFor(1500);
   await expect(page.locator('#run-time')).not.toHaveText('00:00');
   await page.addInitScript(() => { Object.defineProperty(navigator, 'serviceWorker', { get() { throw new DOMException('Disabled', 'SecurityError'); } }); });
   await page.reload(); await expect(page.locator('#offline-status')).toContainText('unavailable');

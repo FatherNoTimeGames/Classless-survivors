@@ -33,7 +33,7 @@ export function tickRun(run: Run, input: Point): void {
   resolveTalentEffects(run);
   resolveBossDefeat(run);
   updateEncounterSchedule(run);
-  movePlayer(run.player, input, stats.moveSpeed);
+  movePlayer(run.player, input, stats.moveSpeed, run.world);
   updateSpawns(run);
   updateSnares(run);
   updateEnemies(run);

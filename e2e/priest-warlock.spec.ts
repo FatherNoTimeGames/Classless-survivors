@@ -1,3 +1,4 @@
+import { menuSection } from './game-helpers';
 import { expect, test } from '@playwright/test';
 import type { Locator } from '@playwright/test';
 import { seedRuns, choosePreferredUpgrade } from './game-helpers';
@@ -102,7 +103,7 @@ for (const branch of ['Priest', 'Warlock'] as const) {
     await page.clock.runFor(32);
     await page.screenshot({ path: testInfo.outputPath(`${branch.toLowerCase()}-combat.png`), fullPage: true });
     expect(await page.locator('.shell').evaluate((node) => node.scrollWidth <= node.clientWidth)).toBe(true);
-    await page.locator('#run-build summary').click();
+    await menuSection(page, '#run-build summary');
     await expect(page.locator('#active-talents li')).toHaveCount(8);
     expect(errors).toEqual([]);
   });

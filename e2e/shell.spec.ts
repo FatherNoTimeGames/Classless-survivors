@@ -40,7 +40,7 @@ test('production shell renders the sanctuary locally and survives resizing', asy
   let scene = await inspectScene();
   expect(scene.width).toBe(scene.expectedWidth);
   expect(scene.height).toBe(scene.expectedHeight);
-  expect(scene.cssRatio).toBeCloseTo(3 / 4, 2);
+  expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight)).toBe(true);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.screenshot({ path: testInfo.outputPath('sanctuary.png'), fullPage: true });
 

@@ -1,5 +1,9 @@
 # Balance and performance — task 15
 
+This report records the original 1.0 balance/performance pass. The current
+1.1.0 player-feedback pass is documented in [PLAYTEST_REPORT.md](PLAYTEST_REPORT.md);
+its shorter campaign and eight-slot run builds supersede the pacing below.
+
 Measured on 2026-10-20 in the managed Linux cloud workspace: AMD EPYC 9V74,
 Node 24.19.0, npm 11.9.0, Chromium 154. Shared-machine timings are diagnostics;
 physical Android/tablet performance and subjective enjoyment remain unverified.

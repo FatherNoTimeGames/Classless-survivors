@@ -1,5 +1,9 @@
 import './styles.css';
 import './ui/usability.css';
+import './ui/fullscreen.css';
+import { arenaSize } from './game/arena-size';
+import { completeRun } from './game/run-ending';
+import { createGameMenu } from './ui/game-menu';
 import { createPlayLayout } from './ui/play-layout';
 import { createOfflinePanel } from './ui/offline-panel';
 import { createSynth } from './audio/synth';
@@ -19,7 +23,7 @@ import { createHud } from './ui/hud';
 import { createUpgradePicker } from './ui/upgrade-picker';
 import { createTalentEditor } from './ui/talent-editor';
 import { openBrowserProfile } from './persistence/browser-profile';
-import { beginProfileRun, finishProfileRun, talentBudget } from './profile/profile';
+import { abandonProfileRun, beginProfileRun, finishProfileRun, talentBudget } from './profile/profile';
 
 const canvas = element<HTMLCanvasElement>('#arena');
 const preferences = openPresentationStore();
@@ -37,6 +41,7 @@ const overlay = element('#run-overlay');
 const title = element('#overlay-title');
 const description = element('#overlay-description');
 const startButton = element<HTMLButtonElement>('#start-run');
+const abandonButton = element<HTMLButtonElement>('#abandon-run');
 const pauseButton = element<HTMLButtonElement>('#pause-run');
 const talentButton = element<HTMLButtonElement>('#edit-talents');
 const hud = element('#run-hud');
@@ -67,10 +72,11 @@ const picker = createUpgradePicker(element('#upgrade-picker'), (id) => {
     if (document.hidden) pause();
   }
 });
-const layout = createPlayLayout(element('.shell'), element('#sanctuary'), hud, element('.scene-heading'), {
+const layout = createPlayLayout(element('.shell'), {
   onResize: () => { controls.clear(); renderer?.draw(run); },
   onRotate: pause,
 });
+const gameMenu = createGameMenu(() => pauseRun(false));
 const offline = createOfflinePanel(import.meta.env.PROD, () => pauseRun(false));
 for (const id of ['enemy-guide', 'run-build']) {
   const details = element<HTMLDetailsElement>(`#${id}`);
@@ -101,7 +107,8 @@ function pauseRun(focus: boolean): void {
   arenaFrame.classList.remove('is-active');
   overlay.hidden = false;
   title.textContent = 'A moment of quiet';
-  description.textContent = 'The clearing waits. Return when you are ready.';
+  description.textContent = 'The clearing waits. Resume, or abandon to return to build planning without rewards.';
+  abandonButton.hidden = false;
   startButton.textContent = 'Resume run';
   pauseButton.hidden = true;
   announcement.textContent = 'Run paused.';
@@ -111,6 +118,7 @@ function pauseRun(focus: boolean): void {
 function finished(): void {
   if (!run) return;
   mode = 'finished';
+  abandonButton.hidden = true;
   stopFrames();
   sound.play(run.status === 'victory' ? 'victory' : 'defeat', true);
   canvas.inert = true;
@@ -162,6 +170,7 @@ function beginRun(): void {
   stopFrames();
   mode = 'running';
   overlay.hidden = true;
+  abandonButton.hidden = true;
   results.hidden = true;
   element('#result-build').hidden = true;
   element('#return-to-build').hidden = true;
@@ -189,12 +198,29 @@ function start(): void {
     if (!profileStore.change(beginProfileRun)) { description.textContent = profileStore.status().notice || 'The run could not be started. Reload to recover your profile.'; return; }
     const profile = profileStore.get();
     profileRunId = profile.activeRun;
-    run = createRun(crypto.getRandomValues(new Uint32Array(1))[0]!, talentEditor.getBuild(), talentBudget(profile));
+    const seed = crypto.getRandomValues(new Uint32Array(1))[0]!;
+    const build = talentEditor.getBuild(), budget = talentBudget(profile);
+    // Populate the fresh HUD before measuring: old boss bars and empty labels
+    // otherwise give a new run the previous screen's arena aspect.
+    run = createRun(seed, build, budget);
+    document.body.classList.add('playing');
+    hud.hidden = false; updateHud(); layout.enter();
+    const bounds = canvas.getBoundingClientRect();
+    run = createRun(seed, build, budget, arenaSize(bounds.width, bounds.height));
   }
   beginRun();
   const startedRun = run;
   void sound.unlock().then((ready) => { if (ready && fresh && run === startedRun && mode === 'running' && !document.hidden) sound.play('start', true); });
 }
+
+abandonButton.addEventListener('click', () => {
+  if (mode !== 'paused' || !run || profileRunId === null) return;
+  if (!profileStore.change((profile) => abandonProfileRun(profile, profileRunId!))) { description.textContent = profileStore.status().notice; return; }
+  profileRunId = null;
+  completeRun(run, 'defeated', 'abandoned');
+  finished();
+  talentEditor.refresh();
+}, { signal: events.signal });
 
 startButton.addEventListener('click', start, { signal: events.signal });
 element('#return-to-build').addEventListener('click', () => { if (mode === 'finished') talentButton.click(); }, { signal: events.signal });
@@ -220,5 +246,5 @@ if (!renderer) {
 }
 
 if (import.meta.hot) {
-  import.meta.hot.dispose(() => { stopFrames(); controls.destroy(); layout.destroy(); offline.destroy(); presentation.destroy(); sound.destroy(); picker.destroy(); talentEditor.destroy(); events.abort(); observer.disconnect(); });
+  import.meta.hot.dispose(() => { stopFrames(); controls.destroy(); layout.destroy(); gameMenu.destroy(); offline.destroy(); presentation.destroy(); sound.destroy(); picker.destroy(); talentEditor.destroy(); events.abort(); observer.disconnect(); });
 }

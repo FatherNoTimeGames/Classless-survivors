@@ -1,15 +1,3 @@
-/* Active play keeps the HUD and thumb-reachable controls full-size. Only the
-   fixed-aspect arena scales to the space measured by play-layout.ts. */
-.playing .shell { display: block; min-height: 0; padding-top: max(8px, env(safe-area-inset-top)); padding-bottom: max(8px, env(safe-area-inset-bottom)); }
-.playing .masthead, .playing footer { display: none; }
-.playing .sanctuary { display: grid; width: min(100%, 420px); max-width: none; grid-template-areas: 'hud' 'arena' 'controls' 'notes'; grid-template-columns: minmax(0, 1fr); }
-.playing .run-hud { grid-area: hud; }
-.playing .arena-frame { grid-area: arena; justify-self: center; width: min(100%, calc(var(--arena-height, 480px) * .75)); }
-.playing .scene-heading { grid-area: controls; padding: 8px 12px; border-top: 1px solid #343c33; border-bottom: 0; }
-.playing .scene-heading .small-label { display: none; }
-.playing .scene-heading h2 { margin: 0; font-size: 1.05rem; }
-.playing .milestone-note { grid-area: notes; padding: 8px 12px; }
-.playing .run-hud { padding: 8px 12px; }
 .run-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
 .run-stats div { display: block; min-width: 0; }
 .run-stats dd { overflow-wrap: anywhere; }
@@ -33,10 +21,3 @@ summary { min-height: 44px; padding-block: 10px; }
 .talent-node strong { overflow-wrap: anywhere; }
 .talent-inspector { scroll-margin-top: 92px; }
 #profile-panel input, #profile-panel select, #profile-panel textarea { font-size: 1rem; }
-
-@media (orientation: landscape) and (max-height: 600px) {
-  .playing .sanctuary { width: min(100%, 840px); grid-template-columns: minmax(220px, 1fr) minmax(0, 1fr); grid-template-rows: 1fr auto auto; grid-template-areas: 'hud arena' 'controls arena' 'notes notes'; }
-  .playing .run-hud { align-self: start; border-bottom: 0; }
-  .playing .scene-heading { align-self: end; }
-  .playing .arena-frame { align-self: start; }
-}

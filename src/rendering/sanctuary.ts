@@ -1,23 +1,25 @@
-import { ARENA_HEIGHT, ARENA_WIDTH } from './viewport';
+import { WORLD } from '../game/rules';
+import type { ArenaSize } from '../game/arena-size';
 
 /** Original, static pixel art; no downloaded textures, fonts, or animation loop. */
-export function drawSanctuary(context: CanvasRenderingContext2D): void {
+export function drawSanctuary(context: CanvasRenderingContext2D, world: ArenaSize = WORLD): void {
   const block = (x: number, y: number, width: number, height: number, color: string) => {
     context.fillStyle = color;
     context.fillRect(x, y, width, height);
   };
 
-  block(0, 0, ARENA_WIDTH, ARENA_HEIGHT, '#162324');
-  for (let y = 0; y < ARENA_HEIGHT; y += 16) {
-    for (let x = 0; x < ARENA_WIDTH; x += 16) {
+  block(0, 0, world.width, world.height, '#162324');
+  for (let y = 0; y < world.height; y += 16) {
+    for (let x = 0; x < world.width; x += 16) {
       const variation = (x * 13 + y * 7) % 11;
       block(x + 2, y + 2, 13, 13, variation < 4 ? '#1b2928' : '#182626');
       if (variation < 3) block(x + 4, y + 6, 3, 2, '#304035');
     }
   }
 
+  context.save(); context.translate((world.width - WORLD.width) / 2, (world.height - WORLD.height) / 2);
   // Broken flagstones lead through the clearing.
-  for (let y = 140; y < ARENA_HEIGHT; y += 24) {
+  for (let y = 140; y < world.height; y += 24) {
     for (let x = 132; x < 224; x += 24) {
       const chipped = (x + y) % 5;
       block(x + chipped, y, 21 - chipped, 19, '#35413b');
@@ -78,9 +80,10 @@ export function drawSanctuary(context: CanvasRenderingContext2D): void {
     [18, 143, 78], [343, 163, 96], [13, 328, 90], [329, 370, 111], [49, 426, 94],
   ] as const) tree(x, y, size);
 
+  context.restore();
   const shade = context.createRadialGradient(180, 250, 90, 180, 250, 310);
   shade.addColorStop(0, '#060e1200');
   shade.addColorStop(1, '#060e12c0');
   context.fillStyle = shade;
-  context.fillRect(0, 0, ARENA_WIDTH, ARENA_HEIGHT);
+  context.fillRect(0, 0, world.width, world.height);
 }
