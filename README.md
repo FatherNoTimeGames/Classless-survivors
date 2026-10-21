@@ -3,7 +3,7 @@
 A single-player dark fantasy survival roguelite built with TypeScript and Canvas.
 Mix talents freely across six fantasy archetypes. No accounts or backend required.
 
-**Version 1.1.0:** all **36 talents across six freely mixed branches** are
+**Version 1.1.1:** all **36 talents across six freely mixed branches** are
 implemented. Persistent progress unlocks capstones and a bounded talent budget.
 Builds support melee/spell combos, critical effects,
 Poison/curses, companions, healing offense, shields, and retaliation. Runs include

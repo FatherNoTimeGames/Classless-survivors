@@ -45,7 +45,8 @@
 - Fresh and already-current recovery also pass at the domain root. The first
   ad hoc root probe waited for a hidden status to become visible; checking its
   actual readiness text confirms both cases. The final recovery rerun explicitly
-  sets saved mute/reduced-motion preferences before verifying preservation.
+  sets saved mute/reduced-motion preferences before verifying preservation:
+  **9/9 recovery cases pass** (24.6 seconds).
 - `npm run release` and all **6/6 extracted-ZIP offline journeys** pass at `/`
   and `/Classless-survivors/` on all three layouts. Version 1.1.1's 68,841-byte
   archive contains 15 inventoried files, including the recovery page/bundle.
@@ -99,8 +100,14 @@ by this workspace's proxy (CONNECT 403), so no live-browser acceptance result is
 claimed; the production and extracted-file browser checks above run locally.
 A docs-only follow-up records publication with `[skip ci]` to avoid rerunning the
 unchanged game. `release/publication.json` records the deployed game commit/run.
-Version 1.1.1 is validated and packaged locally; automatic publication follows
-this cycle's push to `main`. Do not treat the prior run as its deployment.
+Version **1.1.1** game commit **aaffafa** is pushed to `origin/main`. GitHub Pages
+run [39528726486](https://github.com/FatherNoTimeGames/Classless-survivors/actions/runs/39528726486)
+reports **completed successfully** for that commit. The recovery URL is
+https://fathernotimegames.github.io/Classless-survivors/update.html?v=1.1.1.
+Its production bytes and recovery behavior are verified locally; this workspace's
+network policy still prevents a direct live-site HTTP/browser check. The GitHub
+run result establishes publication, not physical-device acceptance.
+No further implementation task remains; await player feedback.
 
 Prior 1.1.0 artifact SHA-256:
 `295e6e8239504bfa014394d82185fc93dcaa262d498e05307e79049a511d168c`.
