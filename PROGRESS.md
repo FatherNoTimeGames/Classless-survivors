@@ -3,7 +3,7 @@
 ## Current state
 
 - Tasks **0–18**, refactor 2a and synergy pass 7a are complete. Version **1.1.0**
-  implements the latest player feedback and is verified for publication.
+  implements the latest player feedback and is deployed through GitHub Pages.
 - One fixed, non-scrolling game viewport replaces the web-page layout. The arena
   fills the HUD/toolbar space (full height beside the HUD in short landscape); native
   menus contain talents, upgrades, settings,
@@ -31,7 +31,7 @@
   eight-slot/forged-choice boundaries, countdowns and abandoning without rewards.
 - Repeated-run soak: **8 wins, 4 defeats, 7,585 simulated seconds**, twelve durable
   outcomes with research/builds/reload preserved and finished state frozen.
-- `npm run release` passes typechecking/build and produces the **65,248-byte**
+- `npm run release` passes typechecking/build and produces the **65,301-byte**
   `release/classless-survivors-1.1.0.zip`. Approximately 127.94 kB JS (42.86 gzip),
   16.13 kB CSS, 12.87 kB HTML and 3.42 kB worker, plus unchanged local icons/manifest.
 - `npm run test:release`: **6/6 extracted-ZIP offline journeys pass**, covering `/`
@@ -58,14 +58,21 @@
 
 ## Delivery and remaining work
 
-Implementation and verification are complete. Commit/push this milestone to
-`origin/main` to publish: the workflow now deploys successful `main` pushes
-without requiring a manual action. Check the deployment job before claiming a
-live update. Normal GitHub web access exposes run status even though the API is
-blocked. The generated ZIP can also be recreated with `npm run release`.
+Implementation, verification and deployment are complete. Game commit **037aa99**
+was pushed to `origin/main`; automatic GitHub Pages run
+[39522434216](https://github.com/FatherNoTimeGames/Classless-survivors/actions/runs/39522434216)
+reports **completed successfully**. The game URL is
+https://fathernotimegames.github.io/Classless-survivors/.
+
+Normal GitHub web access verified the run. A direct live-site HTTP probe is blocked
+by this workspace's proxy (CONNECT 403), so no live-browser acceptance result is
+claimed; the production and extracted-file browser checks above run locally.
+A docs-only follow-up records publication with `[skip ci]` to avoid rerunning the
+unchanged game. `release/publication.json` records the deployed game commit/run.
+No implementation tasks remain; await further player feedback.
 
 Artifact SHA-256:
-`2250948aaa0c1fb37717cd72beec65746ec7f7fc197a45aac2a74e197a7c4faf`.
+`295e6e8239504bfa014394d82185fc93dcaa262d498e05307e79049a511d168c`.
 Pause after reporting this authorized cycle; await further player feedback.
 
 [PLAYING.md](PLAYING.md) covers the new menu/control/build/save/offline behavior.
@@ -110,4 +117,4 @@ Existing saves remain; unfinished combat is deliberately not restored after relo
   guides and prepared manual GitHub Pages workflow `1494cf3`.
 
 - Task 18: fixed viewport/internal menus, run-owned arena sizing, focused upgrades,
-  guardian pacing/countdown, abandonment and verified 1.1.0 update (this milestone).
+  guardian pacing/countdown, abandonment and verified 1.1.0 update `037aa99`.

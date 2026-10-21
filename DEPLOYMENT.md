@@ -30,8 +30,10 @@ completed changes reach `main`, and also supports manual deployment:
 
 Later releases deploy automatically after a push to `main`; the manual action
 remains available for retries. GitHub controls eligibility, quotas and repository permissions.
-No remote deployment was performed during release preparation: no host was
-configured, and the environment's Pages API request was blocked by network policy.
+This repository already has Pages configured. The current game is published at
+https://fathernotimegames.github.io/Classless-survivors/. Verify subsequent
+deployments in Actions; the environment can read the normal GitHub web page even
+when its API is blocked by network policy.
 
 ## Other hosts, including ChatGPT Sites
 
