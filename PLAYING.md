@@ -72,3 +72,12 @@ If offline loading fails, reconnect and choose **Save game offline**. For update
 choose **Check for updates**, finish your run, close **all** game tabs and installed
 windows, then reopen. Updates wait for those windows to close and preserve saves;
 they never force a running game to reload.
+
+If the older layout remains, finish your run and open
+[/Classless-survivors/update.html](https://fathernotimegames.github.io/Classless-survivors/update.html).
+Select **Update game and reopen** while connected. This explicit recovery verifies
+the complete replacement before activating it; it preserves saves, settings and
+other applications' caches. Only the recovery window reloads. Failed downloads
+keep the existing offline game. **Menu → Offline & installation** displays the
+loaded game version (currently **1.1.1**). Avoid clearing browser site data, which
+also removes character progress.

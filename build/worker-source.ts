@@ -24,7 +24,7 @@ async function download() {
   })));
 }
 self.addEventListener('install', event => {
-  // Deliberately no skipWaiting: existing clients keep their version until closed.
+  // Normal updates wait. Only the separate recovery page can request activation.
   event.waitUntil(download().catch(async error => { await caches.delete(CACHE); throw error; }));
 });
 self.addEventListener('activate', event => {
@@ -46,6 +46,13 @@ self.addEventListener('fetch', event => {
   })());
 });
 self.addEventListener('message', event => {
+  if (event.data?.type === 'APPLY_UPDATE') {
+    const source = event.source && new URL(event.source.url);
+    if (source && source.origin === ROOT.origin && source.pathname === new URL('update.html', ROOT).pathname) {
+      event.waitUntil((async () => { if (await complete()) await self.skipWaiting(); })());
+    }
+    return;
+  }
   if (!['CHECK_OFFLINE', 'CACHE_GAME'].includes(event.data?.type) || !event.ports[0]) return;
   const port = event.ports[0];
   event.waitUntil((async () => {

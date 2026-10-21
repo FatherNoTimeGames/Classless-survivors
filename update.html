@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="application-version" content="__GAME_VERSION__" />
+    <meta name="theme-color" content="#101416" />
+    <title>Update Classless Survivors</title>
+    <style>
+      :root { color-scheme: dark; font: 18px/1.5 system-ui, sans-serif; background: #101416; color: #e8dcc0; }
+      body { margin: 0; padding: 24px; }
+      main { max-width: 34rem; margin: 4vh auto; }
+      h1 { font-size: 1.6rem; }
+      button, a { font: inherit; color: #e8dcc0; }
+      button { padding: 14px 20px; background: #304237; border: 1px solid #81977a; border-radius: 6px; cursor: pointer; }
+      button:disabled { opacity: .6; cursor: wait; }
+      #update-status { min-height: 3em; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Refresh Classless Survivors</h1>
+      <p>Version __GAME_VERSION__ includes the full-screen arena, eight temporary upgrade types, closer bosses and pause-menu abandonment.</p>
+      <p>Finish any active run first. This opens a fresh copy of the game. Your talents, saved builds, research, records and settings stay on this device.</p>
+      <button id="refresh-game" type="button">Update game and reopen</button>
+      <p id="update-status" role="status" aria-live="polite">Stay connected while updating.</p>
+      <p><a href="./">Return to the game</a></p>
+      <noscript>Enable JavaScript to refresh the game.</noscript>
+    </main>
+    <script type="module" src="/src/offline/recovery.ts"></script>
+  </body>
+</html>

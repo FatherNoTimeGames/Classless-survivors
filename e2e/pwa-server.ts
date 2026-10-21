@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { releaseWorker } from '../build/offline-release';
 
 /** Two real shell releases on a subdirectory host, using the production emitter. */
-export async function releaseServer(initialFailure = false) {
+export async function releaseServer(initialFailure = false, legacy = false) {
   const first = new Map<string, Uint8Array>();
   function collect(path: string, relative = ''): void {
     for (const entry of readdirSync(path, { withFileTypes: true })) {
@@ -17,6 +17,14 @@ export async function releaseServer(initialFailure = false) {
   const second = new Map(first); second.delete('sw.js');
   second.set('index.html', Buffer.from(Buffer.from(first.get('index.html')!).toString().replace('<head>', '<head><meta name="test-release" content="two" />')));
   second.set('sw.js', Buffer.from(releaseWorker(second)));
+  if (legacy) {
+    // Same cache-first worker protocol shipped in 1.0, with no recovery page.
+    first.delete('update.html');
+    first.set('index.html', Buffer.from(Buffer.from(first.get('index.html')!).toString()
+      .replace('<head>', '<head><meta name="test-release" content="legacy" />')
+      .replace(/Game version [\d.]+/, 'Game version 1.0.0')));
+    first.delete('sw.js'); first.set('sw.js', Buffer.from(releaseWorker(first).replaceAll("'APPLY_UPDATE'", "'LEGACY_UNSUPPORTED'")));
+  }
   let updated = false, broken = initialFailure, failedRequests = 0;
   const missing = [...first.keys()].find((path) => path.endsWith('.css'))!;
   const server = createServer((request, response) => {

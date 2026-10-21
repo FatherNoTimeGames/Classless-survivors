@@ -301,6 +301,14 @@ these requirements. No subscription-usage or completion-time estimates are impli
   Version 1.1.0 is packaged with updated guides; main pushes now deploy via Pages.
   See PLAYTEST_REPORT.md and PROGRESS.md for methods, losses and remaining limits.
 
+- [x] **19. Recover stale installed releases without clearing saves.**
+  Reproduce cached legacy HTML surviving a reload while another window remains
+  open. Add a separate online update page, verify the host's worker identity and
+  full cache, then activate only on an explicit recovery request from that page.
+  Preserve normal waiting updates, local profiles/settings and unrelated caches.
+  Show a build-derived version label. Verify offline reopening, failed download
+  preservation/retry, and the existing full-screen/pause/countdown journeys.
+
 ## Completion standard
 
 Each task reports checks actually executed, their outcomes, and any limits. Tests

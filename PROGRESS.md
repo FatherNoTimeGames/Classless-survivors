@@ -2,8 +2,15 @@
 
 ## Current state
 
-- Tasks **0–18**, refactor 2a and synergy pass 7a are complete. Version **1.1.0**
-  implements the latest player feedback and is deployed through GitHub Pages.
+- Tasks **0–19**, refactor 2a and synergy pass 7a are complete. Version **1.1.1**
+  adds explicit recovery for a browser still serving the older installed layout.
+- Open `update.html` on the same site/browser, finish active runs, then select
+  **Update game and reopen**. The page bypasses the old navigation cache, checks
+  the host's release identity, verifies the full downloaded shell and explicitly
+  activates it. It does not clear saves/settings or unregister any workers.
+  Ordinary updates still wait for closed windows; other windows are not reloaded.
+- The offline menu now displays the actual version from package.json. Recovery
+  failures preserve the good offline copy and allow retry while connected.
 - One fixed, non-scrolling game viewport replaces the web-page layout. The arena
   fills the HUD/toolbar space (full height beside the HUD in short landscape); native
   menus contain talents, upgrades, settings,
@@ -24,7 +31,30 @@
   points, original procedural art/audio, touch/keyboard control and PWA integrity/
   recovery/waiting updates remain. No save migration or new dependency is required.
 
-## Validation
+## Version 1.1.1 validation
+
+- **1,658/1,658 unit tests** pass in 25 files (26.54 seconds), including restricted
+  recovery activation and exclusion of recovery HTML from the offline shell.
+- Production typecheck/build pass. **36/36 browser cases** pass on desktop,
+  tablet and Android portrait (1.1 minutes): cached legacy HTML survives reload,
+  recovery succeeds while another old window stays open, saved profile bytes,
+  named build, settings and unrelated/sibling caches survive, and the updated
+  game reopens offline. Offline/integrity failures preserve the old copy and retry.
+  Existing normal waiting updates, browser restart, repair, registration denial,
+  full-screen menus, abandonment, countdown and landscape starts also pass.
+- Fresh and already-current recovery also pass at the domain root. The first
+  ad hoc root probe waited for a hidden status to become visible; checking its
+  actual readiness text confirms both cases. The final recovery rerun explicitly
+  sets saved mute/reduced-motion preferences before verifying preservation.
+- `npm run release` and all **6/6 extracted-ZIP offline journeys** pass at `/`
+  and `/Classless-survivors/` on all three layouts. Version 1.1.1's 68,841-byte
+  archive contains 15 inventoried files, including the recovery page/bundle.
+  SHA-256: `72083d44aebe482c97f4bd6c5cfd58972609fa3f61bf926b8d6cb68ed76f54e2`.
+- The first recovery approach (unregister then navigate) showed the new page but
+  returned to legacy HTML on offline reload with another client open. It was
+  replaced with verified explicit activation; all three regression cases pass.
+
+## Version 1.1.0 validation (prior release)
 
 - Final `npm test -- --disableConsoleIntercept --reporter=dot`: **1,656/1,656 pass**
   in 25 files (31.97 seconds). Includes 525 legal talent pairs, variable bounds,
@@ -58,7 +88,7 @@
 
 ## Delivery and remaining work
 
-Implementation, verification and deployment are complete. Game commit **037aa99**
+The prior release's game commit **037aa99**
 was pushed to `origin/main`; automatic GitHub Pages run
 [39522434216](https://github.com/FatherNoTimeGames/Classless-survivors/actions/runs/39522434216)
 reports **completed successfully**. The game URL is
@@ -69,9 +99,10 @@ by this workspace's proxy (CONNECT 403), so no live-browser acceptance result is
 claimed; the production and extracted-file browser checks above run locally.
 A docs-only follow-up records publication with `[skip ci]` to avoid rerunning the
 unchanged game. `release/publication.json` records the deployed game commit/run.
-No implementation tasks remain; await further player feedback.
+Version 1.1.1 is validated and packaged locally; automatic publication follows
+this cycle's push to `main`. Do not treat the prior run as its deployment.
 
-Artifact SHA-256:
+Prior 1.1.0 artifact SHA-256:
 `295e6e8239504bfa014394d82185fc93dcaa262d498e05307e79049a511d168c`.
 Pause after reporting this authorized cycle; await further player feedback.
 

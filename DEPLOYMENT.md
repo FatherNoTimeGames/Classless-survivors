@@ -49,11 +49,20 @@ Use JavaScript MIME type for `sw.js` and `.js`, CSS for `.css`, JSON/manifest fo
 rewrite missing assets to HTML, minify the uploaded files again or restrict them
 behind a login: the offline worker verifies their exact SHA-256 digests.
 
-Let `index.html`, `sw.js` and `manifest.webmanifest` revalidate, for example with
+Let `index.html`, `update.html`, `sw.js` and `manifest.webmanifest` revalidate, for example with
 `Cache-Control: no-cache`. Hashed `assets/` files may use long immutable caching.
 Deploy a complete release atomically where possible. Otherwise upload hashed
 assets first, then HTML/manifest/worker, retaining previous hashed assets during
 rollout. A failed or incomplete update preserves the previous offline copy.
+
+`update.html` is a separate online recovery entry point, deliberately excluded
+from the offline shell's navigation cache. For a stale installed copy, finish the
+run, open that page in the same browser/container and select **Update game and
+reopen**. It checks the host's release identity, verifies the complete worker
+cache and explicitly activates that replacement before returning to the game.
+It never clears local storage or unregisters unrelated workers. Ordinary updates
+retain their wait-for-closed-windows behavior; only this explicit recovery opts
+into activation while other windows remain open. Those windows are not reloaded.
 
 After publishing, confirm there are no browser-console errors, make/save a mixed
 build, wait for **Offline ready**, disconnect, reload and start a run. Actual HTTPS
@@ -103,7 +112,7 @@ npm run release
 npm run test:release
 ```
 
-The first command rebuilds and creates `release/classless-survivors-1.1.0.zip`
+The first command rebuilds and creates `release/classless-survivors-1.1.1.zip`
 and its `.sha256` checksum. The second extracts that ZIP into a temporary folder,
 verifies its inventory and hashes, then serves the extracted site at both a root
 and project subdirectory. Desktop, touch tablet and Android portrait Chromium

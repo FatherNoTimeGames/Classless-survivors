@@ -40,8 +40,8 @@ function worker(scope = '/game/', revision = 'one') {
       handlers.get('fetch')!({ request, respondWith: (value: Promise<Response>) => { response = value; } });
       return response ? await (await response).text() : null;
     },
-    async message(type: string) {
-      const reply = vi.fn(); await event('message', { data: { type }, ports: [{ postMessage: reply }] });
+    async message(type: string, source?: string) {
+      const reply = vi.fn(); await event('message', { data: { type }, source: source ? { url: source } : undefined, ports: [{ postMessage: reply }] });
       return reply.mock.calls[0]?.[0];
     },
   };
@@ -96,4 +96,18 @@ test('release identity is stable across file order and changes for HTML, manifes
   expect(releaseWorker(new Map([...files].reverse()))).toBe(before);
   for (const key of files.keys()) { const changed = new Map(files); changed.set(key, 'updated'); expect(releaseWorker(changed)).not.toBe(before); }
   expect(() => releaseWorker(new Map())).toThrow('index.html');
+});
+
+test('recovery HTML always bypasses the offline shell so an old installation can reach a fresh update page', () => {
+  const source = releaseWorker(new Map([['index.html', '<html></html>'], ['update.html', 'Recovery']]));
+  expect(source).not.toContain('"path":"update.html"');
+});
+
+test('only an explicit recovery page with a complete verified shell can activate a waiting release', async () => {
+  const w = worker();
+  await w.message('APPLY_UPDATE', w.root + 'update.html'); expect(w.skipWaiting).not.toHaveBeenCalled();
+  await w.event('install');
+  for (const source of [undefined, w.root, 'https://elsewhere.test/game/update.html', 'https://game.test/other/update.html']) await w.message('APPLY_UPDATE', source);
+  expect(w.skipWaiting).not.toHaveBeenCalled();
+  await w.message('APPLY_UPDATE', w.root + 'update.html?version=new'); expect(w.skipWaiting).toHaveBeenCalledOnce();
 });

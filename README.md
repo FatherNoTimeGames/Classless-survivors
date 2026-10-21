@@ -463,6 +463,13 @@ The old version keeps working offline until the replacement is complete and can
 activate. Updates preserve character profiles, builds, preferences and unrelated
 applications' caches. Reopening still discards unfinished combat as described above.
 
+If an old layout persists, finish the run and open `update.html` beside the site's
+`index.html` in the same browser/container. **Update game and reopen** verifies
+and explicitly activates the complete replacement without clearing local progress.
+The recovery page is always requested from the host; a failed download keeps the
+previous offline shell. Other game windows are not reloaded. The loaded version
+is shown under **Menu → Offline & installation** (currently **1.1.1**).
+
 ## Develop
 
 Use Node **24.19.0 or later within Node 24** and npm **11 or later**. The exact
